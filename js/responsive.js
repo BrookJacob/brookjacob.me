@@ -1,11 +1,11 @@
 if (document.addEventListener) {
-    document.addEventListener("resize", responsive, false);
+    window.addEventListener('load', responsive);
+    window.addEventListener('resize', responsive);
 } else if (document.attachEvent) {
-    document.attachEvent("resize", responsive, false);
+    window.attachEvent('load', responsive);
+    window.attachEvent('resize', responsive);
 }
 function responsive() {
     var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
     var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-    console.log(width);
-    console.log(height);
 }

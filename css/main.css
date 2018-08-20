@@ -16,9 +16,12 @@ body {
     animation: 100s scroll infinite linear;
 }
 #wrapper {
+    background-color: #f9faf6;
     position: fixed;
-    height: 40%;
     width: 40%;
+    height: 40%;
+    border-radius: 10px;
+    margin: 
 }
 /* Animation */
 @-webkit-keyframes scroll{
