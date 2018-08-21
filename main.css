@@ -19,13 +19,23 @@
 #textbox {
     background-color: #f9faf6;
     position: fixed;
-    width: 50%;
-    height: 50%;
+    width: 60%;
+    height: 35%;
     border-radius: 20px;
 }
 h1 {
     margin-top: 10px;
     text-align: center;
+    font-family: Roboto, sans-serif;
+}
+hr {
+    margin: 5px 20px 50px 20px;
+    border-style: solid;
+    height: 1px;
+}
+p {
+    text-align: center;
+    font-family: Poppins, sans-serif;
 }
 /* Animation */
 @-webkit-keyframes scroll{
