@@ -2,13 +2,38 @@
 <html>
     <head>
         <title>Jacob Brook</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="css/main.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="CS undergrad in Spokane" />
+        <link rel="stylesheet" href="main.css" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     </head>
     <body>
-        <script src="js/responsive.js"></script>
         <div id="wrapper">
+            <div id="textbox">
+                <h1>Jacob Brook</h1>
+            </div>
         </div>
+        <script>
+            if (document.addEventListener) {
+                window.addEventListener('load', responsive);
+                window.addEventListener('resize', responsive);
+            } else if (document.attachEvent) {
+                window.attachEvent('load', responsive);
+                window.attachEvent('resize', responsive);
+            }
+            function responsive() {
+                var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+                var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            
+                var heightSub = height * .5;
+                var widthSub = width * .5;
+            
+            
+                var marginHeight = (height - heightSub)/2;
+                var marginWidth = (width - widthSub)/2;
+            
+                document.getElementById("textbox").style.margin = marginHeight + "px " + marginWidth + "px"; 
+            }
+            </script>
     </body>
 </html>
