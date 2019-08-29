@@ -10,11 +10,8 @@ function getHTMLString() {
 }
 function setSize(){
     let windowWidth = window.innerWidth;
-    console.log(windowWidth);
     let divisor = Math.floor(windowWidth/150.00);
-    console.log(divisor);
     let result = (windowWidth/divisor);
-    console.log(result);
 
     var elements = document.body.getElementsByClassName('scroll');
     var element;
