@@ -42,4 +42,4 @@ function runAll() {
 }
 window.addEventListener("resize", function(){runAll();});
 runAll();
-document.getElementsByClassName('scroll').addEventListener("")
+document.getElementsByClassName('scroll').addEventListener("");
