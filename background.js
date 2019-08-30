@@ -1,9 +1,10 @@
 function getHTMLString() {
     let windowWidth = window.innerWidth;
-    let quotient = Math.floor((windowWidth/150));
+    let quotient = Math.floor(windowWidth/150);
     let html = "<div class=\"scroll\"></div>";
+    let i = 0;
 
-    for (var i = 0; i < (quotient - 1); i++) {
+    for (i = 0; i < (quotient - 1); i += 1) {
         html += "<div class=\"scroll\"></div>";
     }
     return html;
@@ -13,33 +14,40 @@ function setSize(){
     let divisor = Math.floor(windowWidth/150.00);
     let result = (windowWidth/divisor);
 
-    var elements = document.body.getElementsByClassName('scroll');
-    var element;
-    
+    let elements = document.body.getElementsByClassName("scroll");
+    let element;
     for (element of elements) {
         element.style.width = result + "px";
     }
 }
 
 function createBackground(html) {
-    var wrapper = document.getElementById('wrapper');
+    let wrapper = document.getElementById("wrapper");
     wrapper.innerHTML = "";
-    var fragment = document.createDocumentFragment();
-    var temp = document.createElement('div');
+    let fragment = document.createDocumentFragment();
+    let temp = document.createElement("div");
 
     temp.innerHTML = html;
     while(temp.firstChild) {
         fragment.appendChild(temp.firstChild);
     }
-    
     return fragment;
 }
 function runAll() {
-    var fragment = createBackground(getHTMLString());
-    var target = document.getElementById('wrapper');
+    let i = 0;
+    let fragment = createBackground(getHTMLString());
+    let target = document.getElementById("wrapper");
     target.insertBefore(fragment, target.childNodes[0]);
     setSize();
+    let scrolls = document.getElementsByClassName("scroll");
+    for (i = 0; i < scrolls.length; i += 1){
+        scrolls[i].addEventListener("mouseover", function(){
+            scrolls[i].style.animation = "100s scroll infinite linear reverse";
+        });
+        scrolls[i].addEventListener("mouseleave", function() {
+            scrolls[i].style.animation = "100s scroll infinite linear normal";
+        });
+    }
 }
 window.addEventListener("resize", function(){runAll();});
 runAll();
-document.getElementsByClassName('scroll').addEventListener("");

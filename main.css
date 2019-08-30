@@ -9,6 +9,7 @@
     width: 100%;
 }
 .scroll {
+    z-index: -1;
     position: static;
     display: inline-block;
     height: 100%;
