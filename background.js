@@ -37,12 +37,18 @@ function createBackground(html) {
 function runAll() {
     var fragment = createBackground(getHTMLString());
     var target = document.getElementById("wrapper");
-    target.insertBefore(fragment, target.childNodes[0]);
+    target.insertBefore(fragment, target.childNodes[10]);
     setSize();
     var scrolls = document.getElementsByClassName("scroll");
     for (let i = 0; i < scrolls.length; i++){
+        scrolls[i].addEventListener("touchstart", function(){
+            scrolls[i].style.animation = "100s scroll infinite linear reverse";
+        });
         scrolls[i].addEventListener("mouseover", function(){
             scrolls[i].style.animation = "100s scroll infinite linear reverse";
+        });
+        scrolls[i].addEventListener("touchend", function() {
+            scrolls[i].style.animation = "100s scroll infinite linear normal";
         });
         scrolls[i].addEventListener("mouseleave", function() {
             scrolls[i].style.animation = "100s scroll infinite linear normal";
