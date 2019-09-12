@@ -38,7 +38,7 @@ function setDivSize(){
  * @returns {Object} fragment
 */
 function createBackgroundFragment(html) {
-    var wrapper = document.getElementById("wrapper");
+    var wrapper = document.getElementById("background");
     wrapper.innerHTML = "";
     var fragment = document.createDocumentFragment();
     var temp = document.createElement("div");
@@ -55,7 +55,7 @@ function createBackgroundFragment(html) {
 */
 function adjustBackground() {
     var fragment = createBackgroundFragment(generateHTMLString());
-    var target = document.getElementById("wrapper");
+    var target = document.getElementById("background");
     target.insertBefore(fragment, target.childNodes[10]);
     setDivSize();
     var scrolls = document.getElementsByClassName("scroll");
