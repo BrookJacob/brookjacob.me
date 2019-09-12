@@ -1,17 +1,28 @@
-function getHTMLString() {
+/* generateHTMLString()
+ * generates string of divs belonging to scroll class
+ * based on window width / 150px
+ * @returns {String}
+*/
+function generateHTMLString() {
     let windowWidth = window.innerWidth;
     let quotient = Math.floor(windowWidth/150);
     let html = "<div class=\"scroll\"></div>";
+    let i;
 
-    for (let i = 0; i < (quotient - 1); i++) {
+    for (i = 0; i < (quotient - 1); i+= 1) {
         html += "<div class=\"scroll\"></div>";
     }
     return html;
 }
-function setSize(){
+/* setDivSize()
+ * sets width of each div belonging to scroll
+ * class according how many times 150 can go into
+ * window width evenly
+ *
+*/
+function setDivSize(){
     let windowWidth = window.innerWidth;
-    let divisor = Math.floor(windowWidth/150.00);
-    let result = (windowWidth/divisor);
+    let result = (windowWidth/(Math.floor(windowWidth/150.00)));
 
     var elements = document.body.getElementsByClassName("scroll");
     var element;
@@ -20,8 +31,13 @@ function setSize(){
         element.style.width = result + "px";
     }
 }
-
-function createBackground(html) {
+/* createBackgroundFragment(String)
+ * creates document fragment based on String
+ * returned from generateHTMLString and removes
+ * @params {String} html
+ * @returns {Object} fragment
+*/
+function createBackgroundFragment(html) {
     var wrapper = document.getElementById("wrapper");
     wrapper.innerHTML = "";
     var fragment = document.createDocumentFragment();
@@ -34,26 +50,23 @@ function createBackground(html) {
     
     return fragment;
 }
-function runAll() {
-    var fragment = createBackground(getHTMLString());
+/* adjustBackground()
+ * inserts doc fragment into end of target node
+*/
+function adjustBackground() {
+    var fragment = createBackgroundFragment(generateHTMLString());
     var target = document.getElementById("wrapper");
     target.insertBefore(fragment, target.childNodes[10]);
-    setSize();
+    setDivSize();
     var scrolls = document.getElementsByClassName("scroll");
     for (let i = 0; i < scrolls.length; i++){
-        scrolls[i].addEventListener("touchstart", function(){
-            scrolls[i].style.animation = "100s scroll infinite linear reverse";
-        });
         scrolls[i].addEventListener("mouseover", function(){
             scrolls[i].style.animation = "100s scroll infinite linear reverse";
-        });
-        scrolls[i].addEventListener("touchend", function() {
-            scrolls[i].style.animation = "100s scroll infinite linear normal";
         });
         scrolls[i].addEventListener("mouseleave", function() {
             scrolls[i].style.animation = "100s scroll infinite linear normal";
         });
     }
 }
-window.addEventListener("resize", function(){runAll();});
-runAll();
+window.addEventListener("resize", function(){adjustBackground();});
+adjustBackground();
