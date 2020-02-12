@@ -1,113 +1,70 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>hey there</title>
-        <meta name="description" content="software developer in Draper, UT" />
-        <link rel="stylesheet" href="https://indestructibletype.com/fonts/Bodoni/Bodoni.css" type="text/css" charset="utf-8" />
-        <link rel="stylesheet" href="https://indestructibletype.com/fonts/Jost.css" type="text/css" charset="utf-8" />
-
-
-        <!-- Materialize -->
-        <!-- Compiled and minified CSS -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-
-        <link rel="stylesheet" href="css/style.css" />
-
-        <!-- Material Icons -->
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
+        <title>Jacob Brook: Software Developer</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="" />
+        <link rel="stylesheet" href="css/main.css" />
+        <link rel="stylesheet" href="https://indestructibletype.com/fonts/Bodoni/Bodoni.css" type="text/css" charset="utf-8">
+        <link rel="stylesheet" href="https://indestructibletype.com/fonts/Jost.css" type="text/css" charset="utf-8">    
     </head>
     <body>
-        <div id="background"></div>
-        <div class="container" id="everything">
-            <div class="container-content" id="name-title">
-                <h3 class="center-align" id="name">JACOB BROOK</h3>
-                <h6 class="center-align" id="title">software developer</h6>
+        <div id="wrapper">
+            <div id="menu">
+                <div id="menu-name">Jacob<br>Brook</div>
+                <div id="menu-buttons">
+                    <a href="#about"><div class="button">
+                        About
+                    </div></a>
+                    <a href="#portfolio"><div class="button">
+                        Portfolio
+                    </div></a>
+                    <a href="#contact"><div class="button">
+                        Contact
+                    </div></a>
+                </div>
             </div>
-            <div class="row" id="contact-skills-projects">
-                <div class="col s12 m4 l3 container-content" id="contact-skills">
-                    <div id="contact">
-                        <h5 class="header">CONTACT</h5>
-                        <p class="tagline">Email</p>
-                        <p class="tagline-bold">me@brookjacob.me</p>
-                        <p class="tagline">Phone</p>
-                        <p class="tagline-bold">801.783.8965</p>
-                        <p class="tagline">Github</p>
-                        <p class="tagline-bold"><a href="https://github.com/brookjacob">github.com/brookjacob</a></p>
-                    </div>
-                    <div id="skills">
-                        <h5 class="header">TECHNICAL SKILLS</h5>
-                        <p class="tagline-bold">Languages</p>
-                        <ul id="list">
-                            <li><p class="tagline">Proficient in: Python, HTML, CSS, Flutter, PHP, C++</p></li>
-                            <li><p class="tagline">Familiar with: JS, x86 Assembler, JS</p></li>
-                            <li><p class="tagline">Learning: Node.js</p></li>
-                        </ul>
-                        <p class="tagline-bold">Software</p>
-                        <ul id="list">
-                            <li><p class="tagline">Database: MS SQL, MS Access</p></li>
-                            <li><p class="tagline">Environments: VS Code, Visual Studio 2017, MS Azure</p></li>
-                        </ul>    
-                    </div>
-                    <div class="center-align row">
-                        <p class="col s12"id="tagline-download">View Resume</p>
-                        <a href="resume"><i class="col s6 offset-s3 material-icons" id="download">
-                                cloud_download
-                        </i></a>
-                    </div>
-                </div>
-                <div class="col s12 m7 l8 container-content" id="projects">
-                    <h5 class="header">Projects</h5>
-                    <p class="tagline-bold"><a href="https://foodfeud.app">FoodFeud.app</a><span class="tagline-date"> - ongoing</span></p>
-                    <ul id="list">
-                        <li><p class="tagline">Website to find a random nearby restaurant based on distance, rating, and/or price level to help eliminate the struggle of finding a place to eat</p></li>
-                        <li><p class="tagline">Powered by Google Maps JavaScript API, and Google Cloud Functions with Node.JS</p></li>
-                    </ul>
-                    <p class="tagline-bold">Happy Cake Company App<span class="tagline-date"> - spring 2019</span></p>
-                    <ul id="list">
-                            <li><p class="tagline">As part of a team for our senior capstone, created a mobile app according to client’s specifications over the course of several 3-week sprints to create an easier cake ordering process</p></li>
-                            <li><p class="tagline">Using Flutter, I developed app layout and naviagtion, input validation, and gathering of customer and order information</p></li>
-                    </ul>
-                    <p class="tagline-bold"><a href="https://github.com/brookjacob/librarybooks.me">Librarybooks.me</a><span class="tagline-date"> - spring 2018</span></p>
-                    <ul id="list">
-                            <li><p class="tagline">Along with a partner, created a book review aggregation website which allowed users to search for and add books to their virtual library</p></li>
-                            <li><p class="tagline">Developed the PHP required to store and display data related to the website that was stored in a MS SQL database hosted on Azure</p></li>
-                    </ul>
-                </div>
-                <div class="col s12 m7 l8 container-content" id="education">
-                    <h5 class="header">Education</h5>
-                    <p class="tagline-bold">Bachelor of Arts in Computer Science</p>
-                    <p class="tagline">Whitworth University - Spokane, Washington</p>
-                    <p class="tagline">2015 - 2019</p>
-                </div>
-                <div class="col s12 m7 l8 container-content" id="education">
-                    <h5 class="header">Relevant Courses</h5>
-                    <ul id="class-list">
-                        <li><p class="tagline">Software Engineering</p></li>
-                        <li><p class="tagline">Database Management</p></li>
-                        <li><p class="tagline">Data Structures</p></li>
-                        <li><p class="tagline">Operating Systems</p></li>
-                        <li><p class="tagline">Tehchnology Management</p></li>
-                        <li><p class="tagline">How To Build Darn Near Anything</p></li>
-                        <li><p class="tagline">QA Software Development</p></li>
-                        <li><p class="tagline">Assembler Programming</p></li>
-                    </ul>
-                </div>
+            <div id="background-video">
+                <video id="video-src" src="https://ak2.picdn.net/shutterstock/videos/1028849732/preview/stock-footage-typing-the-classical-programmers-greeting-phrase-hello-world-on-a-computer-terminal-green.webm" autoplay loop></video>
+            </div>
+            <div id="about">
+                <div class="title">About Me</div>
+                <p>Life finds a way. Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. Remind me to thank John for a lovely weekend. God help us, we're in the hands of engineers. Do you have any idea how long it takes those cups to decompose.
+
+                    Must go faster. Hey, you know how I'm, like, always trying to save the planet? Here's my chance. You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs.
+                    
+                    Is this my espresso machine? Wh-what is-h-how did you get my espresso machine? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs. Must go faster... go, go, go, go, go! Jaguar shark! So tell me - does it really exist?
+                    
+                    Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. I was part of something special. I was part of something special. My dad once told me, laugh and the world laughs with you, Cry, and I'll give you something to cry about you little bastard!
+                    
+                    This thing comes fully loaded. AM/FM radio, reclining bucket seats, and... power windows. Hey, take a look at the earthlings. Goodbye! You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? Must go faster... go, go, go, go, go!</p>
+            </div>
+            <div id="about-cover"></div>
+            <div id="portfolio">
+                <div class="title">Portfolio</div>
+                <p>Life finds a way. Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. Remind me to thank John for a lovely weekend. God help us, we're in the hands of engineers. Do you have any idea how long it takes those cups to decompose.
+
+                    Must go faster. Hey, you know how I'm, like, always trying to save the planet? Here's my chance. You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs.
+                    
+                    Is this my espresso machine? Wh-what is-h-how did you get my espresso machine? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs. Must go faster... go, go, go, go, go! Jaguar shark! So tell me - does it really exist?
+                    
+                    Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. I was part of something special. I was part of something special. My dad once told me, laugh and the world laughs with you, Cry, and I'll give you something to cry about you little bastard!
+                    
+                    This thing comes fully loaded. AM/FM radio, reclining bucket seats, and... power windows. Hey, take a look at the earthlings. Goodbye! You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? Must go faster... go, go, go, go, go!</p>
+            </div>
+            <div id="portfolio-cover"></div>
+            <div id="contact">
+                <div class="title">Contact Me</div>
+                <p>Life finds a way. Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. Remind me to thank John for a lovely weekend. God help us, we're in the hands of engineers. Do you have any idea how long it takes those cups to decompose.
+
+                    Must go faster. Hey, you know how I'm, like, always trying to save the planet? Here's my chance. You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs.
+                    
+                    Is this my espresso machine? Wh-what is-h-how did you get my espresso machine? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs. Must go faster... go, go, go, go, go! Jaguar shark! So tell me - does it really exist?
+                    
+                    Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. I was part of something special. I was part of something special. My dad once told me, laugh and the world laughs with you, Cry, and I'll give you something to cry about you little bastard!
+                    
+                    This thing comes fully loaded. AM/FM radio, reclining bucket seats, and... power windows. Hey, take a look at the earthlings. Goodbye! You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? Must go faster... go, go, go, go, go!</p>
             </div>
         </div>
-         <!-- Compiled and minified JavaScript -->
-         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
-        <script src="js/background.js"></script>
-        <!-- The core Firebase JS SDK is always required and must be listed first -->
-        <script src="/__/firebase/7.5.0/firebase-app.js"></script>
-
-        <!-- TODO: Add SDKs for Firebase products that you want to use
-            https://firebase.google.com/docs/web/setup#available-libraries -->
-        <script src="/__/firebase/7.5.0/firebase-analytics.js"></script>
-
-        <!-- Initialize Firebase -->
-        <script src="/__/firebase/init.js"></script>
     </body>
 </html>
