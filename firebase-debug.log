@@ -1,0 +1,29 @@
+[debug] [2020-02-12T07:19:49.722Z] ----------------------------------------------------------------------
+[debug] [2020-02-12T07:19:49.724Z] Command:       /usr/local/bin/node /usr/local/bin/firebase serve
+[debug] [2020-02-12T07:19:49.724Z] CLI Version:   7.9.0
+[debug] [2020-02-12T07:19:49.724Z] Platform:      darwin
+[debug] [2020-02-12T07:19:49.724Z] Node Version:  v10.16.3
+[debug] [2020-02-12T07:19:49.728Z] Time:          Wed Feb 12 2020 00:19:49 GMT-0700 (Mountain Standard Time)
+[debug] [2020-02-12T07:19:49.728Z] ----------------------------------------------------------------------
+[debug] [2020-02-12T07:19:49.728Z] 
+[debug] [2020-02-12T07:19:49.739Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-02-12T07:19:49.740Z] > authorizing via signed-in user
+[debug] [2020-02-12T07:19:49.740Z] [iam] checking project brookjacob-44235 for permissions ["firebase.projects.get"]
+[debug] [2020-02-12T07:19:49.742Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2020-02-12T07:19:49.742Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>
+[debug] [2020-02-12T07:19:50.094Z] <<< HTTP RESPONSE 200
+[debug] [2020-02-12T07:19:50.112Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/brookjacob-44235:testIamPermissions  
+
+[debug] [2020-02-12T07:19:50.490Z] <<< HTTP RESPONSE 200
+[debug] [2020-02-12T07:19:50.491Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/brookjacob-44235  
+ 
+[debug] [2020-02-12T07:19:50.892Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from '/Users/jacobbrook/Documents/personalWebsite'...
+[info] 
+[debug] [2020-02-12T07:19:50.895Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/brookjacob-44235/webApps/-/config  
+ 
+[debug] [2020-02-12T07:19:51.259Z] <<< HTTP RESPONSE 200
+[info] i  hosting: Serving hosting files from: public
+[info] ✔  hosting: Local server: http://localhost:5000
