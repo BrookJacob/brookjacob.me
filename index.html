@@ -1,41 +1,70 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Jacob Brook</title>
+        <title>Jacob Brook: Software Developer</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="CS undergrad in Spokane" />
+        <meta name="description" content="" />
         <link rel="stylesheet" href="main.css" />
-        <link href="https://fonts.googleapis.com/css?family=Poppins|Roboto" rel="stylesheet">
+        <link rel="stylesheet" href="https://indestructibletype.com/fonts/Bodoni/Bodoni.css" type="text/css" charset="utf-8">
+        <link rel="stylesheet" href="https://indestructibletype.com/fonts/Jost.css" type="text/css" charset="utf-8">    
     </head>
     <body>
         <div id="wrapper">
-            <div id="textbox">
-                <h1>Just a Sec</h1>
-                <hr />
-                <p>bear with me here</p>
+            <div id="menu">
+                <div id="menu-name">Jacob<br>Brook</div>
+                <div id="menu-buttons">
+                    <a href="#about"><div class="button">
+                        About
+                    </div></a>
+                    <a href="#portfolio"><div class="button">
+                        Portfolio
+                    </div></a>
+                    <a href="#contact"><div class="button">
+                        Contact
+                    </div></a>
+                </div>
+            </div>
+            <div id="background-video">
+                <video id="video-src" src="https://ak2.picdn.net/shutterstock/videos/1028849732/preview/stock-footage-typing-the-classical-programmers-greeting-phrase-hello-world-on-a-computer-terminal-green.webm" autoplay loop></video>
+            </div>
+            <div id="about">
+                <div class="title">About Me</div>
+                <p>Life finds a way. Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. Remind me to thank John for a lovely weekend. God help us, we're in the hands of engineers. Do you have any idea how long it takes those cups to decompose.
+
+                    Must go faster. Hey, you know how I'm, like, always trying to save the planet? Here's my chance. You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs.
+                    
+                    Is this my espresso machine? Wh-what is-h-how did you get my espresso machine? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs. Must go faster... go, go, go, go, go! Jaguar shark! So tell me - does it really exist?
+                    
+                    Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. I was part of something special. I was part of something special. My dad once told me, laugh and the world laughs with you, Cry, and I'll give you something to cry about you little bastard!
+                    
+                    This thing comes fully loaded. AM/FM radio, reclining bucket seats, and... power windows. Hey, take a look at the earthlings. Goodbye! You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? Must go faster... go, go, go, go, go!</p>
+            </div>
+            <div id="about-cover"></div>
+            <div id="portfolio">
+                <div class="title">Portfolio</div>
+                <p>Life finds a way. Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. Remind me to thank John for a lovely weekend. God help us, we're in the hands of engineers. Do you have any idea how long it takes those cups to decompose.
+
+                    Must go faster. Hey, you know how I'm, like, always trying to save the planet? Here's my chance. You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs.
+                    
+                    Is this my espresso machine? Wh-what is-h-how did you get my espresso machine? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs. Must go faster... go, go, go, go, go! Jaguar shark! So tell me - does it really exist?
+                    
+                    Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. I was part of something special. I was part of something special. My dad once told me, laugh and the world laughs with you, Cry, and I'll give you something to cry about you little bastard!
+                    
+                    This thing comes fully loaded. AM/FM radio, reclining bucket seats, and... power windows. Hey, take a look at the earthlings. Goodbye! You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? Must go faster... go, go, go, go, go!</p>
+            </div>
+            <div id="portfolio-cover"></div>
+            <div id="contact">
+                <div class="title">Contact Me</div>
+                <p>Life finds a way. Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. Remind me to thank John for a lovely weekend. God help us, we're in the hands of engineers. Do you have any idea how long it takes those cups to decompose.
+
+                    Must go faster. Hey, you know how I'm, like, always trying to save the planet? Here's my chance. You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs.
+                    
+                    Is this my espresso machine? Wh-what is-h-how did you get my espresso machine? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs. Must go faster... go, go, go, go, go! Jaguar shark! So tell me - does it really exist?
+                    
+                    Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. I was part of something special. I was part of something special. My dad once told me, laugh and the world laughs with you, Cry, and I'll give you something to cry about you little bastard!
+                    
+                    This thing comes fully loaded. AM/FM radio, reclining bucket seats, and... power windows. Hey, take a look at the earthlings. Goodbye! You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? Must go faster... go, go, go, go, go!</p>
             </div>
         </div>
-        <script>
-            if (document.addEventListener) {
-                window.addEventListener('load', responsive);
-                window.addEventListener('resize', responsive);
-            } else if (document.attachEvent) {
-                window.attachEvent('load', responsive);
-                window.attachEvent('resize', responsive);
-            }
-            function responsive() {
-                var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-                var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-            
-                var heightSub = height * .35;
-                var widthSub = width * .6;
-            
-            
-                var marginHeight = (height - heightSub)/2;
-                var marginWidth = (width - widthSub)/2;
-            
-                document.getElementById("textbox").style.margin = marginHeight + "px " + marginWidth + "px"; 
-            }
-            </script>
     </body>
 </html>
