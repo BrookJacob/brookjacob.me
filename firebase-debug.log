@@ -1,0 +1,54 @@
+[debug] [2019-12-12T03:55:37.281Z] ----------------------------------------------------------------------
+[debug] [2019-12-12T03:55:37.283Z] Command:       /usr/local/bin/node /usr/local/bin/firebase serve
+[debug] [2019-12-12T03:55:37.283Z] CLI Version:   7.9.0
+[debug] [2019-12-12T03:55:37.283Z] Platform:      darwin
+[debug] [2019-12-12T03:55:37.283Z] Node Version:  v10.16.3
+[debug] [2019-12-12T03:55:37.284Z] Time:          Wed Dec 11 2019 20:55:37 GMT-0700 (Mountain Standard Time)
+[debug] [2019-12-12T03:55:37.285Z] ----------------------------------------------------------------------
+[debug] [2019-12-12T03:55:37.285Z] 
+[debug] [2019-12-12T03:55:37.294Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-12-12T03:55:37.295Z] > authorizing via signed-in user
+[debug] [2019-12-12T03:55:37.295Z] [iam] checking project brookjacob-44235 for permissions ["firebase.projects.get"]
+[debug] [2019-12-12T03:55:37.297Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/brookjacob-44235:testIamPermissions  
+
+[debug] [2019-12-12T03:55:37.657Z] <<< HTTP RESPONSE 200
+[debug] [2019-12-12T03:55:37.659Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/brookjacob-44235  
+ 
+[debug] [2019-12-12T03:55:37.909Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from '/Users/jacobbrook/Documents/personalWebsite'...
+[info] 
+[debug] [2019-12-12T03:55:37.912Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/brookjacob-44235/webApps/-/config  
+ 
+[debug] [2019-12-12T03:55:38.451Z] <<< HTTP RESPONSE 200
+[info] i  hosting: Serving hosting files from: public
+[info] ✔  hosting: Local server: http://localhost:5000
+[debug] [2019-12-13T01:01:28.841Z] ----------------------------------------------------------------------
+[debug] [2019-12-13T01:01:28.843Z] Command:       /usr/local/bin/node /usr/local/bin/firebase serve
+[debug] [2019-12-13T01:01:28.843Z] CLI Version:   7.9.0
+[debug] [2019-12-13T01:01:28.844Z] Platform:      darwin
+[debug] [2019-12-13T01:01:28.844Z] Node Version:  v10.16.3
+[debug] [2019-12-13T01:01:28.844Z] Time:          Thu Dec 12 2019 18:01:28 GMT-0700 (Mountain Standard Time)
+[debug] [2019-12-13T01:01:28.845Z] ----------------------------------------------------------------------
+[debug] [2019-12-13T01:01:28.845Z] 
+[debug] [2019-12-13T01:01:28.855Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-12-13T01:01:28.855Z] > authorizing via signed-in user
+[debug] [2019-12-13T01:01:28.855Z] [iam] checking project brookjacob-44235 for permissions ["firebase.projects.get"]
+[debug] [2019-12-13T01:01:28.857Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2019-12-13T01:01:28.857Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>
+[debug] [2019-12-13T01:01:29.238Z] <<< HTTP RESPONSE 200
+[debug] [2019-12-13T01:01:29.256Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/brookjacob-44235:testIamPermissions  
+
+[debug] [2019-12-13T01:01:29.658Z] <<< HTTP RESPONSE 200
+[debug] [2019-12-13T01:01:29.660Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/brookjacob-44235  
+ 
+[debug] [2019-12-13T01:01:30.059Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from '/Users/jacobbrook/Documents/personalWebsite'...
+[info] 
+[debug] [2019-12-13T01:01:30.061Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/brookjacob-44235/webApps/-/config  
+ 
+[debug] [2019-12-13T01:01:30.668Z] <<< HTTP RESPONSE 200
+[info] i  hosting: Serving hosting files from: public
+[info] ✔  hosting: Local server: http://localhost:5000

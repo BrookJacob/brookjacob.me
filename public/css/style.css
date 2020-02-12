@@ -360,6 +360,11 @@ body {
   position: fixed;
   height: 100%;
   width: 100%;
+  z-index: -2;
+}
+
+#everything {
+  padding-top: 20px;
 }
 
 .scroll {
@@ -378,25 +383,96 @@ body {
     animation: 100s scroll infinite linear;
 }
 
-#container {
-  position: absolute;
-  top: 20px;
-  width: 70%;
-  height: 35%;
+.container-content {
+  z-index: 1;
   background-color: white;
-  border-radius: 5px;
+  border-radius: 3px;
   box-shadow: 0px 0px 20px rgba(95, 95, 95, 0.3);
   padding: 3px;
+  margin-bottom: 45px;
 }
-h3 {
-  font-family: 'Roboto', sans-serif;
+
+#name {
+  font-family: 'Bodoni 72';
+  font-weight: bold;
 }
-br {
-  width: 70%;
+
+#title {
+  font-family: 'Jost';
+  font-weight: 300;
+  margin-bottom: 10px;
 }
+
+@media only screen and (min-width: 600px) {
+  #contact-skills {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 35px;
+  }
+}
+
+#header {
+  font-family: 'Jost';
+  font-weight: 500;
+}
+
+.tagline {
+  font-family: 'Jost';
+  font-weight: 300;
+  margin: 0px 0px;
+}
+
+.tagline-bold {
+  font-family: 'Jost';
+  font-weight: bold;
+  margin: 6px 0px;
+}
+
+.tagline-date {
+  font-weight: 400;
+}
+
+#tagline-download {
+  font-family: 'Jost';
+  font-weight: bold;
+}
+
+#download {
+  color: #417bd2;
+  cursor: pointer;
+}
+
+#list li {
+  list-style-type: disc;
+  margin-left: 20px;
+  margin-bottom: 5px;
+}
+
+#class-list {
+  columns: 2;
+  -webkit-columns: 2;
+  -moz-columns: 2;
+}
+
+#class-list li {
+  list-style-type: disc;
+  margin-left: 20px;
+  margin-bottom: 5px;
+}
+
 a {
-  text-decoration: none;
+  color: #417bd2;
 }
+
+#projects {
+  float: right;
+}
+
+#education {
+  float: right;
+  padding-bottom: 7px;
+}
+
 /* Animation */
 @-webkit-keyframes scroll{
   100%{

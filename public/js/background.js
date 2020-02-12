@@ -4,8 +4,8 @@
  * @returns {String}
 */
 function generateHTMLString() {
-    let windowWidth = window.innerWidth;
-    let quotient = Math.floor(windowWidth/150);
+    let clientWidth = document.body.clientWidth;
+    let quotient = Math.floor(clientWidth/150);
     let html = "<div class=\"scroll\"></div>";
     let i;
 
@@ -16,13 +16,13 @@ function generateHTMLString() {
 }
 /* setDivSize()
  * sets width of each div belonging to scroll
- * class according how many times 150 can go into
+ * class according to how many times 150 can go into
  * window width evenly
  *
 */
 function setDivSize(){
-    let windowWidth = window.innerWidth;
-    let result = (windowWidth/(Math.floor(windowWidth/150.00)));
+    let clientWidth = document.body.clientWidth;
+    let result = (clientWidth/(Math.floor(clientWidth/150.00)));
 
     var elements = document.body.getElementsByClassName("scroll");
     var element;
@@ -59,12 +59,15 @@ function adjustBackground() {
     target.insertBefore(fragment, target.childNodes[10]);
     setDivSize();
     var scrolls = document.getElementsByClassName("scroll");
-    for (let i = 0; i < scrolls.length; i++){
-        scrolls[i].addEventListener("mouseover", function(){
-            scrolls[i].style.animation = "100s scroll infinite linear reverse";
+    var containerContent = document.getElementsByClassName("container-content");
+    for (let j = 0; j < scrolls.length; j++) {
+        var random = Math.floor(Math.random() * scrolls.length);
+        console.log(random);
+        containerContent[random].addEventListener("mouseover", function() {
+            scrolls[j].style.animation = "100s scroll infinite linear reverse";
         });
-        scrolls[i].addEventListener("mouseleave", function() {
-            scrolls[i].style.animation = "100s scroll infinite linear normal";
+        containerContent[random].addEventListener("mouseleave", function() {
+            scrolls[j].style.animation = "100s scroll infinite linear normal";
         });
     }
 }
