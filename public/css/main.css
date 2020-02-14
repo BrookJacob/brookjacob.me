@@ -284,6 +284,14 @@ a:hover button {
     .photo {
         width: 100%;
     }
+    .frame-content {
+        flex-direction: column;
+    }
+    .frame-content > p {
+        margin-block-start: 10px;
+        width: 100%;
+        max-width: 100%;
+    }
 }
 
 @media only screen and (min-width: 600px) {
