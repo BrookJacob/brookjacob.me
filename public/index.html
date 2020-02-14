@@ -11,24 +11,27 @@
     <body>
         <div id="wrapper">
             <div id="menu">
-                <div id="menu-name">Jacob<br>Brook</div>
+                <h1 id="menu-name">Jacob<br>Brook</h1>
                 <div id="menu-buttons">
-                    <a href="#about"><div class="button">
+                    <a href="#about-title">
+                    <button>
                         About
-                    </div></a>
-                    <a href="#portfolio"><div class="button">
+                    </button></a>
+                    <a href="#portfolio-title">
+                    <button>
                         Portfolio
-                    </div></a>
-                    <a href="#contact"><div class="button">
+                    </button></a>
+                    <a href="#contact-title">
+                    <button>
                         Contact
-                    </div></a>
+                    </button></a>
                 </div>
             </div>
             <div id="background-video">
                 <video id="video-src" src="./assets/helloWorld.mp4" autoplay muted></video>
             </div>
             <div id="about">
-                <div class="title">About Me</div>
+                <h2 id="about-title" class="title">About Me</h2>
                 <p>Life finds a way. Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. Remind me to thank John for a lovely weekend. God help us, we're in the hands of engineers. Do you have any idea how long it takes those cups to decompose.
 
                     Must go faster. Hey, you know how I'm, like, always trying to save the planet? Here's my chance. You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs.
@@ -41,16 +44,36 @@
             </div>
             <div id="about-cover"></div>
             <div id="portfolio">
-                <div class="title">Portfolio</div>
+                <h2 id="portfolio-title" class="title">Portfolio</h2>
+                <a id="prev">&#10094;</a>
+                <a id="next">&#10095;</a>
                 <div id="slideshow-frame">
-                    <div class="frame"></div>
-                    <div class="frame"></div>
-                    <div class="frame"></div>
+                    <div class="frame">
+                        <a href="https://foodfeud.app"><button>FoodFeud.app</button></a>
+                        <div class="frame-content">
+                            <a href="https://foodfeud.app"><img class="photo" src="./assets/foodfeud.png"></a>
+                            <p>Tired of taking too long to decide on a place to eat, I made this website at the suggestion of a friend. FoodFeud.app provides users with a random local restaurant suggestion, along with the average price, average restaurant rating, and a link to directions.</p>
+                        </div>
+                    </div>
+                    <div class="frame">
+                        <a href="https://foodfeud.app"><button>FoodFeud.app</button></a>
+                        <div class="frame-content">
+                            <a href="https://foodfeud.app"><img class="photo" src="./assets/foodfeud.png"></a>
+                            <p>Example Text Example Text Example Text Example Text Example Text Example Text Example Text Example Text Example Text Example Text Example Text Example Text Example Text Example Text Example Text Example Text Example Text Example Text Example Text Example Text </p>
+                        </div>
+                    </div>
+                    <div class="frame">
+                        <a href="https://foodfeud.app"><button>FoodFeud.app</button></a>
+                        <div class="frame-content">
+                            <a href="https://foodfeud.app"><img class="photo" src="./assets/foodfeud.png"></a>
+                            <p>MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE </p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="portfolio-cover"></div>
             <div id="contact">
-                <div class="title">Contact Me</div>
+                <h2 id="contact-title" class="title">Contact Me</h2>
                 <p>Life finds a way. Yeah, but your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should. Remind me to thank John for a lovely weekend. God help us, we're in the hands of engineers. Do you have any idea how long it takes those cups to decompose.
 
                     Must go faster. Hey, you know how I'm, like, always trying to save the planet? Here's my chance. You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? God creates dinosaurs. God destroys dinosaurs. God creates Man. Man destroys God. Man creates Dinosaurs.
@@ -62,5 +85,7 @@
                     This thing comes fully loaded. AM/FM radio, reclining bucket seats, and... power windows. Hey, take a look at the earthlings. Goodbye! You're a very talented young man, with your own clever thoughts and ideas. Do you need a manager? Must go faster... go, go, go, go, go!</p>
             </div>
         </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="./js/carousel.js"></script>
     </body>
 </html>

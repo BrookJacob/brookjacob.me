@@ -34,6 +34,8 @@ html, body {
     top: 20px;
     left: 20px;
     padding: 0 10px;
+    margin-block-start: 0;
+    margin-block-end: 0;
     border: 2px solid #ce723b;
     text-align: center;
     line-height: 1.5em;
@@ -57,7 +59,11 @@ html, body {
     box-sizing: border-box;
 }
 
-.button {
+button {
+    cursor: pointer;
+    color: white;
+    background-color: #3f3f3f;
+    border: none;
     height: 50px;
     width: 110px;
     font-family: 'Jost';
@@ -76,14 +82,14 @@ a:visited {
     color: white;
 }
 
-a:hover div {
+a:hover button {
     border-bottom: 2px solid #10abd8;
 }
 
 #background-video {
     position: absolute;
     top: 0;
-    bottom: -10%;
+    bottom: -50%;
     z-index: -10;
     width: 100%;
     background-color: black;
@@ -95,36 +101,6 @@ a:hover div {
     top: 10%;
     width: 100%;
 }
-
-@media only screen and (max-width: 600px) {
-    #video-src {
-        top: 20%;
-    }
-}
-
-@media only screen and (min-width: 600px) {
-    #video-src {
-        top: 20%;
-    }
-}
-
-@media only screen and (min-width: 800px) {
-    #video-src {
-        top: 15%;
-    }
-}
-
-@media only screen and (min-width: 1000px) {
-    #video-src {
-        top: 10%;
-    }
-}
-
-@media only screen and (min-width: 1400px) {
-    #video-src {
-        top: 5%;
-    }
- }
 
 #about {
     position: relative;
@@ -148,18 +124,15 @@ a:hover div {
 }
 
 .title {
-    position: absolute;
-    display: flex;
-    top: 20%;
-    left: 20px;
+    margin: 20px;
+    display: inline;
     padding: 0 10px;
     line-height: 2em;
     color: white;
     border: 2px solid #ce723b;
     font-family: 'Jost';
     font-size: 2em;
-    justify-content: center;
-    align-content: center;
+    font-weight: normal;
 }
 
 #about > p {
@@ -207,6 +180,64 @@ a:hover div {
     width: 75%;
 }
 
+#slideshow-frame {
+    max-width: 1000px;
+    display: relative;
+    width: 70%;
+    margin: auto;
+}
+
+.frame {
+    display: none;
+}
+
+.frame > a > button {
+    display: inline-block;
+    margin: 0px 0px 20px 0px;
+    background-color: #1e1e1e;
+    font-size: 2em;
+    width: auto;
+}
+
+#prev, #next {
+    cursor: pointer;
+    width: auto;
+    line-height: 2em;
+    margin: auto;
+    padding: 16px;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    transition: 0.6s ease;
+    border-radius: 3px 0 0 3px;
+}
+
+#next {
+    right: 0;
+    border-radius: 0 3px 3px 0;
+}
+
+#prev:hover, #next:hover {
+    background-color: #3f3f3f;
+}
+
+.frame-content {
+    color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.photo {
+    width: 50%;
+    border-radius: 6px;
+}
+
+.frame-content > p {
+    max-width: 40%;
+    margin-block-start: 0;
+}
+
 #portfolio-cover {
     position: absolute;
     margin-top: -1px;
@@ -244,3 +275,40 @@ a:hover div {
     padding: 0 20px;
     width: 75%;
 }
+
+/* Media Queries */
+@media only screen and (max-width: 600px) {
+    #video-src {
+        top: 20%;
+    }
+    .photo {
+        width: 100%;
+    }
+}
+
+@media only screen and (min-width: 600px) {
+    #video-src {
+        top: 20%;
+    }
+    .photo {
+        width: 75%;
+    }
+}
+
+@media only screen and (min-width: 800px) {
+    #video-src {
+        top: 15%;
+    }
+}
+
+@media only screen and (min-width: 1000px) {
+    #video-src {
+        top: 10%;
+    }
+}
+
+@media only screen and (min-width: 1400px) {
+    #video-src {
+        top: 5%;
+    }
+ }
