@@ -7,3 +7,5 @@ public/resume
 .firebaserc
 
 firebase.json
+
+functions

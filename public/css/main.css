@@ -3,6 +3,28 @@ html, body {
     padding: 0;
 }
 
+p {
+    font-family: 'Jost';
+    color: white;
+}
+
+ul.a {
+    list-style-type: none;
+    font-family: 'Jost';
+    font-size: 1.25em;
+    color: white;
+    margin: 20px 20px;
+}
+
+ul.b {
+    list-style-type: disc;
+    margin-top: 20px;
+}
+
+ul.c {
+    list-style-type: circle;
+}
+
 #menu {
     position: relative;
     width: 100%;
@@ -26,6 +48,7 @@ html, body {
     width: 150%;
     z-index: -1;
     transform-origin: 0 0;
+    box-shadow: 0px 5px 16px -4px #272626;
     transform: rotate(-2deg) skewX(2deg);
 }
 
@@ -69,7 +92,7 @@ button {
     font-family: 'Jost';
     font-size: 1.25em;
     text-align: center;
-    border-bottom: 2px solid #3f3f3f;
+    border-bottom: 2px solid #1e1e1e;
 }
 
 a:link {
@@ -102,27 +125,6 @@ a:hover button {
     width: 100%;
 }
 
-#about {
-    position: relative;
-    padding-top: 250px;
-    width: 100%;
-    background-color: #3f3f3f;
-    background-clip: content-box;
-    overflow: hidden;
-}
-
-#about::before {
-    content: "";
-    position: absolute;
-    top: 160px;
-    left: -150px;
-    background-color: #3f3f3f;
-    padding-top: 250px;
-    width: 150%;
-    z-index: -1;
-    transform: rotate(7deg) skewX(-7deg);
-}
-
 .title {
     margin: 20px;
     display: inline;
@@ -135,27 +137,11 @@ a:hover button {
     font-weight: normal;
 }
 
-#about > p {
-    color: white;
-    margin: 70px auto 100px auto;
-    padding: 0 20px;
-    width: 75%;
-}
-
-#about-cover {
-    position: absolute;
-    margin-top: -1px;
-    z-index: -2;
-    height: 500px;
-    width: 100%;
-    background-color: #3f3f3f;
-}
-
 #portfolio {
     position: relative;
     padding-top: 250px;
     width: 100%;
-    background-color: #1e1e1e;
+    background-color: #3f3f3f;
     background-clip: content-box;
     overflow: hidden;
 }
@@ -165,7 +151,7 @@ a:hover button {
     position: absolute;
     top: 160px;
     left: -150px;
-    background-color: #1e1e1e;
+    background-color: #3f3f3f;
     padding-top: 250px;
     border-top: 2px solid #ce723b;
     width: 150%;
@@ -173,11 +159,8 @@ a:hover button {
     transform: rotate(7deg) skewX(-7deg);
 }
 
-#portfolio > p {
-    color: white;
-    margin: 70px auto 100px auto;
-    padding: 0 20px;
-    width: 75%;
+#arrows {
+    display: inline;
 }
 
 #slideshow-frame {
@@ -194,16 +177,15 @@ a:hover button {
 .frame > a > button {
     display: inline-block;
     margin: 0px 0px 20px 0px;
-    background-color: #1e1e1e;
+    background-color: #3f3f3f;
     font-size: 2em;
     width: auto;
 }
 
 #prev, #next {
+    display: inline-block;
     cursor: pointer;
     width: auto;
-    line-height: 2em;
-    margin: auto;
     padding: 16px;
     color: white;
     font-weight: bold;
@@ -218,7 +200,7 @@ a:hover button {
 }
 
 #prev:hover, #next:hover {
-    background-color: #3f3f3f;
+    background-color: #1e1e1e;
 }
 
 .frame-content {
@@ -236,9 +218,50 @@ a:hover button {
 .frame-content > p {
     max-width: 40%;
     margin-block-start: 0;
+    font-size: 1.25em;
 }
 
 #portfolio-cover {
+    position: absolute;
+    margin-top: -1px;
+    z-index: -2;
+    height: 500px;
+    width: 100%;
+    background-color: #3f3f3f;
+}
+
+#about {
+    position: relative;
+    padding-top: 250px;
+    width: 100%;
+    background-color: #1e1e1e;
+    background-clip: content-box;
+    overflow: hidden;
+}
+
+#about::before {
+    content: "";
+    position: absolute;
+    top: 160px;
+    left: -150px;
+    background-color: #1e1e1e;
+    border-top: 2px solid #ce723b;
+    padding-top: 250px;
+    width: 150%;
+    z-index: -1;
+    transform: rotate(7deg) skewX(-7deg);
+}
+
+#about-content {
+    display: flex;
+    flex-direction: row;
+}
+
+.list-header {
+    font-size: 1.5em;
+}
+
+#about-cover {
     position: absolute;
     margin-top: -1px;
     z-index: -2;
@@ -276,6 +299,54 @@ a:hover button {
     width: 75%;
 }
 
+#error-message {
+    display: inline-block;
+    color: #10abd8;
+    font-family: 'Jost';
+    opacity: 1;
+    transition: opacity 1s ease-in-out;
+    -moz-transition: opacity 1s ease-in-out;
+   -webkit-transition: opacity 1s ease-in-out;
+    width: 70%;
+    margin: 20px;
+    overflow: auto;
+}
+
+#contact-form {
+    display: block;
+    height: 100%;
+    width: 70%;
+    margin: auto;
+}
+
+#name {
+    margin-top: 10px;
+}
+
+input {
+    display: inline-block;
+    width: 100%;
+    margin: 0 0 20px 0;
+}
+
+textarea {
+    display: inline-block;
+    width: 100%;
+    height: 200px;
+    margin-bottom: 10px;
+}
+
+#submitBtn {
+    display: block;
+    width: 50%;
+    margin: 0 auto 50px auto;
+    border: 2px solid #10abd8;
+}
+
+#submitBtn:hover {
+    border: 2px solid #ce723b;
+}
+
 /* Media Queries */
 @media only screen and (max-width: 600px) {
     #video-src {
@@ -307,11 +378,28 @@ a:hover button {
     #video-src {
         top: 15%;
     }
+    #contact-form {
+        width: 50%;
+    }
+}
+
+@media only screen and (max-width: 1000px) {
+    #about-content {
+        flex-direction: column;
+    }
 }
 
 @media only screen and (min-width: 1000px) {
     #video-src {
         top: 10%;
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+    #courses {
+        columns: 2;
+        -webkit-columns: 2;
+        -moz-columns: 2;
     }
 }
 

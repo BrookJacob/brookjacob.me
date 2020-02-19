@@ -1,0 +1,17 @@
+[debug] [2020-02-19T01:07:06.218Z] ----------------------------------------------------------------------
+[debug] [2020-02-19T01:07:06.220Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy
+[debug] [2020-02-19T01:07:06.221Z] CLI Version:   7.13.0
+[debug] [2020-02-19T01:07:06.221Z] Platform:      darwin
+[debug] [2020-02-19T01:07:06.221Z] Node Version:  v10.16.3
+[debug] [2020-02-19T01:07:06.222Z] Time:          Tue Feb 18 2020 18:07:06 GMT-0700 (Mountain Standard Time)
+[debug] [2020-02-19T01:07:06.222Z] ----------------------------------------------------------------------
+[debug] [2020-02-19T01:07:06.222Z] 
+[debug] [2020-02-19T01:07:06.230Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-02-19T01:07:06.231Z] > authorizing via signed-in user
+[debug] [2020-02-19T01:07:06.231Z] [iam] checking project brookjacob-44235 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2020-02-19T01:07:06.233Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/brookjacob-44235:testIamPermissions  
+
+[debug] [2020-02-19T01:07:06.553Z] <<< HTTP RESPONSE 200
+[debug] [2020-02-19T01:07:06.556Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/brookjacob-44235  
+ 
+[debug] [2020-02-19T01:07:06.797Z] <<< HTTP RESPONSE 200
