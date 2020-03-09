@@ -1,6 +1,7 @@
 html, body {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 p {
@@ -292,26 +293,6 @@ a:hover button {
     transform: rotate(7deg) skewX(-7deg);
 }
 
-#contact > p {
-    color: white;
-    margin: 70px auto 200px auto;
-    padding: 0 20px;
-    width: 75%;
-}
-
-#error-message {
-    display: inline-block;
-    color: #10abd8;
-    font-family: 'Jost';
-    opacity: 1;
-    transition: opacity 1s ease-in-out;
-    -moz-transition: opacity 1s ease-in-out;
-   -webkit-transition: opacity 1s ease-in-out;
-    width: 70%;
-    margin: 20px;
-    overflow: auto;
-}
-
 #contact-form {
     display: block;
     height: 100%;
@@ -319,21 +300,47 @@ a:hover button {
     margin: auto;
 }
 
-#name {
-    margin-top: 10px;
-}
-
-input {
-    display: inline-block;
+.error-message {
     width: 100%;
-    margin: 0 0 20px 0;
+    height: 25px;
 }
 
-textarea {
-    display: inline-block;
+#contact-name-holder {
+    width: 100%;
+    margin-bottom: 15px;
+    margin-top: 15px;
+}
+
+#contact-name {
+    width: 100%;
+}
+
+#email-holder {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+#email {
+    width: 100%;
+}
+
+#long-field-holder {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+#long-field {
     width: 100%;
     height: 200px;
-    margin-bottom: 10px;
+}
+
+.error-message {
+    color: #10abd8;
+    font-family: 'Jost';
+    opacity: 1;
+    transition: opacity 1s ease-in-out;
+    -moz-transition: opacity 1s ease-in-out;
+   -webkit-transition: opacity 1s ease-in-out;
 }
 
 #submitBtn {
@@ -406,5 +413,47 @@ textarea {
 @media only screen and (min-width: 1400px) {
     #video-src {
         top: 5%;
+    }
+ }
+
+ @media only screen and (min-width: 1900px) {
+    #portfolio::before {
+         padding-top: 400px;
+         top: 190px;
+         transform: rotate(5deg) skewX(-5deg);
+     }
+     #about::before {
+         padding-top: 400px;
+         top: 190px;
+         transform: rotate(5deg) skewX(-5deg);
+     }
+     #contact::before {
+         padding-top: 400px;
+         top: 190px;
+         transform: rotate(5deg) skewX(-5deg);
+     }
+ }
+
+ @media only screen and (min-width: 2300px) {
+    #portfolio::before {
+         top: 180px;
+     }
+     #about::before {
+         top: 180px;
+     }
+     #contact::before {
+         top: 180px;
+     }
+ }
+
+ @media only screen and (min-width: 2500px) {
+    #portfolio::before {
+        top: 175px;
+    }
+    #about::before {
+        top: 175px;
+    }
+    #contact::before {
+        top: 175px;
     }
  }

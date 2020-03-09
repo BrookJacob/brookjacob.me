@@ -1,17 +1,108 @@
-[debug] [2020-02-19T01:07:06.218Z] ----------------------------------------------------------------------
-[debug] [2020-02-19T01:07:06.220Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy
-[debug] [2020-02-19T01:07:06.221Z] CLI Version:   7.13.0
-[debug] [2020-02-19T01:07:06.221Z] Platform:      darwin
-[debug] [2020-02-19T01:07:06.221Z] Node Version:  v10.16.3
-[debug] [2020-02-19T01:07:06.222Z] Time:          Tue Feb 18 2020 18:07:06 GMT-0700 (Mountain Standard Time)
-[debug] [2020-02-19T01:07:06.222Z] ----------------------------------------------------------------------
-[debug] [2020-02-19T01:07:06.222Z] 
-[debug] [2020-02-19T01:07:06.230Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2020-02-19T01:07:06.231Z] > authorizing via signed-in user
-[debug] [2020-02-19T01:07:06.231Z] [iam] checking project brookjacob-44235 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get","firebasehosting.sites.update"]
-[debug] [2020-02-19T01:07:06.233Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/brookjacob-44235:testIamPermissions  
+[debug] [2020-02-19T01:09:54.900Z] ----------------------------------------------------------------------
+[debug] [2020-02-19T01:09:54.902Z] Command:       /usr/local/bin/node /usr/local/bin/firebase serve
+[debug] [2020-02-19T01:09:54.902Z] CLI Version:   7.13.0
+[debug] [2020-02-19T01:09:54.902Z] Platform:      darwin
+[debug] [2020-02-19T01:09:54.902Z] Node Version:  v10.16.3
+[debug] [2020-02-19T01:09:54.904Z] Time:          Tue Feb 18 2020 18:09:54 GMT-0700 (Mountain Standard Time)
+[debug] [2020-02-19T01:09:54.904Z] ----------------------------------------------------------------------
+[debug] [2020-02-19T01:09:54.904Z] 
+[debug] [2020-02-19T01:09:54.912Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-02-19T01:09:54.912Z] > authorizing via signed-in user
+[debug] [2020-02-19T01:09:54.912Z] [iam] checking project brookjacob-44235 for permissions ["firebase.projects.get"]
+[debug] [2020-02-19T01:09:54.914Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/brookjacob-44235:testIamPermissions  
 
-[debug] [2020-02-19T01:07:06.553Z] <<< HTTP RESPONSE 200
-[debug] [2020-02-19T01:07:06.556Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/brookjacob-44235  
+[debug] [2020-02-19T01:09:55.240Z] <<< HTTP RESPONSE 200
+[debug] [2020-02-19T01:09:55.242Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/brookjacob-44235  
  
-[debug] [2020-02-19T01:07:06.797Z] <<< HTTP RESPONSE 200
+[debug] [2020-02-19T01:09:55.482Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from '/Users/jacobbrook/Documents/personalWebsite'...
+[info] 
+[debug] [2020-02-19T01:09:55.487Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/brookjacob-44235/webApps/-/config  
+ 
+[warn] ⚠  Your requested "node" version "8" doesn't match your global version "10"
+[info] ✔  functions: Emulator started at http://localhost:5001
+[debug] [2020-02-19T01:09:55.800Z] <<< HTTP RESPONSE 200
+[info] i  functions: Watching "/Users/jacobbrook/Documents/personalWebsite/functions" for Cloud Functions...
+[debug] [2020-02-19T01:09:55.840Z] [worker-pool] addWorker(~diagnostic~)
+[debug] [2020-02-19T01:09:55.840Z] [worker-pool] Adding worker with key ~diagnostic~, total=1
+[debug] [2020-02-19T01:09:55.840Z] [worker-pool] submitWork(triggerId=)
+[debug] [2020-02-19T01:09:55.840Z] [worker-~diagnostic~-73228ff2-216e-40ea-bed8-ce22c18f7669]: Assigning socketPath: /var/folders/t8/j8ndjbnd3lbc1f_2b7nlbcdm0000gn/T/fire_emu_38280.sock
+[debug] [2020-02-19T01:09:55.841Z] [worker-~diagnostic~-73228ff2-216e-40ea-bed8-ce22c18f7669]: BUSY
+[info] i  hosting: Serving hosting files from: public
+[info] ✔  hosting: Local server: http://localhost:5000
+[debug] [2020-02-19T01:09:56.147Z] [runtime-status] [38280] Functions runtime initialized. {"cwd":"/Users/jacobbrook/Documents/personalWebsite/functions","node_version":"10.16.3"}
+[debug] [2020-02-19T01:09:56.148Z] [runtime-status] [38280] Disabled runtime features: {"functions_config_helper":true,"network_filtering":true,"timeout":true,"memory_limiting":true,"admin_stubs":true,"pubsub_emulator":true}
+[debug] [2020-02-19T01:09:56.151Z] [runtime-status] [38280] Resolved module firebase-admin {"declared":true,"installed":true,"version":"8.9.2","resolution":"/Users/jacobbrook/Documents/personalWebsite/functions/node_modules/firebase-admin/lib/index.js"}
+[debug] [2020-02-19T01:09:56.152Z] [runtime-status] [38280] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.3.0","resolution":"/Users/jacobbrook/Documents/personalWebsite/functions/node_modules/firebase-functions/lib/index.js"}
+[debug] [2020-02-19T01:09:56.153Z] [runtime-status] [38280] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.3.0","resolution":"/Users/jacobbrook/Documents/personalWebsite/functions/node_modules/firebase-functions/lib/index.js"}
+[warn] ⚠  TypeError: Cannot read property 'login' of undefined
+    at Object.<anonymous> (/Users/jacobbrook/Documents/personalWebsite/functions/index.js:12:41)
+    at Module._compile (internal/modules/cjs/loader.js:778:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:789:10)
+    at Module.load (internal/modules/cjs/loader.js:653:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:593:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:585:3)
+    at Module.require (internal/modules/cjs/loader.js:692:17)
+    at require (internal/modules/cjs/helpers.js:25:18)
+    at /usr/local/lib/node_modules/firebase-tools/lib/emulator/functionsEmulatorRuntime.js:719:33
+    at Generator.next (<anonymous>)
+[warn] ⚠  We were unable to load your functions code. (see above)
+[debug] [2020-02-19T01:09:56.246Z] [worker-~diagnostic~-73228ff2-216e-40ea-bed8-ce22c18f7669]: exited
+[debug] [2020-02-19T01:09:56.246Z] [worker-~diagnostic~-73228ff2-216e-40ea-bed8-ce22c18f7669]: FINISHED
+[debug] [2020-03-09T21:48:35.883Z] ----------------------------------------------------------------------
+[debug] [2020-03-09T21:48:35.885Z] Command:       /usr/local/bin/node /usr/local/bin/firebase serve
+[debug] [2020-03-09T21:48:35.885Z] CLI Version:   7.13.0
+[debug] [2020-03-09T21:48:35.885Z] Platform:      darwin
+[debug] [2020-03-09T21:48:35.885Z] Node Version:  v10.16.3
+[debug] [2020-03-09T21:48:35.886Z] Time:          Mon Mar 09 2020 15:48:35 GMT-0600 (Mountain Daylight Time)
+[debug] [2020-03-09T21:48:35.886Z] ----------------------------------------------------------------------
+[debug] [2020-03-09T21:48:35.886Z] 
+[debug] [2020-03-09T21:48:35.900Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-03-09T21:48:35.900Z] > authorizing via signed-in user
+[debug] [2020-03-09T21:48:35.900Z] [iam] checking project brookjacob-44235 for permissions ["firebase.projects.get"]
+[debug] [2020-03-09T21:48:35.902Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2020-03-09T21:48:35.902Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>
+[debug] [2020-03-09T21:48:36.455Z] <<< HTTP RESPONSE 200
+[debug] [2020-03-09T21:48:36.484Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/brookjacob-44235:testIamPermissions  
+
+[debug] [2020-03-09T21:48:36.878Z] <<< HTTP RESPONSE 200
+[debug] [2020-03-09T21:48:36.880Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/brookjacob-44235  
+ 
+[debug] [2020-03-09T21:48:37.218Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from '/Users/jacobbrook/Documents/personalWebsite'...
+[info] 
+[debug] [2020-03-09T21:48:37.224Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/brookjacob-44235/webApps/-/config  
+ 
+[warn] ⚠  Your requested "node" version "8" doesn't match your global version "10"
+[info] ✔  functions: Emulator started at http://localhost:5001
+[debug] [2020-03-09T21:48:37.699Z] <<< HTTP RESPONSE 200
+[info] i  functions: Watching "/Users/jacobbrook/Documents/personalWebsite/functions" for Cloud Functions...
+[debug] [2020-03-09T21:48:37.739Z] [worker-pool] addWorker(~diagnostic~)
+[debug] [2020-03-09T21:48:37.740Z] [worker-pool] Adding worker with key ~diagnostic~, total=1
+[debug] [2020-03-09T21:48:37.740Z] [worker-pool] submitWork(triggerId=)
+[debug] [2020-03-09T21:48:37.740Z] [worker-~diagnostic~-fe0b3fe5-5fc6-4422-873a-fbf82108f789]: Assigning socketPath: /var/folders/t8/j8ndjbnd3lbc1f_2b7nlbcdm0000gn/T/fire_emu_76943.sock
+[debug] [2020-03-09T21:48:37.741Z] [worker-~diagnostic~-fe0b3fe5-5fc6-4422-873a-fbf82108f789]: BUSY
+[info] i  hosting: Serving hosting files from: public
+[info] ✔  hosting: Local server: http://localhost:5000
+[debug] [2020-03-09T21:48:38.065Z] [runtime-status] [76943] Functions runtime initialized. {"cwd":"/Users/jacobbrook/Documents/personalWebsite/functions","node_version":"10.16.3"}
+[debug] [2020-03-09T21:48:38.066Z] [runtime-status] [76943] Disabled runtime features: {"functions_config_helper":true,"network_filtering":true,"timeout":true,"memory_limiting":true,"admin_stubs":true,"pubsub_emulator":true}
+[debug] [2020-03-09T21:48:38.069Z] [runtime-status] [76943] Resolved module firebase-admin {"declared":true,"installed":true,"version":"8.9.2","resolution":"/Users/jacobbrook/Documents/personalWebsite/functions/node_modules/firebase-admin/lib/index.js"}
+[debug] [2020-03-09T21:48:38.070Z] [runtime-status] [76943] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.3.0","resolution":"/Users/jacobbrook/Documents/personalWebsite/functions/node_modules/firebase-functions/lib/index.js"}
+[debug] [2020-03-09T21:48:38.071Z] [runtime-status] [76943] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.3.0","resolution":"/Users/jacobbrook/Documents/personalWebsite/functions/node_modules/firebase-functions/lib/index.js"}
+[warn] ⚠  TypeError: Cannot read property 'login' of undefined
+    at Object.<anonymous> (/Users/jacobbrook/Documents/personalWebsite/functions/index.js:12:41)
+    at Module._compile (internal/modules/cjs/loader.js:778:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:789:10)
+    at Module.load (internal/modules/cjs/loader.js:653:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:593:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:585:3)
+    at Module.require (internal/modules/cjs/loader.js:692:17)
+    at require (internal/modules/cjs/helpers.js:25:18)
+    at /usr/local/lib/node_modules/firebase-tools/lib/emulator/functionsEmulatorRuntime.js:719:33
+    at Generator.next (<anonymous>)
+[warn] ⚠  We were unable to load your functions code. (see above)
+[debug] [2020-03-09T21:48:38.196Z] [worker-~diagnostic~-fe0b3fe5-5fc6-4422-873a-fbf82108f789]: exited
+[debug] [2020-03-09T21:48:38.197Z] [worker-~diagnostic~-fe0b3fe5-5fc6-4422-873a-fbf82108f789]: FINISHED

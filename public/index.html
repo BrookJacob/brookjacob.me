@@ -49,24 +49,6 @@
                             with the average price, average restaurant rating, and a link to directions.</p>
                     </div>
                 </div>
-                <div class="frame">
-                    <a href="https://foodfeud.app"><button>FoodFeud.app</button></a>
-                    <div class="frame-content">
-                        <a href="https://foodfeud.app"><img class="photo" src="./assets/foodfeud.png"></a>
-                        <p>Example Text Example Text Example Text Example Text Example Text Example Text Example Text
-                            Example Text Example Text Example Text Example Text Example Text Example Text Example Text
-                            Example Text Example Text Example Text Example Text Example Text Example Text </p>
-                    </div>
-                </div>
-                <div class="frame">
-                    <a href="https://foodfeud.app"><button>FoodFeud.app</button></a>
-                    <div class="frame-content">
-                        <a href="https://foodfeud.app"><img class="photo" src="./assets/foodfeud.png"></a>
-                        <p>MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
-                            MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
-                            MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE </p>
-                    </div>
-                </div>
             </div>
         </div>
         <div id="portfolio-cover"></div>
@@ -101,11 +83,19 @@
         <div id="about-cover"></div>
         <div id="contact">
             <h2 id="contact-title" class="title">Contact Me</h2>
-            <h3 id="error-message"> </h3>
             <form id="contact-form">
-                <input id="contact-name" type="text" placeholder="Name">
-                <input id="email" type="text" placeholder="E-mail">
-                <textarea id="long-field" placeholder="Message"></textarea>
+                <div id="contact-name-holder">
+                    <input id="contact-name" type="text" placeholder="Name">
+                    <p class="error-message" id="contact-name-error"></p>
+                </div>
+                <div id="email-holder">
+                    <input id="email" type="text" placeholder="E-mail">
+                    <p class="error-message" id="contact-email-error"></p>
+                </div>
+                <div id="long-field-holder">
+                    <textarea id="long-field" placeholder="Message"></textarea>
+                    <p class="error-message" id="long-field-error"></p>
+                </div>
                 <button id="submitBtn" type="submit">Submit</button>
             </form>
         </div>
