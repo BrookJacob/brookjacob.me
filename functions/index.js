@@ -17,7 +17,7 @@ const { encode } = require('blurhash');
 const githubPatSecret = defineSecret('GITHUB_PAT');
 const hygraphTokenSecret = defineSecret('HYGRAPH_PAT_TOKEN');
 
-const GITHUB_REPO = process.env.GITHUB_REPO || 'brookjacob/brookjacob.me';
+const GITHUB_REPO = process.env.GITHUB_REPO || 'BrookJacob/brookjacob.me';
 const HYGRAPH_ENDPOINT = process.env.HYGRAPH_ENDPOINT || 'https://us-west-2.cdn.hygraph.com/content/cmleb20kj014707w90z5k39wb/master';
 
 /**
@@ -35,8 +35,8 @@ exports.hygraphDeployWebhook = onRequest({ secrets: [githubPatSecret] }, async (
     logger.info('--- HYGRAPH DEPLOY WEBHOOK TRIGGERED ---');
     logger.info('Operation:', payload.operation, 'Stage:', payload.stage, 'Entity ID:', payload.data?.id);
 
-    const githubPat = githubPatSecret.value() || process.env.GITHUB_PAT || '';
-    const githubRepo = process.env.GITHUB_REPO || GITHUB_REPO;
+    const githubPat = (githubPatSecret.value() || process.env.GITHUB_PAT || '').trim();
+    const githubRepo = (process.env.GITHUB_REPO || GITHUB_REPO).trim();
 
     if (!githubPat) {
       logger.error('CRITICAL: Missing GITHUB_PAT environment secret.');
@@ -44,19 +44,64 @@ exports.hygraphDeployWebhook = onRequest({ secrets: [githubPatSecret] }, async (
       return;
     }
 
-    const githubUrl = `https://api.github.com/repos/${githubRepo}/actions/workflows/deploy.yml/dispatches`;
-    logger.info('Dispatching request to GitHub Actions endpoint:', githubUrl);
+    logger.info(`Authenticating with PAT (Prefix: ${githubPat.substring(0, 8)}..., Length: ${githubPat.length}, Repo: ${githubRepo})`);
 
-    const response = await fetch(githubUrl, {
+    // Repository Dispatch Endpoint (matches deploy.yml repository_dispatch trigger)
+    const githubRepoDispatchUrl = `https://api.github.com/repos/${githubRepo}/dispatches`;
+    const githubWorkflowDispatchUrl = `https://api.github.com/repos/${githubRepo}/actions/workflows/deploy.yml/dispatches`;
+
+    logger.info('Dispatching repository_dispatch event to GitHub API:', githubRepoDispatchUrl);
+
+    // Primary Dispatch: Repository Dispatch with event_type hygraph_publish
+    let response = await fetch(githubRepoDispatchUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${githubPat}`,
         'Accept': 'application/vnd.github+json',
         'User-Agent': 'Firebase-Hygraph-Relay',
+        'X-GitHub-Api-Version': '2022-11-28',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ ref: 'main' }),
+      body: JSON.stringify({
+        event_type: 'hygraph_publish',
+        client_payload: { ref: 'main' },
+      }),
     });
+
+    // Fallback 1: Try repository_dispatch with token scheme if Bearer returns 401
+    if (response.status === 401) {
+      logger.warn('Bearer auth returned 401 on repository_dispatch, trying token scheme...');
+      response = await fetch(githubRepoDispatchUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `token ${githubPat}`,
+          'Accept': 'application/vnd.github+json',
+          'User-Agent': 'Firebase-Hygraph-Relay',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          event_type: 'hygraph_publish',
+          client_payload: { ref: 'main' },
+        }),
+      });
+    }
+
+    // Fallback 2: Try workflow_dispatch endpoint if repository_dispatch fails
+    if (!response.ok && response.status !== 204) {
+      logger.warn('Repository dispatch returned status', response.status, 'Attempting workflow_dispatch fallback...');
+      response = await fetch(githubWorkflowDispatchUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${githubPat}`,
+          'Accept': 'application/vnd.github+json',
+          'User-Agent': 'Firebase-Hygraph-Relay',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ref: 'main' }),
+      });
+    }
 
     if (response.ok || response.status === 204) {
       logger.info('SUCCESS: Triggered GitHub Actions deploy.yml workflow.');
