@@ -179,7 +179,7 @@ export async function getAllBlogPosts(): Promise<BlogPost[]> {
         repoUrl: art.repoUrl,
         techStack: art.techStack,
         author: {
-          name: 'Brook Jacob',
+          name: 'Jacob Brook',
           title: 'Printmaker & Systems Engineer',
           bio: 'Exploring relief printmaking discipline and software architecture.',
           avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop',
@@ -203,7 +203,7 @@ export async function getAllBlogPosts(): Promise<BlogPost[]> {
       category: 'essay',
       readTimeMinutes: 5,
       author: {
-        name: 'Brook Jacob',
+        name: 'Jacob Brook',
         title: 'Printmaker & Principal Systems Engineer',
         bio: 'Exploring tactile print techniques and web platform architecture.',
         avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop',
