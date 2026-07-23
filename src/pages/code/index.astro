@@ -84,43 +84,45 @@ const techPosts = blogPosts.filter((p) => p.category === 'software' || p.categor
         </div>
       </section>
 
-      <!-- Technical Write-ups & Articles Section -->
-      <section class="pt-8 border-t border-paper-border dark:border-carbon-border">
-        <div class="flex items-center justify-between mb-8">
-          <h2 class="font-serif text-2xl sm:text-3xl font-bold text-paper-text dark:text-carbon-text">
-            Technical Essays & Architecture Notes
-          </h2>
-          <a href="/blog" class="text-xs font-semibold text-paper-accent dark:text-carbon-accent hover:underline">
-            View All Essays &rarr;
-          </a>
-        </div>
+      <!-- Technical Write-ups & Articles Section (Rendered conditionally only if posts exist) -->
+      {techPosts.length > 0 && (
+        <section class="pt-8 border-t border-paper-border dark:border-carbon-border">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-paper-text dark:text-carbon-text">
+              Technical Essays & Architecture Notes
+            </h2>
+            <a href="/blog" class="text-xs font-semibold text-paper-accent dark:text-carbon-accent hover:underline">
+              View All Essays &rarr;
+            </a>
+          </div>
 
-        <div class="space-y-6">
-          {techPosts.map((post) => (
-            <article class="p-6 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl focus-tech transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <span class="text-xs font-mono text-paper-muted dark:text-carbon-muted">
-                  {post.publishedAt} • {post.readTimeMinutes} min read
-                </span>
-                <h3 class="font-serif text-xl font-bold text-paper-text dark:text-carbon-text mt-1 hover:text-paper-accent dark:hover:text-carbon-accent transition-colors">
-                  <a href={`/blog/${post.slug}`}>
-                    {post.title}
-                  </a>
-                </h3>
-                <p class="text-sm text-paper-muted dark:text-carbon-muted mt-1 max-w-2xl">
-                  {post.excerpt}
-                </p>
-              </div>
-              <a 
-                href={`/blog/${post.slug}`} 
-                class="self-start sm:self-center px-4 py-2 text-xs font-semibold rounded border border-paper-border dark:border-carbon-border text-paper-text dark:text-carbon-text hover:bg-paper-border/30 dark:hover:bg-carbon-border/30 transition-colors whitespace-nowrap"
-              >
-                Read Essay &rarr;
-              </a>
-            </article>
-          ))}
-        </div>
-      </section>
+          <div class="space-y-6">
+            {techPosts.map((post) => (
+              <article class="p-6 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl focus-tech transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span class="text-xs font-mono text-paper-muted dark:text-carbon-muted">
+                    {post.publishedAt} • {post.readTimeMinutes} min read
+                  </span>
+                  <h3 class="font-serif text-xl font-bold text-paper-text dark:text-carbon-text mt-1 hover:text-paper-accent dark:hover:text-carbon-accent transition-colors">
+                    <a href={`/blog/${post.slug}`}>
+                      {post.title}
+                    </a>
+                  </h3>
+                  <p class="text-sm text-paper-muted dark:text-carbon-muted mt-1 max-w-2xl">
+                    {post.excerpt}
+                  </p>
+                </div>
+                <a 
+                  href={`/blog/${post.slug}`} 
+                  class="self-start sm:self-center px-4 py-2 text-xs font-semibold rounded border border-paper-border dark:border-carbon-border text-paper-text dark:text-carbon-text hover:bg-paper-border/30 dark:hover:bg-carbon-border/30 transition-colors whitespace-nowrap"
+                >
+                  Read Essay &rarr;
+                </a>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
     </main>
 
