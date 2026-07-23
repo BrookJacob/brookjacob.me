@@ -1,0 +1,21 @@
+{
+  "projects": {
+    "default": "brookjacob-6aa1b"
+  },
+  "targets": {
+    "brookjacob-6aa1b": {
+      "hosting": {
+        "root-portal": [
+          "brookjacob-6aa1b"
+        ],
+        "prints-portfolio": [
+          "brookjacob-prints"
+        ],
+        "code-portfolio": [
+          "brookjacob-code"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
