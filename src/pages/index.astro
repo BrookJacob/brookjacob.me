@@ -3,7 +3,7 @@
  * Root Portal Page (brookjacob.me)
  * 
  * Central portal highlighting Jacob Brook's software product ecosystem (ABLE Roadmap, Satori Trailheads,
- * web architecture) alongside tactile relief printmaking studio work.
+ * brookjacob.me monorepo design) alongside tactile relief printmaking studio work.
  * 
  * @page
  */
@@ -46,53 +46,7 @@ import '../styles/global.css';
       <!-- Bottom Section: 50/50 Dual Canvas / Split Card Layout -->
       <section class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
         
-        <!-- Card 1: Software & Product Ecosystem (Primary Focus State) -->
-        <a 
-          href="/code" 
-          class="group relative flex flex-col justify-between p-8 sm:p-10 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-2xl focus-tech text-left no-underline transition-all overflow-hidden"
-        >
-          <!-- Crisp Tech Background Accent Glow -->
-          <div class="absolute -right-12 -top-12 w-48 h-48 bg-blue-500/10 dark:bg-blue-400/10 rounded-full blur-3xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
-
-          <div>
-            <div class="flex items-center justify-between mb-6">
-              <span class="text-xs font-mono font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-400">
-                code.brookjacob.me
-              </span>
-              <span class="text-xs font-serif italic text-paper-muted dark:text-carbon-muted">
-                Systems & Platforms
-              </span>
-            </div>
-
-            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-paper-text dark:text-carbon-text mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-              Developer Showcase
-            </h2>
-
-            <p class="text-sm sm:text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
-              Explore ABLE Roadmap, Satori Trailheads, web architecture case studies, zero-runtime design systems, and software engineering write-ups.
-            </p>
-
-            <!-- Product Tag Highlights -->
-            <div class="flex flex-wrap gap-2 mt-6">
-              <span class="text-xs font-mono px-2.5 py-1 rounded bg-blue-500/10 dark:bg-blue-400/10 text-blue-700 dark:text-blue-300 border border-blue-500/20">
-                Able Roadmap
-              </span>
-              <span class="text-xs font-mono px-2.5 py-1 rounded bg-blue-500/10 dark:bg-blue-400/10 text-blue-700 dark:text-blue-300 border border-blue-500/20">
-                Satori Trailheads
-              </span>
-              <span class="text-xs font-mono px-2.5 py-1 rounded bg-paper-border/30 dark:bg-carbon-border/30 text-paper-muted dark:text-carbon-muted">
-                Architecture
-              </span>
-            </div>
-          </div>
-
-          <div class="mt-8 pt-6 border-t border-paper-border dark:border-carbon-border flex items-center justify-between font-semibold text-sm text-paper-text dark:text-carbon-text">
-            <span>Explore Developer Work</span>
-            <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
-          </div>
-        </a>
-
-        <!-- Card 2: Printmaking Work (Tactile Focus State) -->
+        <!-- Card 1 (Left): Printmaking Studio (Matching Header Nav Order) -->
         <a 
           href="/prints" 
           class="group relative flex flex-col justify-between p-8 sm:p-10 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-2xl focus-tactile text-left no-underline transition-all overflow-hidden"
@@ -115,13 +69,16 @@ import '../styles/global.css';
             </h2>
 
             <p class="text-sm sm:text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
-              Discover original two-color reduction linocuts, woodblock proofs, edition archives, and process notes on cotton rag paper.
+              Discover original multi-layer reduction linocuts, edition archives, and process notes.
             </p>
 
             <!-- Craft Tag Highlights -->
             <div class="flex flex-wrap gap-2 mt-6">
               <span class="text-xs font-mono px-2.5 py-1 rounded bg-paper-accent/10 dark:bg-carbon-accent/10 text-paper-accent dark:text-carbon-accent border border-paper-accent/20">
                 Reduction Linocuts
+              </span>
+              <span class="text-xs font-mono px-2.5 py-1 rounded bg-paper-border/30 dark:bg-carbon-border/30 text-paper-muted dark:text-carbon-muted">
+                Edition Archives
               </span>
               <span class="text-xs font-mono px-2.5 py-1 rounded bg-paper-border/30 dark:bg-carbon-border/30 text-paper-muted dark:text-carbon-muted">
                 Process Notes
@@ -131,6 +88,52 @@ import '../styles/global.css';
 
           <div class="mt-8 pt-6 border-t border-paper-border dark:border-carbon-border flex items-center justify-between font-semibold text-sm text-paper-text dark:text-carbon-text">
             <span>View Studio Archive</span>
+            <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Card 2 (Right): Developer Showcase (Matching Header Nav Order) -->
+        <a 
+          href="/code" 
+          class="group relative flex flex-col justify-between p-8 sm:p-10 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-2xl focus-tech text-left no-underline transition-all overflow-hidden"
+        >
+          <!-- Crisp Tech Background Accent Glow -->
+          <div class="absolute -right-12 -top-12 w-48 h-48 bg-blue-500/10 dark:bg-blue-400/10 rounded-full blur-3xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+
+          <div>
+            <div class="flex items-center justify-between mb-6">
+              <span class="text-xs font-mono font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                code.brookjacob.me
+              </span>
+              <span class="text-xs font-serif italic text-paper-muted dark:text-carbon-muted">
+                Systems & Platforms
+              </span>
+            </div>
+
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-paper-text dark:text-carbon-text mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              Developer Showcase
+            </h2>
+
+            <p class="text-sm sm:text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
+              Explore ABLE Roadmap, Satori Trailheads, and the design and architecture of brookjacob.me.
+            </p>
+
+            <!-- Product Tag Highlights -->
+            <div class="flex flex-wrap gap-2 mt-6">
+              <span class="text-xs font-mono px-2.5 py-1 rounded bg-blue-500/10 dark:bg-blue-400/10 text-blue-700 dark:text-blue-300 border border-blue-500/20">
+                Able Roadmap
+              </span>
+              <span class="text-xs font-mono px-2.5 py-1 rounded bg-blue-500/10 dark:bg-blue-400/10 text-blue-700 dark:text-blue-300 border border-blue-500/20">
+                Satori Trailheads
+              </span>
+              <span class="text-xs font-mono px-2.5 py-1 rounded bg-paper-border/30 dark:bg-carbon-border/30 text-paper-muted dark:text-carbon-muted">
+                Monorepo Design
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-paper-border dark:border-carbon-border flex items-center justify-between font-semibold text-sm text-paper-text dark:text-carbon-text">
+            <span>Explore Developer Work</span>
             <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
           </div>
         </a>
