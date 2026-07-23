@@ -200,25 +200,8 @@ export async function getAllBlogPosts(): Promise<BlogPost[]> {
     console.warn('Hygraph CMS query for articles encountered an error:', error);
   }
 
-  // Fallback sample post if no articles are published in CMS yet
-  return [
-    {
-      id: 'post-1',
-      slug: 'bridging-linocut-and-type-systems',
-      title: 'Bridging Relief Printmaking and Type-Safe System Architecture',
-      publishedAt: '2026-03-15',
-      excerpt: 'How the discipline of carving relief blocks mirrors building deterministic, immutable system architectures in TypeScript.',
-      content: 'Relief printmaking requires forward commitment: once gouged away, wood or linoleum block material cannot be restored. Every cut is a structural decision.\n\nIn modern software development, adopting strict immutability and type safety demands a similar philosophical rigor.',
-      category: 'essay',
-      readTimeMinutes: 5,
-      author: {
-        name: 'Jacob Brook',
-        title: 'Printmaker & Full-Stack Web Developer',
-        bio: 'Crafting multi-layer relief prints and building web applications.',
-        avatarUrl: '/avatar.jpg',
-      },
-    },
-  ];
+  // Return empty array if no articles are published in CMS yet
+  return [];
 }
 
 /**
