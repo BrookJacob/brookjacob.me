@@ -73,6 +73,7 @@ if (!post) {
           <img 
             src={post.author.avatarUrl} 
             alt={post.author.name} 
+            onerror="if(!this.dataset.retried){this.dataset.retried='1';this.src='/avatar.jpg.jpg';}else{this.style.display='none';}"
             class="w-10 h-10 rounded-full object-cover border border-paper-border dark:border-carbon-border"
           />
           <div>

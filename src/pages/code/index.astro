@@ -52,12 +52,12 @@ const techPosts = blogPosts.filter((p) => p.category === 'software' || p.categor
           <img 
             src="/avatar.jpg" 
             alt="Jacob Brook profile" 
-            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop';"
+            onerror="if(!this.dataset.retried){this.dataset.retried='1';this.src='/avatar.jpg.jpg';}else{this.style.display='none';}"
             class="w-16 h-16 rounded-full object-cover border border-paper-border dark:border-carbon-border"
           />
           <div>
             <h2 class="font-serif text-lg font-bold text-paper-text dark:text-carbon-text">
-              Jacob Brook — Principal Software Architect
+              Jacob Brook — Web Developer
             </h2>
             <p class="text-xs sm:text-sm text-paper-muted dark:text-carbon-muted mt-1 leading-relaxed">
               Engineering ABLE Roadmap (ableroadmap.com), Satori Trailheads (satoritrailheads.com), and the multi-site monorepo architecture for brookjacob.me.

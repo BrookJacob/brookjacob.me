@@ -71,6 +71,7 @@ const posts = await getAllBlogPosts();
                 <img 
                   src={post.author.avatarUrl} 
                   alt={post.author.name} 
+                  onerror="if(!this.dataset.retried){this.dataset.retried='1';this.src='/avatar.jpg.jpg';}else{this.style.display='none';}"
                   class="w-7 h-7 rounded-full object-cover"
                 />
                 <span class="text-xs font-medium text-paper-text dark:text-carbon-text">
