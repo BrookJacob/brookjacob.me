@@ -67,6 +67,7 @@ function mapPrintToArtwork(print: Print): Artwork {
     width: print.mainImage?.width || 1200,
     height: print.mainImage?.height || 1600,
     altText: print.title,
+    blurhash: print.mainImage?.blurhash || undefined,
   };
 
   return {
@@ -75,7 +76,7 @@ function mapPrintToArtwork(print: Print): Artwork {
     coverImage,
     technique: 'Reduction Linocut Print',
     paperStock: print.paperDimensions ? `Custom Rag (${print.paperDimensions})` : 'Fine Art Cotton Rag Paper',
-    editionSize: `Edition of ${print.editionTotal}`,
+    editionSize: `${print.editionTotal}`,
     blockDimensions: print.imageDimensions || 'Hand-carved Linoleum Block',
     processNotes: print.description || `Original relief print created in ${print.year}. Edition size: ${print.editionTotal}.`,
   };
@@ -107,6 +108,7 @@ export async function getAllArtworks(): Promise<Artwork[]> {
             url
             width
             height
+            blurhash
           }
         }
       }

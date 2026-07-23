@@ -13,6 +13,7 @@ export interface CMSImage {
   width?: number;
   height?: number;
   altText?: string;
+  blurhash?: string;
 }
 
 /**
