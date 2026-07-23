@@ -189,8 +189,8 @@ export async function getAllBlogPosts(): Promise<BlogPost[]> {
         techStack: art.techStack,
         author: {
           name: 'Jacob Brook',
-          title: 'Printmaker & Systems Engineer',
-          bio: 'Exploring relief printmaking discipline and software architecture.',
+          title: 'Printmaker & Full-Stack Web Developer',
+          bio: 'Crafting multi-layer relief prints and building web applications.',
           avatarUrl: '/avatar.jpg',
         },
         coverImage: art.coverImage ? { url: art.coverImage.url } : undefined,
@@ -213,8 +213,8 @@ export async function getAllBlogPosts(): Promise<BlogPost[]> {
       readTimeMinutes: 5,
       author: {
         name: 'Jacob Brook',
-        title: 'Printmaker & Principal Systems Engineer',
-        bio: 'Exploring tactile print techniques and web platform architecture.',
+        title: 'Printmaker & Full-Stack Web Developer',
+        bio: 'Crafting multi-layer relief prints and building web applications.',
         avatarUrl: '/avatar.jpg',
       },
     },
