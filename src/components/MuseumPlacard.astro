@@ -2,8 +2,8 @@
 /**
  * MuseumPlacard Component
  * 
- * Renders an editorial museum-style placard card displaying comprehensive printmaking metadata:
- * artwork title, year, medium technique, paper stock, edition size, block dimensions, and process notes.
+ * Renders an editorial museum-style placard card displaying printmaking metadata.
+ * Conditionally renders Artist Process & Studio Notes only when custom notes exist.
  * 
  * @component
  * @param {MuseumPlacardData} placard - Object containing printmaking placard properties.
@@ -53,14 +53,17 @@ const { placard } = Astro.props;
         {placard.editionSize}
       </dd>
     </div>
+  </dl>
 
-  <!-- Process Notes & Artist Narrative Breakdown -->
-  <div>
-    <h3 class="text-xs uppercase tracking-wider font-semibold text-paper-muted dark:text-carbon-muted mb-2">
-      Artist Process & Studio Notes
-    </h3>
-    <p class="text-sm sm:text-base text-paper-text dark:text-carbon-text leading-relaxed font-serif">
-      {placard.processNotes}
-    </p>
-  </div>
+  <!-- Process Notes & Artist Narrative Breakdown (Rendered conditionally only if present) -->
+  {placard.processNotes && placard.processNotes.trim().length > 0 && (
+    <div>
+      <h3 class="text-xs uppercase tracking-wider font-semibold text-paper-muted dark:text-carbon-muted mb-2">
+        Artist Process & Studio Notes
+      </h3>
+      <p class="text-sm sm:text-base text-paper-text dark:text-carbon-text leading-relaxed font-serif whitespace-pre-line">
+        {placard.processNotes}
+      </p>
+    </div>
+  )}
 </aside>
