@@ -1,0 +1,117 @@
+---
+/**
+ * Project Detail Page (/code/[slug])
+ * 
+ * Deep-dive architectural breakdown page for individual software engineering projects.
+ * 
+ * @page
+ */
+
+import Navigation from '../../components/Navigation.astro';
+import Footer from '../../components/Footer.astro';
+import { getAllProjects, getProjectBySlug } from '../../lib/hygraph';
+import '../../styles/global.css';
+
+/**
+ * Generates static paths for software projects.
+ */
+export async function getStaticPaths() {
+  const projects = await getAllProjects();
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+const project = await getProjectBySlug(slug as string);
+
+if (!project) {
+  return Astro.redirect('/code');
+}
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{project.title} — Software Architecture Case Study</title>
+    <meta name="description" content={project.description} />
+  </head>
+  <body class="min-h-screen flex flex-col justify-between">
+    <Navigation activeDomain="code" />
+
+    <main class="flex-grow max-w-4xl mx-auto px-4 sm:px-6 py-12">
+      <!-- Return Navigation -->
+      <div class="mb-8">
+        <a 
+          href="/code" 
+          class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-paper-muted dark:text-carbon-muted hover:text-paper-text dark:hover:text-carbon-text transition-colors"
+        >
+          &larr; Return to Developer Showcase
+        </a>
+      </div>
+
+      <header class="mb-10 border-b border-paper-border dark:border-carbon-border pb-8">
+        <span class="text-xs font-mono uppercase tracking-widest font-semibold text-blue-600 dark:text-blue-400">
+          Architecture Case Study
+        </span>
+        <h1 class="font-serif text-3xl sm:text-5xl font-extrabold text-paper-text dark:text-carbon-text mt-2">
+          {project.title}
+        </h1>
+        <p class="text-lg text-paper-muted dark:text-carbon-muted mt-4 font-serif leading-relaxed">
+          {project.description}
+        </p>
+
+        <!-- Tech Badges -->
+        <div class="flex flex-wrap gap-2 mt-6">
+          {project.techStack.map((tech) => (
+            <span class="text-xs font-mono font-medium px-3 py-1 rounded bg-paper-border/30 dark:bg-carbon-border/30 text-paper-text dark:text-carbon-text border border-paper-border/60 dark:border-carbon-border/60">
+              {tech}
+            </span>
+          ))}
+        </div>
+      </header>
+
+      <!-- Project Detail Body -->
+      <article class="prose dark:prose-invert max-w-none text-paper-text dark:text-carbon-text leading-relaxed">
+        <h2 class="font-serif text-2xl font-bold mb-4">System Overview</h2>
+        <p class="text-base sm:text-lg mb-8 font-serif leading-relaxed">
+          {project.longDescription}
+        </p>
+
+        <!-- Repository Actions -->
+        <div class="p-6 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl flex items-center justify-between gap-4">
+          <div>
+            <h3 class="font-serif text-lg font-bold">Source Code & Live Preview</h3>
+            <p class="text-xs text-paper-muted dark:text-carbon-muted">Inspect repository commits or view active deployment.</p>
+          </div>
+          <div class="flex gap-3">
+            {project.githubUrl && (
+              <a 
+                href={project.githubUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="px-4 py-2 text-xs font-semibold rounded bg-paper-text text-paper-bg dark:bg-carbon-text dark:text-carbon-bg hover:opacity-90 transition-opacity"
+              >
+                GitHub Repo &rarr;
+              </a>
+            )}
+            {project.liveUrl && (
+              <a 
+                href={project.liveUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="px-4 py-2 text-xs font-semibold rounded border border-paper-border dark:border-carbon-border text-paper-text dark:text-carbon-text hover:bg-paper-border/30 dark:hover:bg-carbon-border/30 transition-colors"
+              >
+                Live Site &rarr;
+              </a>
+            )}
+          </div>
+        </div>
+      </article>
+
+    </main>
+
+    <Footer />
+  </body>
+</html>

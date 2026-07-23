@@ -1,0 +1,122 @@
+---
+/**
+ * Root Portal Page (brookjacob.me)
+ * 
+ * Central portal bridging Brook Jacob's dual disciplines: tactile relief printmaking
+ * and high-performance software engineering architecture.
+ * Features an editorial serif typography statement and a 50/50 dual-canvas split layout.
+ * 
+ * @page
+ */
+
+import Navigation from '../components/Navigation.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Brook Jacob — Printmaker & Software Architect</title>
+    <meta 
+      name="description" 
+      content="Root portal bridging physical relief printmaking on rag paper with modern web engineering and type-safe systems." 
+    />
+  </head>
+  <body class="min-h-screen flex flex-col justify-between">
+    <Navigation activeDomain="root" />
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-20 flex flex-col justify-center gap-16">
+      
+      <!-- Top Section: Centered Editorial Typography Statement -->
+      <section class="max-w-3xl mx-auto text-center flex flex-col items-center gap-6">
+        <span class="text-xs uppercase tracking-widest font-semibold px-3 py-1 border border-paper-border dark:border-carbon-border rounded-full text-paper-accent dark:text-carbon-accent">
+          Dual Practice Studio & Systems Lab
+        </span>
+
+        <h1 class="font-serif text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.15] text-paper-text dark:text-carbon-text">
+          Bridging physical printmaking with software architecture.
+        </h1>
+
+        <p class="text-lg sm:text-xl text-paper-muted dark:text-carbon-muted leading-relaxed font-serif">
+          Carving reduction linocut blocks on high-gsm cotton paper while building deterministic, type-safe web systems. Exploration of craft, immutability, and digital design tokens.
+        </p>
+      </section>
+
+      <!-- Bottom Section: 50/50 Dual Canvas / Split Card Layout -->
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+        
+        <!-- Card 1: Printmaking Work (Tactile Focus State) -->
+        <a 
+          href="/prints" 
+          class="group relative flex flex-col justify-between p-8 sm:p-10 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-2xl focus-tactile text-left no-underline transition-all overflow-hidden"
+        >
+          <!-- Organic Background Accent Glow -->
+          <div class="absolute -right-12 -top-12 w-40 h-40 bg-paper-accent/10 dark:bg-carbon-accent/10 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+
+          <div>
+            <div class="flex items-center justify-between mb-6">
+              <span class="text-xs font-mono font-semibold uppercase tracking-widest text-paper-accent dark:text-carbon-accent">
+                prints.brookjacob.me
+              </span>
+              <span class="text-xs font-serif italic text-paper-muted dark:text-carbon-muted">
+                Studio Portfolio
+              </span>
+            </div>
+
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-paper-text dark:text-carbon-text mb-3 group-hover:text-paper-accent dark:group-hover:text-carbon-accent transition-colors">
+              Printmaking Gallery
+            </h2>
+
+            <p class="text-sm sm:text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
+              Explore two-color reduction linocuts, Baltic birch woodblock proofs, edition details, and museum metadata placards.
+            </p>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-paper-border dark:border-carbon-border flex items-center justify-between font-semibold text-sm text-paper-text dark:text-carbon-text">
+            <span>View Gallery Feed</span>
+            <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Card 2: Developer Work (Tech Focus State) -->
+        <a 
+          href="/code" 
+          class="group relative flex flex-col justify-between p-8 sm:p-10 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-2xl focus-tech text-left no-underline transition-all overflow-hidden"
+        >
+          <!-- Crisp Tech Background Accent Glow -->
+          <div class="absolute -right-12 -top-12 w-40 h-40 bg-blue-500/10 dark:bg-blue-400/10 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+
+          <div>
+            <div class="flex items-center justify-between mb-6">
+              <span class="text-xs font-mono font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                code.brookjacob.me
+              </span>
+              <span class="text-xs font-serif italic text-paper-muted dark:text-carbon-muted">
+                Systems Lab
+              </span>
+            </div>
+
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-paper-text dark:text-carbon-text mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              Engineering Showcase
+            </h2>
+
+            <p class="text-sm sm:text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
+              Discover web architecture projects, monorepo configurations, zero-runtime design systems, and technical essays.
+            </p>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-paper-border dark:border-carbon-border flex items-center justify-between font-semibold text-sm text-paper-text dark:text-carbon-text">
+            <span>Explore Developer Work</span>
+            <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+          </div>
+        </a>
+
+      </section>
+
+    </main>
+
+    <Footer />
+  </body>
+</html>

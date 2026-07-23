@@ -1,0 +1,58 @@
+---
+/**
+ * Printmaking Gallery Feed Page (prints.brookjacob.me)
+ * 
+ * Displays medium-bleed visual feed of relief printmaking artwork items,
+ * displaying high-res image previews, titles, years, techniques, and edition sizes.
+ * 
+ * @page
+ */
+
+import Navigation from '../../components/Navigation.astro';
+import Footer from '../../components/Footer.astro';
+import ArtworkCard from '../../components/ArtworkCard.astro';
+import { getAllArtworks } from '../../lib/hygraph';
+import '../../styles/global.css';
+
+// Fetch artwork list statically at build time
+const artworks = await getAllArtworks();
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Printmaking Portfolio — Brook Jacob Studio</title>
+    <meta 
+      name="description" 
+      content="Medium-bleed visual gallery feed of original two-color reduction linocuts and woodblock prints." 
+    />
+  </head>
+  <body class="min-h-screen flex flex-col justify-between">
+    <Navigation activeDomain="prints" />
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 py-12">
+      <!-- Gallery Feed Header -->
+      <section class="mb-12 border-b border-paper-border dark:border-carbon-border pb-8">
+        <span class="text-xs uppercase tracking-widest font-semibold text-paper-accent dark:text-carbon-accent">
+          Studio Archive
+        </span>
+        <h1 class="font-serif text-4xl sm:text-5xl font-extrabold text-paper-text dark:text-carbon-text mt-2">
+          Printmaking Portfolio
+        </h1>
+        <p class="text-base sm:text-lg text-paper-muted dark:text-carbon-muted mt-3 max-w-2xl font-serif">
+          A visual collection of reduction linocuts, woodblock proofs, and multi-pass relief editions pressed on fine cotton paper.
+        </p>
+      </section>
+
+      <!-- Artwork Grid Feed -->
+      <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {artworks.map((artwork) => (
+          <ArtworkCard artwork={artwork} />
+        ))}
+      </section>
+    </main>
+
+    <Footer />
+  </body>
+</html>

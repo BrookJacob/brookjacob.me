@@ -1,0 +1,128 @@
+---
+/**
+ * Developer Work Showcase Page (code.brookjacob.me)
+ * 
+ * Showcases software engineering projects, tech stack badges, repository links,
+ * live demo links, technical write-ups, and developer bio.
+ * 
+ * @page
+ */
+
+import Navigation from '../../components/Navigation.astro';
+import Footer from '../../components/Footer.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getAllProjects, getAllBlogPosts } from '../../lib/hygraph';
+import '../../styles/global.css';
+
+// Fetch software projects and tech essays statically at build time
+const projects = await getAllProjects();
+const blogPosts = await getAllBlogPosts();
+const techPosts = blogPosts.filter((p) => p.category === 'software' || p.category === 'essay');
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Software Engineering & Web Architecture — Brook Jacob</title>
+    <meta 
+      name="description" 
+      content="Showcase of software engineering projects, repository links, type-safe web systems, and technical write-ups." 
+    />
+  </head>
+  <body class="min-h-screen flex flex-col justify-between">
+    <Navigation activeDomain="code" />
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 py-12 flex flex-col gap-16">
+      
+      <!-- Developer Bio & Header Section -->
+      <section class="border-b border-paper-border dark:border-carbon-border pb-10">
+        <span class="text-xs font-mono uppercase tracking-widest font-semibold text-blue-600 dark:text-blue-400">
+          Systems & Web Architecture
+        </span>
+        <h1 class="font-serif text-4xl sm:text-5xl font-extrabold text-paper-text dark:text-carbon-text mt-2">
+          Engineering Showcase
+        </h1>
+        <p class="text-lg text-paper-muted dark:text-carbon-muted mt-4 max-w-3xl leading-relaxed font-serif">
+          Specializing in high-performance web applications, zero-runtime design systems, type-safe GraphQL integrations, and resilient multi-tenant monorepos.
+        </p>
+
+        <!-- Developer Bio Callout Card -->
+        <div class="mt-8 p-6 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-6">
+          <img 
+            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop" 
+            alt="Brook Jacob profile" 
+            class="w-16 h-16 rounded-full object-cover border border-paper-border dark:border-carbon-border"
+          />
+          <div>
+            <h2 class="font-serif text-lg font-bold text-paper-text dark:text-carbon-text">
+              Brook Jacob — Principal Software Architect
+            </h2>
+            <p class="text-xs sm:text-sm text-paper-muted dark:text-carbon-muted mt-1 leading-relaxed">
+              Designing immutable systems, Astro SSG frameworks, and headless CMS integrations with zero-runtime CSS strategies.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Featured Software Projects Section -->
+      <section>
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="font-serif text-2xl sm:text-3xl font-bold text-paper-text dark:text-carbon-text">
+            Featured Repositories & Systems
+          </h2>
+          <span class="text-xs font-mono text-paper-muted dark:text-carbon-muted">
+            {projects.length} Projects
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {projects.map((project) => (
+            <ProjectCard project={project} />
+          ))}
+        </div>
+      </section>
+
+      <!-- Technical Write-ups & Articles Section -->
+      <section class="pt-8 border-t border-paper-border dark:border-carbon-border">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="font-serif text-2xl sm:text-3xl font-bold text-paper-text dark:text-carbon-text">
+            Technical Essays & Architecture Notes
+          </h2>
+          <a href="/blog" class="text-xs font-semibold text-paper-accent dark:text-carbon-accent hover:underline">
+            View All Essays &rarr;
+          </a>
+        </div>
+
+        <div class="space-y-6">
+          {techPosts.map((post) => (
+            <article class="p-6 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl focus-tech transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span class="text-xs font-mono text-paper-muted dark:text-carbon-muted">
+                  {post.publishedAt} • {post.readTimeMinutes} min read
+                </span>
+                <h3 class="font-serif text-xl font-bold text-paper-text dark:text-carbon-text mt-1 hover:text-paper-accent dark:hover:text-carbon-accent transition-colors">
+                  <a href={`/blog/${post.slug}`}>
+                    {post.title}
+                  </a>
+                </h3>
+                <p class="text-sm text-paper-muted dark:text-carbon-muted mt-1 max-w-2xl">
+                  {post.excerpt}
+                </p>
+              </div>
+              <a 
+                href={`/blog/${post.slug}`} 
+                class="self-start sm:self-center px-4 py-2 text-xs font-semibold rounded border border-paper-border dark:border-carbon-border text-paper-text dark:text-carbon-text hover:bg-paper-border/30 dark:hover:bg-carbon-border/30 transition-colors whitespace-nowrap"
+              >
+                Read Essay &rarr;
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+    </main>
+
+    <Footer />
+  </body>
+</html>
