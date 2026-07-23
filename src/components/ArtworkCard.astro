@@ -2,14 +2,15 @@
 /**
  * ArtworkCard Component
  * 
- * Renders an artwork preview item for gallery feeds. Features medium-bleed image rendering,
- * hover elevation, technique tag, title, and link navigation to detailed artwork pages.
+ * Renders an artwork preview item for gallery feeds. Features medium-bleed image rendering
+ * with Blurhash progressive loading canvas preview, technique tag, title, and clean edition metadata.
  * 
  * @component
  * @param {Artwork} artwork - Artwork entity payload.
  */
 
 import type { Artwork } from '../lib/types';
+import { BlurhashCanvas } from './BlurhashCanvas';
 
 interface Props {
   artwork: Artwork;
@@ -19,16 +20,17 @@ const { artwork } = Astro.props;
 ---
 
 <article class="group relative flex flex-col bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl overflow-hidden focus-tactile transition-all">
-  <!-- Medium Bleed Artwork Image Header -->
+  <!-- Medium Bleed Artwork Image Header with Blurhash Progressive Render -->
   <a href={`/prints/${artwork.slug}`} class="block overflow-hidden relative aspect-[4/5] bg-paper-border/20 dark:bg-carbon-border/20">
-    <img 
-      src={artwork.coverImage.url} 
-      alt={artwork.coverImage.altText || artwork.title} 
-      class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-      loading="lazy"
+    <BlurhashCanvas
+      client:load
+      src={artwork.coverImage.url}
+      alt={artwork.coverImage.altText || artwork.title}
+      blurhash={artwork.coverImage.blurhash}
+      className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
     />
     <!-- Subtle Year Tag overlay -->
-    <span class="absolute top-3 right-3 bg-paper-bg/90 dark:bg-carbon-bg/90 backdrop-blur text-paper-text dark:text-carbon-text text-xs font-semibold px-2.5 py-1 rounded border border-paper-border/60 dark:border-carbon-border/60">
+    <span class="absolute top-3 right-3 z-20 bg-paper-bg/90 dark:bg-carbon-bg/90 backdrop-blur text-paper-text dark:text-carbon-text text-xs font-semibold px-2.5 py-1 rounded border border-paper-border/60 dark:border-carbon-border/60">
       {artwork.year}
     </span>
   </a>

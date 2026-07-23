@@ -2,12 +2,12 @@
  * LightboxModal Component
  * 
  * An accessible client-side image zoom lightbox component built on Radix UI Dialog primitives.
- * Provides accessible focus traps, ARIA attributes, keyboard escape key closing,
- * and high-resolution artwork inspection.
+ * Incorporates Blurhash progressive image canvas rendering for instant preview previews.
  */
 
 import React, { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { BlurhashCanvas } from './BlurhashCanvas';
 
 /**
  * Props for LightboxModal component.
@@ -17,6 +17,8 @@ export interface LightboxModalProps {
   src: string;
   /** Accessible image description text */
   alt: string;
+  /** Optional Blurhash string for smooth progressive image preview */
+  blurhash?: string;
   /** Optional artwork title to render in accessible dialog header */
   title?: string;
   /** Artwork technique details rendered as subtitle */
@@ -27,11 +29,12 @@ export interface LightboxModalProps {
  * LightboxModal React Component
  * 
  * @param {LightboxModalProps} props - Component property options.
- * @returns {JSX.Element} Radix UI Dialog implementation.
+ * @returns {JSX.Element} Radix UI Dialog implementation with Blurhash progressive loading.
  */
 export const LightboxModal: React.FC<LightboxModalProps> = ({
   src,
   alt,
+  blurhash,
   title = 'Artwork Detail Zoom',
   technique,
 }) => {
@@ -40,21 +43,21 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      {/* Interactive Trigger wrapping the visual preview */}
+      {/* Interactive Trigger wrapping the visual preview with Blurhash progressive loader */}
       <Dialog.Trigger asChild>
         <button
           type="button"
           aria-label={`Enlarge artwork: ${title}`}
           className="group relative block w-full overflow-hidden rounded-lg focus:outline-none focus-tactile border border-paper-border dark:border-carbon-border cursor-zoom-in"
         >
-          <img
+          <BlurhashCanvas
             src={src}
             alt={alt}
+            blurhash={blurhash}
             className="w-full h-auto object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-            loading="lazy"
           />
           {/* Visual Overlay hint */}
-          <div className="absolute inset-0 bg-paper-text/10 dark:bg-carbon-text/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <div className="absolute inset-0 bg-paper-text/10 dark:bg-carbon-text/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
             <span className="bg-paper-bg/90 dark:bg-carbon-bg/90 text-paper-text dark:text-carbon-text text-xs uppercase tracking-widest px-3 py-1.5 rounded shadow-sm border border-paper-border dark:border-carbon-border">
               Click to Zoom
             </span>
@@ -82,7 +85,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
               )}
             </div>
 
-            {/* Close button with accessible screenreader label */}
+            {/* Close button */}
             <Dialog.Close asChild>
               <button
                 type="button"
@@ -96,12 +99,13 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
             </Dialog.Close>
           </div>
 
-          {/* Full Resolution Zoom Canvas View */}
+          {/* Full Resolution Zoom View with Blurhash Progressive Render */}
           <div className="relative flex items-center justify-center max-h-[72vh] overflow-auto rounded-md bg-paper-bg/50 dark:bg-carbon-bg/50">
-            <img
+            <BlurhashCanvas
               src={src}
               alt={alt}
-              className="max-h-[70vh] w-auto object-contain rounded"
+              blurhash={blurhash}
+              className="max-h-[70vh] w-auto rounded object-contain"
             />
           </div>
         </Dialog.Content>
