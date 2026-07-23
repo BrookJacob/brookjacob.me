@@ -1,15 +1,14 @@
 /**
- * Monorepo Type Definitions
+ * Hygraph CMS Domain Type Definitions
  * 
- * Provides TypeScript interfaces for artworks, blog posts, software projects,
- * museum metadata placards, and GraphQL CMS responses.
+ * Defines TypeScript interfaces matching Hygraph CMS models (`Print`, `Article`, `Asset`).
  */
 
 /**
- * Image asset entity structured from Hygraph CMS or fallback assets.
+ * Image Asset interface from Hygraph Asset model.
  */
 export interface CMSImage {
-  id: string;
+  id?: string;
   url: string;
   width?: number;
   height?: number;
@@ -17,24 +16,56 @@ export interface CMSImage {
 }
 
 /**
- * Printmaking Artwork domain model.
+ * Print Model matching Hygraph 'Print' schema.
  */
-export interface Artwork {
+export interface Print {
   id: string;
   slug: string;
   title: string;
   year: number;
-  technique: string;
-  paperStock: string;
-  editionSize: string;
-  blockDimensions: string;
-  processNotes: string;
-  coverImage: CMSImage;
-  featured?: boolean;
+  editionTotal: number;
+  description?: string | null;
+  price?: number | null;
+  paperDimensions?: string | null;
+  imageDimensions?: string | null;
+  display?: boolean;
+  printStatus?: string;
+  mainImage: CMSImage;
 }
 
 /**
- * Blog Article Post domain model.
+ * Legacy/UI compatibility alias for Print artwork entities.
+ */
+export interface Artwork extends Print {
+  technique?: string;
+  paperStock?: string;
+  editionSize?: string;
+  blockDimensions?: string;
+  processNotes?: string;
+  coverImage: CMSImage;
+}
+
+/**
+ * Article Model matching Hygraph 'Article' schema.
+ */
+export interface Article {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt?: string | null;
+  content: {
+    html?: string;
+    markdown?: string;
+    text?: string;
+  };
+  repoUrl?: string | null;
+  techStack?: string[] | null;
+  publishedAt?: string;
+  coverImage?: CMSImage | null;
+}
+
+/**
+ * Legacy/UI compatibility alias for Article post entities.
  */
 export interface BlogPost {
   id: string;
@@ -45,6 +76,8 @@ export interface BlogPost {
   content: string;
   category: 'printmaking' | 'software' | 'essay';
   readTimeMinutes: number;
+  repoUrl?: string | null;
+  techStack?: string[] | null;
   author: Author;
   coverImage?: CMSImage;
 }
@@ -66,7 +99,7 @@ export interface Project {
 }
 
 /**
- * Author profile metadata interface.
+ * Author profile metadata.
  */
 export interface Author {
   name: string;
@@ -76,7 +109,7 @@ export interface Author {
 }
 
 /**
- * Museum Placard metadata payload format for printmaking detail views.
+ * Museum Placard metadata payload format for artwork detail views.
  */
 export interface MuseumPlacardData {
   title: string;
