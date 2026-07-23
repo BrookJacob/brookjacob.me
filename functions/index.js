@@ -1,10 +1,10 @@
 /**
- * Firebase Cloud Functions for Hygraph Webhook Relay & Image Blurhash Generation
+ * Firebase Cloud Functions for Hygraph Webhook Relay & Image BlurHash Generation
  * 
- * Provides HTTP endpoints for:
- * 1. `hygraphDeployWebhook`: Translates Hygraph publish events into GitHub Actions workflow dispatches.
- * 2. `hygraphBlurhashWebhook`: Downloads print image assets, computes Blurhash string using Sharp & Blurhash,
- *    and updates the Asset record in Hygraph CMS via Mutation API.
+ * Provides HTTP endpoints with robust logging:
+ * 1. `hygraphDeployWebhook`: Relays Hygraph publish events to GitHub Actions workflow dispatch.
+ * 2. `hygraphBlurhashWebhook`: Downloads print image assets, computes BlurHash strings,
+ *    prevents infinite recursion loops, and updates Hygraph Asset records.
  */
 
 const { onRequest } = require('firebase-functions/v2/https');
@@ -13,7 +13,7 @@ const sharp = require('sharp');
 const { encode } = require('blurhash');
 
 /**
- * Reads secrets and configuration environment variables.
+ * Reads environment configuration and secrets.
  */
 const GITHUB_PAT = process.env.GITHUB_PAT || '';
 const GITHUB_REPO = process.env.GITHUB_REPO || 'brookjacob/brookjacob.me';
@@ -22,34 +22,31 @@ const HYGRAPH_PAT_TOKEN = process.env.HYGRAPH_PAT_TOKEN || '';
 
 /**
  * Hygraph Deploy Webhook Relay Function
- * 
- * Receives publish events from Hygraph and dispatches GitHub Actions workflow (`deploy.yml`).
- * 
- * @param {import('express').Request} req - Express HTTP request object.
- * @param {import('express').Response} res - Express HTTP response object.
  */
 exports.hygraphDeployWebhook = onRequest(async (req, res) => {
-  // Only accept POST requests
   if (req.method !== 'POST') {
+    logger.warn('Deploy Webhook received non-POST request:', req.method);
     res.status(405).send('Method Not Allowed');
     return;
   }
 
   try {
     const payload = req.body || {};
-    logger.info('Received Hygraph Publish Webhook event:', payload.operation, payload.data?.id);
+    logger.info('--- HYGRAPH DEPLOY WEBHOOK TRIGGERED ---');
+    logger.info('Operation:', payload.operation, 'Stage:', payload.stage, 'Entity ID:', payload.data?.id);
 
     const githubPat = process.env.GITHUB_PAT || GITHUB_PAT;
     const githubRepo = process.env.GITHUB_REPO || GITHUB_REPO;
 
     if (!githubPat) {
-      logger.error('Missing GITHUB_PAT environment secret');
-      res.status(500).json({ error: 'Missing GITHUB_PAT configuration' });
+      logger.error('CRITICAL: Missing GITHUB_PAT environment secret.');
+      res.status(500).json({ error: 'Missing GITHUB_PAT configuration secret' });
       return;
     }
 
-    // Forward request to GitHub Actions workflow dispatch API endpoint
     const githubUrl = `https://api.github.com/repos/${githubRepo}/actions/workflows/deploy.yml/dispatches`;
+    logger.info('Dispatching request to GitHub Actions endpoint:', githubUrl);
+
     const response = await fetch(githubUrl, {
       method: 'POST',
       headers: {
@@ -62,24 +59,64 @@ exports.hygraphDeployWebhook = onRequest(async (req, res) => {
     });
 
     if (response.ok || response.status === 204) {
-      logger.info('Successfully triggered GitHub Actions workflow deploy.yml');
+      logger.info('SUCCESS: Triggered GitHub Actions deploy.yml workflow.');
       res.status(200).json({ success: true, message: 'GitHub deployment triggered successfully' });
     } else {
       const errorText = await response.text();
-      logger.error('Failed to trigger GitHub Actions:', response.status, errorText);
-      res.status(response.status).json({ error: 'GitHub API error', details: errorText });
+      logger.error('ERROR from GitHub API:', response.status, errorText);
+      res.status(response.status).json({ error: 'GitHub API error', status: response.status, details: errorText });
     }
   } catch (error) {
-    logger.error('Error in hygraphDeployWebhook:', error);
+    logger.error('Unhandled Exception in hygraphDeployWebhook:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
 /**
- * Encodes image buffer into a compact Blurhash string.
+ * Fetches asset details (url, blurhash) directly from Hygraph if not present in webhook payload.
  * 
- * @param {Buffer} buffer - Image file raw binary buffer.
- * @returns {Promise<string>} Blurhash string representation.
+ * @param {string} assetId - Asset ID in Hygraph.
+ * @returns {Promise<{ url: string, blurhash: string | null } | null>}
+ */
+async function fetchHygraphAssetDetails(assetId) {
+  const query = `
+    query GetAsset($id: ID!) {
+      asset(where: { id: $id }) {
+        id
+        url
+        blurhash
+      }
+    }
+  `;
+
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (HYGRAPH_PAT_TOKEN) {
+      headers['Authorization'] = `Bearer ${HYGRAPH_PAT_TOKEN}`;
+    }
+
+    const res = await fetch(HYGRAPH_ENDPOINT, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ query, variables: { id: assetId } }),
+    });
+
+    const json = await res.json();
+    if (json.data?.asset) {
+      return json.data.asset;
+    }
+    logger.warn('Could not find Asset in Hygraph for ID:', assetId, json);
+  } catch (err) {
+    logger.error('Error fetching Asset details from Hygraph:', err);
+  }
+  return null;
+}
+
+/**
+ * Encodes image buffer into a compact BlurHash string using Sharp.
+ * 
+ * @param {Buffer} buffer - Image file buffer.
+ * @returns {Promise<string>} BlurHash string.
  */
 async function generateBlurhash(buffer) {
   const { data, info } = await sharp(buffer)
@@ -92,10 +129,10 @@ async function generateBlurhash(buffer) {
 }
 
 /**
- * Updates Hygraph Asset with computed Blurhash string via GraphQL Mutation API.
+ * Updates Hygraph Asset with computed BlurHash string via GraphQL Mutation API.
  * 
- * @param {string} assetId - Hygraph Asset document ID.
- * @param {string} blurhash - Generated Blurhash string.
+ * @param {string} assetId - Hygraph Asset ID.
+ * @param {string} blurhash - Generated BlurHash string.
  */
 async function updateHygraphAssetBlurhash(assetId, blurhash) {
   const mutation = `
@@ -118,61 +155,114 @@ async function updateHygraphAssetBlurhash(assetId, blurhash) {
   const res = await fetch(HYGRAPH_ENDPOINT, {
     method: 'POST',
     headers,
-    body: JSON.stringify({
-      query: mutation,
-      variables: { id: assetId, blurhash },
-    }),
+    body: JSON.stringify({ query: mutation, variables: { id: assetId, blurhash } }),
   });
 
   const json = await res.json();
   if (json.errors) {
-    logger.error('Hygraph updateAsset mutation error:', json.errors);
+    logger.error('Hygraph updateAsset GraphQL mutation errors:', JSON.stringify(json.errors, null, 2));
   } else {
-    logger.info('Hygraph Asset updated with Blurhash successfully:', assetId, blurhash);
+    logger.info('SUCCESS: Saved and published BlurHash to Hygraph Asset:', assetId, blurhash);
   }
 }
 
 /**
- * Hygraph Blurhash Generator Webhook Function
- * 
- * Triggered on Hygraph Asset or Print image updates. Downloads raw image,
- * computes Blurhash string, and saves back to Hygraph CMS.
- * 
- * @param {import('express').Request} req - Express HTTP request.
- * @param {import('express').Response} res - Express HTTP response.
+ * Hygraph BlurHash Generator Webhook Function with Enhanced Payload Extraction & Recursion Guard
  */
 exports.hygraphBlurhashWebhook = onRequest(async (req, res) => {
   if (req.method !== 'POST') {
+    logger.warn('Blurhash Webhook received non-POST request:', req.method);
     res.status(405).send('Method Not Allowed');
     return;
   }
 
   try {
     const payload = req.body || {};
-    const asset = payload.data?.mainImage || payload.data;
-    const imageUrl = asset?.url;
-    const assetId = asset?.id;
+    logger.info('--- HYGRAPH BLURHASH WEBHOOK TRIGGERED ---');
+    logger.info('Payload Summary:', {
+      operation: payload.operation,
+      stage: payload.stage,
+      model: payload.data?.__typename || 'Unknown',
+      entityId: payload.data?.id,
+    });
 
-    if (!imageUrl || !assetId) {
-      res.status(400).json({ error: 'No valid image URL or Asset ID found in webhook payload' });
+    const data = payload.data || {};
+    let assetId = null;
+    let imageUrl = null;
+    let existingBlurhash = null;
+
+    // Payload Case 1: Webhook triggered on 'Asset' model directly
+    if (data.url && data.id) {
+      assetId = data.id;
+      imageUrl = data.url;
+      existingBlurhash = data.blurhash;
+    } 
+    // Payload Case 2: Webhook triggered on 'Print' model with nested 'mainImage'
+    else if (data.mainImage) {
+      if (typeof data.mainImage === 'object') {
+        assetId = data.mainImage.id;
+        imageUrl = data.mainImage.url;
+        existingBlurhash = data.mainImage.blurhash;
+      } else if (typeof data.mainImage === 'string') {
+        assetId = data.mainImage;
+      }
+    }
+
+    // Payload Case 3: If asset ID exists but image URL or existing blurhash needs resolution from Hygraph API
+    if (assetId && (!imageUrl || existingBlurhash === undefined)) {
+      logger.info('Resolving Asset details directly from Hygraph API for Asset ID:', assetId);
+      const fetchedAsset = await fetchHygraphAssetDetails(assetId);
+      if (fetchedAsset) {
+        imageUrl = imageUrl || fetchedAsset.url;
+        existingBlurhash = fetchedAsset.blurhash;
+      }
+    }
+
+    if (!assetId || !imageUrl) {
+      logger.warn('WARNING: Unhandled payload structure or missing image URL.', {
+        hasData: !!payload.data,
+        assetId,
+        imageUrl,
+        rawKeys: Object.keys(data),
+      });
+      res.status(200).json({ 
+        skipped: true, 
+        reason: 'No valid image URL or Asset ID found in payload structure',
+        receivedKeys: Object.keys(data),
+      });
       return;
     }
 
-    logger.info('Processing image for Blurhash generation:', assetId, imageUrl);
+    // RECURSION GUARD: Skip if asset already has a valid BlurHash string
+    if (existingBlurhash && existingBlurhash.length > 5) {
+      logger.info('SKIPPING: Asset already contains BlurHash. Loop prevention active.', assetId, existingBlurhash);
+      res.status(200).json({
+        skipped: true,
+        reason: 'Blurhash already exists on asset',
+        assetId,
+        blurhash: existingBlurhash,
+      });
+      return;
+    }
 
-    // Download image binary stream
+    logger.info('Processing image download for BlurHash generation:', { assetId, imageUrl });
+
+    // Download image stream
     const imageRes = await fetch(imageUrl);
     if (!imageRes.ok) {
-      throw new Error(`Failed to download image from ${imageUrl}`);
+      logger.error('ERROR downloading image from CDN:', imageRes.status, imageUrl);
+      throw new Error(`Failed to download image: HTTP ${imageRes.status}`);
     }
+
     const arrayBuffer = await imageRes.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Compute compact Blurhash string using Sharp
+    // Compute BlurHash
+    logger.info('Computing BlurHash string via Sharp...');
     const blurhashString = await generateBlurhash(buffer);
-    logger.info('Generated Blurhash:', blurhashString);
+    logger.info('BlurHash computed successfully:', blurhashString);
 
-    // Update Hygraph Asset record
+    // Save back to Hygraph CMS
     await updateHygraphAssetBlurhash(assetId, blurhashString);
 
     res.status(200).json({
@@ -181,7 +271,7 @@ exports.hygraphBlurhashWebhook = onRequest(async (req, res) => {
       blurhash: blurhashString,
     });
   } catch (error) {
-    logger.error('Error generating Blurhash:', error);
+    logger.error('Unhandled Exception in hygraphBlurhashWebhook:', error);
     res.status(500).json({ error: error.message });
   }
 });
