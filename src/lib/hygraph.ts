@@ -87,7 +87,7 @@ function mapPrintToArtwork(print: Print): Artwork {
     paperStock: print.paperDimensions ? `Custom Rag (${print.paperDimensions})` : 'Fine Art Cotton Rag Paper',
     editionSize: `${print.editionTotal}`,
     blockDimensions: print.imageDimensions || 'Hand-carved Linoleum Block',
-    processNotes: print.description || `Original relief print created in ${print.year}. Edition size: ${print.editionTotal}.`,
+    processNotes: print.description || '',
   };
 }
 
