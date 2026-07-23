@@ -1,0 +1,59 @@
+---
+/**
+ * ArtworkCard Component
+ * 
+ * Renders an artwork preview item for gallery feeds. Features medium-bleed image rendering,
+ * hover elevation, technique tag, title, and link navigation to detailed artwork pages.
+ * 
+ * @component
+ * @param {Artwork} artwork - Artwork entity payload.
+ */
+
+import type { Artwork } from '../lib/types';
+
+interface Props {
+  artwork: Artwork;
+}
+
+const { artwork } = Astro.props;
+---
+
+<article class="group relative flex flex-col bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl overflow-hidden focus-tactile transition-all">
+  <!-- Medium Bleed Artwork Image Header -->
+  <a href={`/prints/${artwork.slug}`} class="block overflow-hidden relative aspect-[4/5] bg-paper-border/20 dark:bg-carbon-border/20">
+    <img 
+      src={artwork.coverImage.url} 
+      alt={artwork.coverImage.altText || artwork.title} 
+      class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+      loading="lazy"
+    />
+    <!-- Subtle Year Tag overlay -->
+    <span class="absolute top-3 right-3 bg-paper-bg/90 dark:bg-carbon-bg/90 backdrop-blur text-paper-text dark:text-carbon-text text-xs font-semibold px-2.5 py-1 rounded border border-paper-border/60 dark:border-carbon-border/60">
+      {artwork.year}
+    </span>
+  </a>
+
+  <!-- Content & Metadata Footer -->
+  <div class="p-5 flex flex-col flex-grow justify-between">
+    <div>
+      <!-- Technique Badge -->
+      <span class="text-xs font-medium uppercase tracking-wider text-paper-accent dark:text-carbon-accent">
+        {artwork.technique}
+      </span>
+      <!-- Title -->
+      <h3 class="font-serif text-xl font-bold text-paper-text dark:text-carbon-text mt-1 group-hover:text-paper-accent dark:group-hover:text-carbon-accent transition-colors">
+        <a href={`/prints/${artwork.slug}`}>
+          {artwork.title}
+        </a>
+      </h3>
+    </div>
+
+    <!-- Edition metadata snippet -->
+    <div class="mt-4 pt-3 border-t border-paper-border/60 dark:border-carbon-border/60 flex items-center justify-between text-xs text-paper-muted dark:text-carbon-muted">
+      <span>Edition: {artwork.editionSize}</span>
+      <span class="group-hover:translate-x-1 transition-transform inline-flex items-center gap-1 font-semibold text-paper-text dark:text-carbon-text">
+        Inspect &rarr;
+      </span>
+    </div>
+  </div>
+</article>

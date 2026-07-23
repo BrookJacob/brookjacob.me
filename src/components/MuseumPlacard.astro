@@ -1,0 +1,90 @@
+---
+/**
+ * MuseumPlacard Component
+ * 
+ * Renders an editorial museum-style placard card displaying comprehensive printmaking metadata:
+ * artwork title, year, medium technique, paper stock, edition size, block dimensions, and process notes.
+ * 
+ * @component
+ * @param {MuseumPlacardData} placard - Object containing printmaking placard properties.
+ */
+
+import type { MuseumPlacardData } from '../lib/types';
+
+interface Props {
+  placard: MuseumPlacardData;
+}
+
+const { placard } = Astro.props;
+---
+
+<aside class="w-full bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border p-6 sm:p-8 rounded-xl shadow-sm transition-colors relative overflow-hidden">
+  <!-- Top subtle decorative indicator stripe -->
+  <div class="absolute top-0 left-0 right-0 h-1 bg-paper-accent dark:bg-carbon-accent"></div>
+
+  <!-- Header section: Title and Year -->
+  <div class="border-b border-paper-border dark:border-carbon-border pb-4 mb-6">
+    <span class="text-xs uppercase tracking-widest font-semibold text-paper-accent dark:text-carbon-accent">
+      Museum Placard Metadata
+    </span>
+    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-paper-text dark:text-carbon-text mt-1">
+      {placard.title}
+    </h2>
+    <p class="text-sm text-paper-muted dark:text-carbon-muted mt-0.5">
+      Printed {placard.year}
+    </p>
+  </div>
+
+  <!-- Key Specification Metadata Grid -->
+  <dl class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 text-sm border-b border-paper-border dark:border-carbon-border pb-6 mb-6">
+    <!-- Medium & Technique -->
+    <div>
+      <dt class="text-xs uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold">
+        Medium & Technique
+      </dt>
+      <dd class="text-paper-text dark:text-carbon-text font-medium mt-0.5">
+        {placard.technique}
+      </dd>
+    </div>
+
+    <!-- Paper Stock -->
+    <div>
+      <dt class="text-xs uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold">
+        Paper Stock
+      </dt>
+      <dd class="text-paper-text dark:text-carbon-text font-medium mt-0.5">
+        {placard.paperStock}
+      </dd>
+    </div>
+
+    <!-- Edition Size -->
+    <div>
+      <dt class="text-xs uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold">
+        Edition Size
+      </dt>
+      <dd class="text-paper-text dark:text-carbon-text font-medium mt-0.5">
+        {placard.editionSize}
+      </dd>
+    </div>
+
+    <!-- Block Dimensions -->
+    <div>
+      <dt class="text-xs uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold">
+        Block Dimensions
+      </dt>
+      <dd class="text-paper-text dark:text-carbon-text font-medium mt-0.5">
+        {placard.blockDimensions}
+      </dd>
+    </div>
+  </dl>
+
+  <!-- Process Notes & Artist Narrative Breakdown -->
+  <div>
+    <h3 class="text-xs uppercase tracking-wider font-semibold text-paper-muted dark:text-carbon-muted mb-2">
+      Artist Process & Studio Notes
+    </h3>
+    <p class="text-sm sm:text-base text-paper-text dark:text-carbon-text leading-relaxed font-serif">
+      {placard.processNotes}
+    </p>
+  </div>
+</aside>

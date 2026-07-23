@@ -1,0 +1,39 @@
+---
+/**
+ * Footer Component
+ * 
+ * Editorial footer providing copyright, domain portal index links,
+ * GitHub repository reference, and accessibility statements.
+ * 
+ * @component
+ */
+---
+
+<footer class="w-full border-t border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg py-12 transition-colors">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+    <!-- Editorial Studio Statement -->
+    <div class="flex flex-col gap-1 text-center md:text-left">
+      <p class="font-serif font-bold text-paper-text dark:text-carbon-text">
+        Brook Jacob — Printmaking & Software Architecture
+      </p>
+      <p class="text-xs text-paper-muted dark:text-carbon-muted">
+        Tactile relief prints on handmade rag paper & immutable web systems.
+      </p>
+    </div>
+
+    <!-- Domain Links & Copyright -->
+    <div class="flex flex-col items-center md:items-end gap-2">
+      <div class="flex items-center gap-4 text-xs font-medium text-paper-muted dark:text-carbon-muted">
+        <a href="https://brookjacob.me" class="hover:text-paper-accent dark:hover:text-carbon-accent transition-colors">brookjacob.me</a>
+        <span>•</span>
+        <a href="https://prints.brookjacob.me" class="hover:text-paper-accent dark:hover:text-carbon-accent transition-colors">prints.brookjacob.me</a>
+        <span>•</span>
+        <a href="https://code.brookjacob.me" class="hover:text-paper-accent dark:hover:text-carbon-accent transition-colors">code.brookjacob.me</a>
+      </div>
+      <!-- Year and Copyright -->
+      <p class="text-xs text-paper-muted dark:text-carbon-muted opacity-80">
+        &copy; {new Date().getFullYear()} Brook Jacob. All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>
