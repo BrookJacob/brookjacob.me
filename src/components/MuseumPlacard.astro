@@ -24,9 +24,6 @@ const { placard } = Astro.props;
 
   <!-- Header section: Title and Year -->
   <div class="border-b border-paper-border dark:border-carbon-border pb-4 mb-6">
-    <span class="text-xs uppercase tracking-widest font-semibold text-paper-accent dark:text-carbon-accent">
-      Museum Placard Metadata
-    </span>
     <h2 class="font-serif text-2xl sm:text-3xl font-bold text-paper-text dark:text-carbon-text mt-1">
       {placard.title}
     </h2>
@@ -47,16 +44,6 @@ const { placard } = Astro.props;
       </dd>
     </div>
 
-    <!-- Paper Stock -->
-    <div>
-      <dt class="text-xs uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold">
-        Paper Stock
-      </dt>
-      <dd class="text-paper-text dark:text-carbon-text font-medium mt-0.5">
-        {placard.paperStock}
-      </dd>
-    </div>
-
     <!-- Edition Size -->
     <div>
       <dt class="text-xs uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold">
@@ -66,17 +53,6 @@ const { placard } = Astro.props;
         {placard.editionSize}
       </dd>
     </div>
-
-    <!-- Block Dimensions -->
-    <div>
-      <dt class="text-xs uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold">
-        Block Dimensions
-      </dt>
-      <dd class="text-paper-text dark:text-carbon-text font-medium mt-0.5">
-        {placard.blockDimensions}
-      </dd>
-    </div>
-  </dl>
 
   <!-- Process Notes & Artist Narrative Breakdown -->
   <div>
