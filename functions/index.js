@@ -1,29 +1,29 @@
 /**
  * Firebase Cloud Functions for Hygraph Webhook Relay & Image BlurHash Generation
  * 
- * Provides HTTP endpoints with robust logging:
+ * Provides HTTP endpoints with robust logging and Cloud Secret Manager integration:
  * 1. `hygraphDeployWebhook`: Relays Hygraph publish events to GitHub Actions workflow dispatch.
  * 2. `hygraphBlurhashWebhook`: Downloads print image assets, computes BlurHash strings,
  *    prevents infinite recursion loops, and updates Hygraph Asset records.
  */
 
 const { onRequest } = require('firebase-functions/v2/https');
+const { defineSecret } = require('firebase-functions/params');
 const logger = require('firebase-functions/logger');
 const sharp = require('sharp');
 const { encode } = require('blurhash');
 
-/**
- * Reads environment configuration and secrets.
- */
-const GITHUB_PAT = process.env.GITHUB_PAT || '';
+// Define Cloud Secret Manager secret references
+const githubPatSecret = defineSecret('GITHUB_PAT');
+const hygraphTokenSecret = defineSecret('HYGRAPH_PAT_TOKEN');
+
 const GITHUB_REPO = process.env.GITHUB_REPO || 'brookjacob/brookjacob.me';
 const HYGRAPH_ENDPOINT = process.env.HYGRAPH_ENDPOINT || 'https://us-west-2.cdn.hygraph.com/content/cmleb20kj014707w90z5k39wb/master';
-const HYGRAPH_PAT_TOKEN = process.env.HYGRAPH_PAT_TOKEN || '';
 
 /**
  * Hygraph Deploy Webhook Relay Function
  */
-exports.hygraphDeployWebhook = onRequest(async (req, res) => {
+exports.hygraphDeployWebhook = onRequest({ secrets: [githubPatSecret] }, async (req, res) => {
   if (req.method !== 'POST') {
     logger.warn('Deploy Webhook received non-POST request:', req.method);
     res.status(405).send('Method Not Allowed');
@@ -35,7 +35,7 @@ exports.hygraphDeployWebhook = onRequest(async (req, res) => {
     logger.info('--- HYGRAPH DEPLOY WEBHOOK TRIGGERED ---');
     logger.info('Operation:', payload.operation, 'Stage:', payload.stage, 'Entity ID:', payload.data?.id);
 
-    const githubPat = process.env.GITHUB_PAT || GITHUB_PAT;
+    const githubPat = githubPatSecret.value() || process.env.GITHUB_PAT || '';
     const githubRepo = process.env.GITHUB_REPO || GITHUB_REPO;
 
     if (!githubPat) {
@@ -76,9 +76,10 @@ exports.hygraphDeployWebhook = onRequest(async (req, res) => {
  * Fetches asset details (url, blurhash) directly from Hygraph if not present in webhook payload.
  * 
  * @param {string} assetId - Asset ID in Hygraph.
+ * @param {string} [token] - Hygraph PAT Auth Token.
  * @returns {Promise<{ url: string, blurhash: string | null } | null>}
  */
-async function fetchHygraphAssetDetails(assetId) {
+async function fetchHygraphAssetDetails(assetId, token) {
   const query = `
     query GetAsset($id: ID!) {
       asset(where: { id: $id }) {
@@ -91,8 +92,9 @@ async function fetchHygraphAssetDetails(assetId) {
 
   try {
     const headers = { 'Content-Type': 'application/json' };
-    if (HYGRAPH_PAT_TOKEN) {
-      headers['Authorization'] = `Bearer ${HYGRAPH_PAT_TOKEN}`;
+    const authToken = token || process.env.HYGRAPH_PAT_TOKEN || '';
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
     }
 
     const res = await fetch(HYGRAPH_ENDPOINT, {
@@ -133,8 +135,9 @@ async function generateBlurhash(buffer) {
  * 
  * @param {string} assetId - Hygraph Asset ID.
  * @param {string} blurhash - Generated BlurHash string.
+ * @param {string} [token] - Hygraph PAT Auth Token.
  */
-async function updateHygraphAssetBlurhash(assetId, blurhash) {
+async function updateHygraphAssetBlurhash(assetId, blurhash, token) {
   const mutation = `
     mutation UpdateAssetBlurhash($id: ID!, $blurhash: String!) {
       updateAsset(where: { id: $id }, data: { blurhash: $blurhash }) {
@@ -148,8 +151,9 @@ async function updateHygraphAssetBlurhash(assetId, blurhash) {
   `;
 
   const headers = { 'Content-Type': 'application/json' };
-  if (HYGRAPH_PAT_TOKEN) {
-    headers['Authorization'] = `Bearer ${HYGRAPH_PAT_TOKEN}`;
+  const authToken = token || process.env.HYGRAPH_PAT_TOKEN || '';
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
   }
 
   const res = await fetch(HYGRAPH_ENDPOINT, {
@@ -167,9 +171,9 @@ async function updateHygraphAssetBlurhash(assetId, blurhash) {
 }
 
 /**
- * Hygraph BlurHash Generator Webhook Function with Enhanced Payload Extraction & Recursion Guard
+ * Hygraph BlurHash Generator Webhook Function with Secret Manager Integration & Recursion Guard
  */
-exports.hygraphBlurhashWebhook = onRequest(async (req, res) => {
+exports.hygraphBlurhashWebhook = onRequest({ secrets: [hygraphTokenSecret] }, async (req, res) => {
   if (req.method !== 'POST') {
     logger.warn('Blurhash Webhook received non-POST request:', req.method);
     res.status(405).send('Method Not Allowed');
@@ -178,6 +182,8 @@ exports.hygraphBlurhashWebhook = onRequest(async (req, res) => {
 
   try {
     const payload = req.body || {};
+    const hygraphToken = hygraphTokenSecret.value() || process.env.HYGRAPH_PAT_TOKEN || '';
+
     logger.info('--- HYGRAPH BLURHASH WEBHOOK TRIGGERED ---');
     logger.info('Payload Summary:', {
       operation: payload.operation,
@@ -211,7 +217,7 @@ exports.hygraphBlurhashWebhook = onRequest(async (req, res) => {
     // Payload Case 3: If asset ID exists but image URL or existing blurhash needs resolution from Hygraph API
     if (assetId && (!imageUrl || existingBlurhash === undefined)) {
       logger.info('Resolving Asset details directly from Hygraph API for Asset ID:', assetId);
-      const fetchedAsset = await fetchHygraphAssetDetails(assetId);
+      const fetchedAsset = await fetchHygraphAssetDetails(assetId, hygraphToken);
       if (fetchedAsset) {
         imageUrl = imageUrl || fetchedAsset.url;
         existingBlurhash = fetchedAsset.blurhash;
@@ -263,7 +269,7 @@ exports.hygraphBlurhashWebhook = onRequest(async (req, res) => {
     logger.info('BlurHash computed successfully:', blurhashString);
 
     // Save back to Hygraph CMS
-    await updateHygraphAssetBlurhash(assetId, blurhashString);
+    await updateHygraphAssetBlurhash(assetId, blurhashString, hygraphToken);
 
     res.status(200).json({
       success: true,
