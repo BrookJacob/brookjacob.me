@@ -3,33 +3,40 @@
  * 
  * In-page interactive image viewer component built directly into artwork detail pages.
  * Replaces popup modals with inline pan & zoom capabilities (zoom buttons, wheel zoom, drag panning)
- * while ensuring the entire image remains 100% visible (contained) inside the viewport.
+ * while allowing users to select and toggle through mainImage and all galleryImages thumbnails.
  * 
  * @component
  */
 
 import React, { useState, useRef } from 'react';
+import type { CMSImage } from '../lib/types';
 import { BlurhashCanvas } from './BlurhashCanvas';
 
 export interface InteractiveImageViewerProps {
-  src: string;
+  mainImage: CMSImage;
+  galleryImages?: CMSImage[] | null;
   alt: string;
-  blurhash?: string;
-  title?: string;
 }
 
 export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
-  src,
+  mainImage,
+  galleryImages,
   alt,
-  blurhash,
-  title = 'Artwork Detail',
 }) => {
+  // Combine mainImage and all galleryImages into unified list
+  const allImages: CMSImage[] = [
+    mainImage,
+    ...(galleryImages || []),
+  ].filter((img): img is CMSImage => Boolean(img && img.url));
+
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [scale, setScale] = useState<number>(1);
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const activeImage = allImages[selectedIndex] || mainImage;
 
   const resetZoom = () => {
     setScale(1);
@@ -51,7 +58,6 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
 
   // Mouse wheel zoom handler
   const handleWheel = (e: React.WheelEvent) => {
-    // Only intercept wheel zoom if hovering over container
     e.preventDefault();
     if (e.deltaY < 0) {
       setScale((prev) => Math.min(prev + 0.25, 4));
@@ -106,11 +112,11 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-2 w-full">
+    <div className="flex flex-col gap-2.5 w-full">
       {/* Top Toolbar Controls: Zoom In, Zoom Out, Percentage Readout & Reset */}
       <div className="flex items-center justify-between px-3 py-2 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl text-xs font-mono">
         <span className="text-paper-muted dark:text-carbon-muted font-semibold hidden sm:inline">
-          Interactive Print View
+          {allImages.length > 1 ? `Image ${selectedIndex + 1} of ${allImages.length}` : 'Interactive Print View'}
         </span>
 
         <div className="flex items-center gap-2 ml-auto sm:ml-0">
@@ -150,7 +156,7 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
         </div>
       </div>
 
-      {/* Main Image Viewport Area: Image is 100% contained and constrained to screen height */}
+      {/* Main Image Viewport Area: Image is 100% contained */}
       <div
         ref={containerRef}
         onWheel={handleWheel}
@@ -161,7 +167,7 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className={`relative w-full h-[55vh] sm:h-[62vh] max-h-[580px] overflow-hidden rounded-xl border border-paper-border dark:border-carbon-border bg-paper-border/20 dark:bg-carbon-border/20 flex items-center justify-center p-2 select-none touch-none ${
+        className={`relative w-full h-[50vh] sm:h-[56vh] max-h-[540px] overflow-hidden rounded-xl border border-paper-border dark:border-carbon-border bg-paper-border/20 dark:bg-carbon-border/20 flex items-center justify-center p-2 select-none touch-none ${
           scale > 1 ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'
         }`}
       >
@@ -172,9 +178,10 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
           }}
         >
           <BlurhashCanvas
-            src={src}
-            alt={alt}
-            blurhash={blurhash}
+            key={activeImage.url}
+            src={activeImage.url}
+            alt={activeImage.altText || alt}
+            blurhash={activeImage.blurhash}
             className="h-full w-full object-contain pointer-events-none rounded"
           />
         </div>
@@ -186,6 +193,37 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
           </div>
         )}
       </div>
+
+      {/* Thumbnail Selector Strip for mainImage + galleryImages */}
+      {allImages.length > 1 && (
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1">
+          {allImages.map((img, idx) => (
+            <button
+              key={img.url || idx}
+              type="button"
+              onClick={() => {
+                setSelectedIndex(idx);
+                resetZoom();
+              }}
+              className={`relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                selectedIndex === idx
+                  ? 'border-paper-accent dark:border-carbon-accent ring-2 ring-paper-accent/30 scale-105 z-10'
+                  : 'border-paper-border dark:border-carbon-border opacity-60 hover:opacity-100'
+              }`}
+              title={`View ${idx === 0 ? 'Main Artwork' : `Gallery Detail #${idx}`}`}
+            >
+              <img
+                src={img.url}
+                alt={`${alt} view ${idx + 1}`}
+                className="w-full h-full object-cover pointer-events-none"
+              />
+              <span className="absolute bottom-0 right-0 bg-black/75 text-white text-[9px] font-mono font-semibold px-1 py-0.2 rounded-tl">
+                {idx === 0 ? 'Main' : `#${idx}`}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
