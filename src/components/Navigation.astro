@@ -39,17 +39,7 @@ const { activeDomain = 'root' } = Astro.props;
 
       <!-- Desktop Navigation Links (Hidden on small screens to prevent crowding) -->
       <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
-        <!-- Root Portal Link -->
-        <a 
-          href="https://brookjacob.studio" 
-          class={`px-3 py-1.5 rounded-md transition-colors ${
-            activeDomain === 'root' 
-              ? 'text-paper-accent dark:text-carbon-accent bg-paper-border/30 dark:bg-carbon-border/30 font-semibold' 
-              : 'text-paper-muted dark:text-carbon-muted hover:text-paper-text dark:hover:text-carbon-text'
-          }`}
-        >
-          Portal
-        </a>
+        
 
         <!-- Printmaking Portfolio Link -->
         <a 
