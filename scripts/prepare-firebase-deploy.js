@@ -1,7 +1,7 @@
 /**
  * Prepare Firebase Multi-Site Deployment Script
  * 
- * Copies built bundle assets (_astro directory) and public static assets
+ * Copies built bundle assets (_astro directory) and public static assets (including images directory)
  * into dist/prints and dist/code target sub-directories so that multi-domain
  * Firebase hosting targets (printmaker.brookjacob.studio and developer.brookjacob.studio)
  * have full access to CSS stylesheets, JS hydration chunks, and image assets.
@@ -45,7 +45,7 @@ function copyDirSync(src, dest) {
   }
 }
 
-// Copy _astro CSS/JS assets to each hosting target
+// Copy all static assets (files & subdirectories like `images`) to each hosting target
 for (const target of targets) {
   const targetDir = path.join(distDir, target);
   if (fs.existsSync(targetDir)) {
@@ -54,16 +54,20 @@ for (const target of targets) {
     copyDirSync(astroAssetsDir, targetAstroDir);
     console.log(`✅ Copied _astro assets to dist/${target}/_astro`);
 
-    // Copy root public assets (e.g. avatar.jpg, avatar.jpg.jpg, favicon.svg)
-    const files = fs.readdirSync(distDir);
-    for (const file of files) {
-      const filePath = path.join(distDir, file);
-      const stat = fs.statSync(filePath);
-      if (!stat.isDirectory() && file !== 'index.html') {
-        fs.copyFileSync(filePath, path.join(targetDir, file));
+    // Copy all static assets from dist (excluding target dirs 'prints' and 'code' and 'index.html')
+    const entries = fs.readdirSync(distDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.name !== 'prints' && entry.name !== 'code' && entry.name !== 'index.html' && entry.name !== '_astro') {
+        const srcPath = path.join(distDir, entry.name);
+        const destPath = path.join(targetDir, entry.name);
+        if (entry.isDirectory()) {
+          copyDirSync(srcPath, destPath);
+        } else {
+          fs.copyFileSync(srcPath, destPath);
+        }
       }
     }
-    console.log(`✅ Copied static root assets to dist/${target}/`);
+    console.log(`✅ Copied all static assets (images, fonts, root files) to dist/${target}/`);
 
     // Duplicate sub-pages into dist/${target}/${target} sub-directory
     // so that both /prints/[slug] and /code/[slug] paths resolve properly when hosted on subdomains
