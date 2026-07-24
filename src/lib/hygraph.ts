@@ -83,6 +83,8 @@ function mapPrintToArtwork(print: Print): Artwork {
     ...print,
     slug: cleanSlug,
     coverImage,
+    galleryImages: print.galleryImages || [],
+    processImages: print.processImages || [],
     technique: 'Reduction Linocut Print',
     paperStock: print.paperDimensions ? `Custom Rag (${print.paperDimensions})` : 'Fine Art Cotton Rag Paper',
     editionSize: `${print.editionTotal}`,
@@ -114,6 +116,18 @@ export async function getAllArtworks(): Promise<Artwork[]> {
           display
           printStatus
           mainImage {
+            url
+            width
+            height
+            blurhash
+          }
+          galleryImages {
+            url
+            width
+            height
+            blurhash
+          }
+          processImages {
             url
             width
             height

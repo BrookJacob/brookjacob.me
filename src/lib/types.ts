@@ -32,6 +32,8 @@ export interface Print {
   display?: boolean;
   printStatus?: string;
   mainImage: CMSImage;
+  galleryImages?: CMSImage[] | null;
+  processImages?: CMSImage[] | null;
 }
 
 /**
@@ -120,4 +122,5 @@ export interface MuseumPlacardData {
   editionSize: string;
   blockDimensions: string;
   processNotes: string;
+  processImages?: CMSImage[] | null;
 }
