@@ -11,6 +11,7 @@
 import Navigation from '../../components/Navigation.astro';
 import Footer from '../../components/Footer.astro';
 import { getAllBlogPosts, getBlogPostBySlug } from '../../lib/hygraph';
+import { Image } from 'astro:assets';
 import '../../styles/global.css';
 
 /**
@@ -70,10 +71,12 @@ if (!post) {
 
         <!-- Author Bio Header Card -->
         <div class="mt-6 flex items-center gap-4 pt-4 border-t border-paper-border/60 dark:border-carbon-border/60">
-          <img 
+          <Image 
             src={post.author.avatarUrl} 
             alt={post.author.name} 
-            onerror="if(!this.dataset.retried){this.dataset.retried='1';this.src='/avatar.jpg.jpg';}else{this.style.display='none';}"
+            width={80}
+            height={80}
+            format="webp"
             class="w-10 h-10 rounded-full object-cover border border-paper-border dark:border-carbon-border"
           />
           <div>

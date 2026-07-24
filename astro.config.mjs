@@ -12,6 +12,9 @@ import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
   output: 'static',
+  image: {
+    domains: ['media.graphassets.com', 'us-west-2.graphassets.com', 'images.unsplash.com'],
+  },
   integrations: [
     react(),
     tailwind({

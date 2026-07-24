@@ -11,6 +11,7 @@
 
 import type { Artwork } from '../lib/types';
 import { BlurhashCanvas } from './BlurhashCanvas';
+import { Image } from 'astro:assets';
 
 interface Props {
   artwork: Artwork;
@@ -33,11 +34,15 @@ const secondaryImage = hasGallery ? artwork.galleryImages![0] : null;
       className="w-full h-full object-cover absolute inset-0 z-10"
     />
 
-    <!-- Secondary Gallery Detail Image (Overlay Layer: z-20, preloaded, smooth cross-fade on hover) -->
+    <!-- Secondary Gallery Detail Image (Overlay Layer: z-20, preloaded via Astro Image component) -->
     {secondaryImage && (
-      <img
+      <Image
         src={secondaryImage.url}
         alt={secondaryImage.altText || `${artwork.title} gallery detail`}
+        width={600}
+        height={750}
+        format="webp"
+        quality={80}
         loading="eager"
         class="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-in-out z-20 pointer-events-none"
       />

@@ -11,6 +11,7 @@
 import Navigation from '../../components/Navigation.astro';
 import Footer from '../../components/Footer.astro';
 import { getAllBlogPosts } from '../../lib/hygraph';
+import { Image } from 'astro:assets';
 import '../../styles/global.css';
 
 const posts = await getAllBlogPosts();
@@ -69,10 +70,12 @@ const posts = await getAllBlogPosts();
 
               <div class="mt-6 pt-4 border-t border-paper-border/60 dark:border-carbon-border/60 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <img 
+                  <Image 
                     src={post.author.avatarUrl} 
                     alt={post.author.name} 
-                    onerror="if(!this.dataset.retried){this.dataset.retried='1';this.src='/avatar.jpg.jpg';}else{this.style.display='none';}"
+                    width={56}
+                    height={56}
+                    format="webp"
                     class="w-7 h-7 rounded-full object-cover"
                   />
                   <span class="text-xs font-medium text-paper-text dark:text-carbon-text">
