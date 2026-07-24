@@ -1,9 +1,16 @@
 /**
  * QuantizationStudio Component
  * 
- * Interactive JavaScript / React browser studio simulating the Python Image Quantization engine (`main.py`).
- * Runs HTML5 Canvas 2D image quantization, directional blur smoothing, Mother Color palette blending,
- * subtractive reduction ink layer accumulation stepping, and automated linocut carving script generation.
+ * Interactive JavaScript / React browser studio simulating the Python Image Quantization engine (`main.py`)
+ * and GIMP 3.0 `prep_transfer_cumulative.py` plugin.
+ * 
+ * Features:
+ * - HTML5 Canvas 2D K-Means++ Color Quantization (Supports up to 20 inks)
+ * - Pinned Custom Colors & Semi-Supervised K-Means (Eyedropper canvas picking)
+ * - Cumulative Layer Reduction Transfer (Mimicking prep_transfer_cumulative.py)
+ * - Press Mirror View (Horizontal Flip toggle for hand transfer registration)
+ * - Directional Blur Smoothing & Mother Color Harmony blending
+ * - Automated Perceived Luminance Linocut Carving Script Generator
  * 
  * @component
  */
@@ -17,6 +24,7 @@ interface ColorSwatch {
   hex: string;
   luminance: number;
   inkPass: number;
+  isPinned?: boolean;
 }
 
 export interface QuantizationStudioProps {
@@ -24,16 +32,22 @@ export interface QuantizationStudioProps {
 }
 
 export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialImageSrc }) => {
-  const [paletteSize, setPaletteSize] = useState<number>(5);
+  const [paletteSize, setPaletteSize] = useState<number>(6);
   const [blurRadius, setBlurRadius] = useState<number>(8);
   const [motherMix, setMotherMix] = useState<number>(10);
   const [motherHex, setMotherHex] = useState<string>('#80828C');
-  const [currentStep, setCurrentStep] = useState<number>(5);
+  const [currentStep, setCurrentStep] = useState<number>(6);
   const [activeTab, setActiveTab] = useState<'canvas' | 'script' | 'swatches'>('canvas');
   const [swatches, setSwatches] = useState<ColorSwatch[]>([]);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [imageLoaded, setImageLoaded] = useState<boolean>(false);
   const [selectedPreset, setSelectedPreset] = useState<string>(initialImageSrc ? 'initial' : 'sunset');
+
+  // New features mirroring prep_transfer_cumulative.py & User Pinned Colors
+  const [pinnedColors, setPinnedColors] = useState<string[]>([]);
+  const [isEyedropperActive, setIsEyedropperActive] = useState<boolean>(false);
+  const [isCumulativeMode, setIsCumulativeMode] = useState<boolean>(true);
+  const [isMirrored, setIsMirrored] = useState<boolean>(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const originalCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -46,6 +60,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   const stepSliderId = useId();
   const fileInputId = useId();
   const presetSelectId = useId();
+  const customColorInputId = useId();
 
   // Helper: Load image from URL
   const loadImageFromUrl = (url: string) => {
@@ -78,7 +93,6 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       processImage();
     };
     img.onerror = () => {
-      // Fallback to procedural sample image if loading fails
       const origCanvas = originalCanvasRef.current;
       if (!origCanvas) return;
       const ctx = origCanvas.getContext('2d');
@@ -113,9 +127,8 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     return 0.299 * r + 0.587 * g + 0.114 * b;
   };
 
-  // Draw default procedural test image (High contrast sunset over mountains for printmaking test)
+  // Draw default procedural test image
   const drawSampleImage = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    // Sky gradient
     const skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.6);
     skyGrad.addColorStop(0, '#1a2a6c');
     skyGrad.addColorStop(0.5, '#b21f1f');
@@ -123,13 +136,11 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, width, height * 0.6);
 
-    // Sun
     ctx.fillStyle = '#FFF5C0';
     ctx.beginPath();
     ctx.arc(width * 0.5, height * 0.45, width * 0.12, 0, Math.PI * 2);
     ctx.fill();
 
-    // Mountain 1 (Distant)
     ctx.fillStyle = '#4a2545';
     ctx.beginPath();
     ctx.moveTo(0, height * 0.6);
@@ -138,7 +149,6 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     ctx.closePath();
     ctx.fill();
 
-    // Mountain 2 (Foreground)
     ctx.fillStyle = '#1b1b2f';
     ctx.beginPath();
     ctx.moveTo(width * 0.25, height * 0.6);
@@ -147,7 +157,6 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     ctx.closePath();
     ctx.fill();
 
-    // Water/Land Foreground
     const landGrad = ctx.createLinearGradient(0, height * 0.6, 0, height);
     landGrad.addColorStop(0, '#0f3443');
     landGrad.addColorStop(1, '#34e89e');
@@ -171,6 +180,42 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       setImageLoaded(true);
     }
   }, [initialImageSrc]);
+
+  // Handle Eyedropper click on canvas to pick exact custom color
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isEyedropperActive) return;
+    const canvas = originalCanvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor(((e.clientX - rect.left) / rect.width) * canvas.width);
+    const y = Math.floor(((e.clientY - rect.top) / rect.height) * canvas.height);
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const pixel = ctx.getImageData(x, y, 1, 1).data;
+    const pickedHex = rgbToHex(pixel[0], pixel[1], pixel[2]);
+
+    addPinnedColor(pickedHex);
+    setIsEyedropperActive(false);
+  };
+
+  // Add custom pinned locked color
+  const addPinnedColor = (hex: string) => {
+    const formatted = hex.toLowerCase();
+    if (!pinnedColors.includes(formatted)) {
+      const updated = [...pinnedColors, formatted];
+      setPinnedColors(updated);
+      if (paletteSize < updated.length) {
+        setPaletteSize(updated.length);
+        setCurrentStep(updated.length);
+      }
+    }
+  };
+
+  // Remove pinned color
+  const removePinnedColor = (hex: string) => {
+    setPinnedColors(pinnedColors.filter((c) => c.toLowerCase() !== hex.toLowerCase()));
+  };
 
   // Process Quantization & Rendering Pipeline
   const processImage = () => {
@@ -206,20 +251,23 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
 
     const blurredData = blurCtx.getImageData(0, 0, width, height).data;
 
-    // Step 2: K-Means++ Quantization (Distance-Based Centroid Initialization)
+    // Step 2: Semi-Supervised K-Means++ with Pinned Locked Colors
     const samplePoints: [number, number, number][] = [];
     const step = Math.max(1, Math.floor(data.length / 4000));
     for (let i = 0; i < blurredData.length; i += step * 4) {
       samplePoints.push([blurredData[i], blurredData[i + 1], blurredData[i + 2]]);
     }
 
-    // K-Means++ Centroid Initialization for distinct color sampling
     let centroids: [number, number, number][] = [];
-    if (samplePoints.length > 0) {
-      // First centroid: sample point near middle index
-      const firstIdx = Math.floor(samplePoints.length / 2);
-      centroids.push([...samplePoints[firstIdx]]);
+    const pinnedRgbList = pinnedColors.map(hexToRgb);
 
+    // Initialize locked user-pinned centroids first
+    pinnedRgbList.forEach((c) => {
+      centroids.push([c.r, c.g, c.b]);
+    });
+
+    // Fill remaining centroid slots using K-Means++ distance sampling
+    if (samplePoints.length > 0) {
       while (centroids.length < paletteSize) {
         let maxDist = -1;
         let bestCandidate = samplePoints[0];
@@ -241,7 +289,8 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       }
     }
 
-    // Run 6 iterations of K-Means clustering
+    // Run 6 iterations of K-Means clustering (preserving pinned centroids)
+    const numPinned = pinnedRgbList.length;
     for (let iter = 0; iter < 6; iter++) {
       const clusters: [number, number, number][][] = Array.from({ length: paletteSize }, () => []);
       for (const p of samplePoints) {
@@ -260,7 +309,8 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         clusters[bestK].push(p);
       }
 
-      for (let k = 0; k < paletteSize; k++) {
+      // Update only unpinned centroids
+      for (let k = numPinned; k < paletteSize; k++) {
         if (clusters[k].length > 0) {
           const sum = clusters[k].reduce(
             (acc, curr) => [acc[0] + curr[0], acc[1] + curr[1], acc[2] + curr[2]],
@@ -279,22 +329,32 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     const motherRgb = hexToRgb(motherHex);
     const mixRatio = motherMix / 100;
 
-    const harmonizedCentroids = centroids.map(([r, g, b]) => [
-      Math.round(r * (1 - mixRatio) + motherRgb.r * mixRatio),
-      Math.round(g * (1 - mixRatio) + motherRgb.g * mixRatio),
-      Math.round(b * (1 - mixRatio) + motherRgb.b * mixRatio),
-    ]);
+    const harmonizedCentroids = centroids.map(([r, g, b], idx) => {
+      // Keep pinned colors un-mixed if user wants exact color match, or harmonized
+      if (idx < numPinned && motherMix === 0) {
+        return [r, g, b];
+      }
+      return [
+        Math.round(r * (1 - mixRatio) + motherRgb.r * mixRatio),
+        Math.round(g * (1 - mixRatio) + motherRgb.g * mixRatio),
+        Math.round(b * (1 - mixRatio) + motherRgb.b * mixRatio),
+      ];
+    });
 
     // Step 4: Deduplicate Swatches & Sort by Perceived Luminance (Lightest to Darkest)
+    const pinnedSet = new Set(pinnedColors.map((h) => h.toLowerCase()));
+
     const rawSwatches = harmonizedCentroids.map(([r, g, b]) => {
       const lum = getLuminance(r, g, b);
+      const hex = rgbToHex(r, g, b);
       return {
         r,
         g,
         b,
-        hex: rgbToHex(r, g, b),
+        hex,
         luminance: Math.round(lum),
         inkPass: 1,
+        isPinned: pinnedSet.has(hex.toLowerCase()),
       };
     });
 
@@ -317,13 +377,9 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
 
     setSwatches(swatchesList);
 
-    // Step 5: Render Quantized Image & Layer Stepper Filter
+    // Step 5: Render Quantized Image & Layer Stepper Filter (Mimicking prep_transfer_cumulative.py)
     const outputImgData = procCtx.createImageData(width, height);
     const outData = outputImgData.data;
-
-    // Filter active swatches based on current reduction step slider
-    const maxActivePass = Math.min(currentStep, paletteSize);
-    const activeHexSet = new Set(swatchesList.slice(0, maxActivePass).map((s) => s.hex));
 
     for (let i = 0; i < blurredData.length; i += 4) {
       const r = blurredData[i];
@@ -341,18 +397,38 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         }
       }
 
-      // Check if this ink pass is active under the reduction slider
-      if (activeHexSet.has(closestSwatch.hex)) {
-        outData[i] = closestSwatch.r;
-        outData[i + 1] = closestSwatch.g;
-        outData[i + 2] = closestSwatch.b;
-        outData[i + 3] = 255;
+      const pixelPass = closestSwatch.inkPass;
+      const targetStep = Math.min(currentStep, swatchesList.length);
+
+      if (isCumulativeMode) {
+        // prep_transfer_cumulative.py Cumulative Transfer Logic:
+        // At Pass S (currentStep), uncarved regions (final pass >= S) receive Pass S ink color.
+        // Carved regions (final pass < S) retain ink from their final pass.
+        if (pixelPass >= targetStep) {
+          const stepSwatch = swatchesList.find((s) => s.inkPass === targetStep) || closestSwatch;
+          outData[i] = stepSwatch.r;
+          outData[i + 1] = stepSwatch.g;
+          outData[i + 2] = stepSwatch.b;
+          outData[i + 3] = 255;
+        } else {
+          outData[i] = closestSwatch.r;
+          outData[i + 1] = closestSwatch.g;
+          outData[i + 2] = closestSwatch.b;
+          outData[i + 3] = 255;
+        }
       } else {
-        // Paper White Background for unprinted/carved areas
-        outData[i] = 250;
-        outData[i + 1] = 248;
-        outData[i + 2] = 245;
-        outData[i + 3] = 255;
+        // Standard Layer Mask View: Show only active passes up to currentStep
+        if (pixelPass <= targetStep) {
+          outData[i] = closestSwatch.r;
+          outData[i + 1] = closestSwatch.g;
+          outData[i + 2] = closestSwatch.b;
+          outData[i + 3] = 255;
+        } else {
+          outData[i] = 250;
+          outData[i + 1] = 248;
+          outData[i + 2] = 245;
+          outData[i + 3] = 255;
+        }
       }
     }
 
@@ -365,7 +441,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     if (imageLoaded) {
       processImage();
     }
-  }, [paletteSize, blurRadius, motherMix, motherHex, currentStep, imageLoaded]);
+  }, [paletteSize, blurRadius, motherMix, motherHex, currentStep, pinnedColors, isCumulativeMode, imageLoaded]);
 
   // Handle custom image upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -381,7 +457,6 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         const ctx = origCanvas.getContext('2d');
         if (!ctx) return;
 
-        // Scale down max dimension to 800px for instant browser performance
         const maxDim = 800;
         let w = img.width;
         let h = img.height;
@@ -416,7 +491,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
             Interactive Reduction Linocut Studio
           </span>
           <h2 className="font-serif text-2xl font-bold text-paper-text dark:text-carbon-text mt-1">
-            Quantization & Layer Stepper Engine
+            Quantization & Cumulative Transfer Engine
           </h2>
         </div>
 
@@ -471,20 +546,20 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         </div>
       </div>
 
-      {/* Control Sliders Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 bg-paper-border/20 dark:bg-carbon-border/20 p-4 rounded-lg text-xs">
+      {/* Control Sliders Grid (Extended up to 20 Inks) */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 bg-paper-border/20 dark:bg-carbon-border/20 p-4 rounded-lg text-xs">
         
-        {/* Palette Size K Slider */}
+        {/* Palette Size K Slider (3 to 20 Inks) */}
         <div>
           <div className="flex justify-between font-medium mb-1">
-            <label htmlFor={kSliderId}>Ink Swatches (K):</label>
-            <span className="font-mono font-bold">{paletteSize} Inks</span>
+            <label htmlFor={kSliderId}>Total Ink Swatches (K):</label>
+            <span className="font-mono font-bold text-blue-600 dark:text-blue-400">{paletteSize} Inks</span>
           </div>
           <input
             id={kSliderId}
             type="range"
             min="3"
-            max="10"
+            max="20"
             value={paletteSize}
             onChange={(e) => {
               const val = parseInt(e.target.value);
@@ -540,21 +615,98 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
           </div>
         </div>
 
-        {/* Ink Pass Reduction Layer Stepper Slider */}
+        {/* Ink Pass Stepper Slider */}
         <div>
           <div className="flex justify-between font-medium mb-1">
             <label htmlFor={stepSliderId}>Print Pass Stepper:</label>
-            <span className="font-mono font-bold">Pass {currentStep} of {paletteSize}</span>
+            <span className="font-mono font-bold text-green-600 dark:text-green-400">
+              Pass {currentStep} of {swatches.length || paletteSize}
+            </span>
           </div>
           <input
             id={stepSliderId}
             type="range"
             min="1"
-            max={paletteSize}
+            max={swatches.length || paletteSize}
             value={currentStep}
             onChange={(e) => setCurrentStep(parseInt(e.target.value))}
             className="w-full accent-green-600"
           />
+        </div>
+
+      </div>
+
+      {/* Toolbar: Pinned Colors & Transfer Modes */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-paper-border/10 dark:bg-carbon-border/10 rounded-lg mb-6 text-xs">
+        
+        {/* Eyedropper & Pinned Color Controls */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setIsEyedropperActive(!isEyedropperActive)}
+            className={`px-3 py-1.5 rounded font-semibold transition-colors flex items-center gap-1.5 ${
+              isEyedropperActive
+                ? 'bg-red-600 text-white animate-pulse'
+                : 'bg-paper-text text-paper-bg dark:bg-carbon-text dark:text-carbon-bg hover:opacity-90'
+            }`}
+          >
+            📌 {isEyedropperActive ? 'Click Image to Pick Color...' : 'Eyedropper (Pick Image Color)'}
+          </button>
+
+          <input
+            id={customColorInputId}
+            type="color"
+            onChange={(e) => addPinnedColor(e.target.value)}
+            className="w-7 h-7 rounded cursor-pointer border-none bg-transparent"
+            title="Add Custom Locked Ink Color"
+          />
+
+          {/* Pinned Swatches List */}
+          {pinnedColors.length > 0 && (
+            <div className="flex items-center gap-1.5 ml-2">
+              <span className="text-[11px] font-semibold text-paper-muted dark:text-carbon-muted">Pinned ({pinnedColors.length}):</span>
+              {pinnedColors.map((hex) => (
+                <span
+                  key={hex}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono border bg-paper-bg dark:bg-carbon-bg"
+                >
+                  <span className="w-2.5 h-2.5 rounded-full border inline-block" style={{ backgroundColor: hex }} />
+                  {hex.toUpperCase()}
+                  <button
+                    onClick={() => removePinnedColor(hex)}
+                    className="text-red-500 hover:text-red-700 font-bold ml-1"
+                    title="Remove pinned color"
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Transfer & Mirror Mode Toggles */}
+        <div className="flex items-center gap-3 font-medium">
+          {/* Cumulative Transfer Mode Toggle */}
+          <label className="inline-flex items-center gap-1.5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isCumulativeMode}
+              onChange={(e) => setIsCumulativeMode(e.target.checked)}
+              className="accent-blue-600 rounded"
+            />
+            <span>Cumulative Transfer Mode (GIMP Plugin)</span>
+          </label>
+
+          {/* Press Mirror View Toggle */}
+          <label className="inline-flex items-center gap-1.5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isMirrored}
+              onChange={(e) => setIsMirrored(e.target.checked)}
+              className="accent-blue-600 rounded"
+            />
+            <span>🪞 Press Transfer Mirror</span>
+          </label>
         </div>
 
       </div>
@@ -598,14 +750,20 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         {/* Source Image Canvas */}
         <div className="flex flex-col items-center">
           <span className="text-xs font-mono uppercase tracking-wider text-paper-muted dark:text-carbon-muted mb-2">
-            Continuous Tone Input
+            Continuous Tone Input {isEyedropperActive && '(Click Image to Pick Color)'}
           </span>
           <div className="w-full overflow-hidden rounded-lg border border-paper-border dark:border-carbon-border bg-black/5 flex items-center justify-center p-2">
-            <canvas ref={originalCanvasRef} className="max-w-full h-auto rounded shadow-sm" />
+            <canvas
+              ref={originalCanvasRef}
+              onClick={handleCanvasClick}
+              className={`max-w-full h-auto rounded shadow-sm transition-transform duration-300 ${
+                isEyedropperActive ? 'cursor-crosshair ring-2 ring-red-500' : ''
+              } ${isMirrored ? '-scale-x-100' : ''}`}
+            />
           </div>
         </div>
 
-        {/* Quantized & Smoothed Studio Canvas */}
+        {/* Quantized & Cumulative Reduction Output Canvas */}
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xs font-mono uppercase tracking-wider text-paper-muted dark:text-carbon-muted">
@@ -614,13 +772,18 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
             {isProcessing && <span className="text-xs text-blue-500 animate-pulse">Calculating...</span>}
           </div>
           <div className="w-full overflow-hidden rounded-lg border border-paper-border dark:border-carbon-border bg-black/5 flex items-center justify-center p-2">
-            <canvas ref={canvasRef} className="max-w-full h-auto rounded shadow-sm" />
+            <canvas
+              ref={canvasRef}
+              className={`max-w-full h-auto rounded shadow-sm transition-transform duration-300 ${
+                isMirrored ? '-scale-x-100' : ''
+              }`}
+            />
           </div>
         </div>
       </div>
 
       {/* Tab Content: Ink Swatches Grid */}
-      <div className={activeTab === 'swatches' ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3' : 'hidden'}>
+      <div className={activeTab === 'swatches' ? 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3' : 'hidden'}>
         {swatches.map((swatch) => (
           <div
             key={swatch.hex}
@@ -631,10 +794,18 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
             }`}
           >
             <div
-              className="w-full h-12 rounded border shadow-inner mb-2"
+              className="w-full h-12 rounded border shadow-inner mb-2 relative flex items-center justify-center"
               style={{ backgroundColor: swatch.hex }}
-            />
-            <span className="font-mono font-bold uppercase">{swatch.hex}</span>
+            >
+              {swatch.isPinned && (
+                <span className="text-sm bg-black/40 text-white rounded-full px-1.5 py-0.5" title="User Pinned Locked Ink">
+                  📌
+                </span>
+              )}
+            </div>
+            <span className="font-mono font-bold uppercase flex items-center gap-1">
+              {swatch.hex}
+            </span>
             <span className="text-[10px] text-paper-muted dark:text-carbon-muted">
               Pass {swatch.inkPass} • Lum: {swatch.luminance}
             </span>
@@ -657,7 +828,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         {swatches.map((swatch, idx) => (
           <div key={swatch.hex} className="p-2 border border-paper-border dark:border-carbon-border rounded flex items-center justify-between">
             <div>
-              <strong>Step {idx + 1}: Print Ink Pass {swatch.inkPass} ({swatch.hex})</strong>
+              <strong>Step {idx + 1}: Print Ink Pass {swatch.inkPass} ({swatch.hex}) {swatch.isPinned ? '📌 [Pinned Ink]' : ''}</strong>
               <div className="text-[11px] text-paper-muted dark:text-carbon-muted font-sans mt-0.5">
                 {idx < swatches.length - 1
                   ? `After printing, carve away all regions that should remain ${swatch.hex} on paper.`
