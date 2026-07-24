@@ -8,7 +8,8 @@
     "start": "astro dev",
     "build": "astro build && node scripts/prepare-firebase-deploy.js",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "optimize-images": "node scripts/optimize-hover-images.js"
   },
   "dependencies": {
     "@astrojs/react": "^3.0.0",
@@ -17,6 +18,7 @@
     "@radix-ui/react-avatar": "^1.2.4",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
+    "@radix-ui/react-hover-card": "^1.1.21",
     "astro": "^4.0.0",
     "blurhash": "^2.0.5",
     "clsx": "^2.1.0",
@@ -30,6 +32,7 @@
   "devDependencies": {
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
+    "sharp": "^0.35.3",
     "typescript": "^5.3.3"
   }
 }

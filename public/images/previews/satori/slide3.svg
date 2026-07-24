@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 338" width="600" height="338">
+  <defs>
+    <linearGradient id="bg-satori-3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14532d"/>
+      <stop offset="100%" stop-color="#052e16"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="338" fill="url(#bg-satori-3)"/>
+  <rect x="20" y="20" width="560" height="298" rx="8" fill="#052e16" stroke="#15803d" stroke-width="1.5"/>
+  <rect x="20" y="20" width="560" height="40" fill="#14532d" rx="8"/>
+  <circle cx="45" cy="40" r="5" fill="#ef4444"/>
+  <circle cx="62" cy="40" r="5" fill="#f59e0b"/>
+  <circle cx="79" cy="40" r="5" fill="#10b981"/>
+  <text x="105" y="44" fill="#86efac" font-family="monospace" font-size="12">satoritrailheads.com — Field Guides &amp; Waypoints</text>
+
+  <rect x="50" y="85" width="500" height="190" rx="8" fill="#14532d" stroke="#16a34a"/>
+  <text x="75" y="120" fill="#bbf7d0" font-family="serif" font-weight="bold" font-size="16">Field Notes &amp; Summit Conditions</text>
+  <line x1="75" y1="135" x2="525" y2="135" stroke="#15803d" stroke-width="1"/>
+  <circle cx="90" cy="165" r="8" fill="#22c55e"/>
+  <text x="110" y="170" fill="#ffffff" font-family="sans-serif" font-size="12">Clear trail markers &amp; water sources mapped</text>
+  <circle cx="90" cy="195" r="8" fill="#22c55e"/>
+  <text x="110" y="200" fill="#ffffff" font-family="sans-serif" font-size="12">Offline GPX export &amp; route telemetry</text>
+</svg>

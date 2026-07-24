@@ -10,6 +10,7 @@
 
 import Navigation from '../components/Navigation.astro';
 import Footer from '../components/Footer.astro';
+import WebsiteHoverCard from '../components/WebsiteHoverCard';
 import '../styles/global.css';
 ---
 
@@ -39,7 +40,7 @@ import '../styles/global.css';
         </h1>
 
         <p class="text-lg sm:text-xl text-paper-muted dark:text-carbon-muted leading-relaxed font-serif">
-          Bridging the physical discipline of multi-layer relief printmaking with web development through interactive platforms like <a href="https://ableroadmap.com" target="_blank" rel="noopener noreferrer" class="underline underline-offset-4 decoration-paper-accent dark:decoration-carbon-accent hover:text-paper-text dark:hover:text-carbon-text transition-colors">ABLE Roadmap</a> and <a href="https://satoritrailheads.com" target="_blank" rel="noopener noreferrer" class="underline underline-offset-4 decoration-paper-accent dark:decoration-carbon-accent hover:text-paper-text dark:hover:text-carbon-text transition-colors">Satori Trailheads</a>.
+          Bridging the physical discipline of multi-layer relief printmaking with web development through interactive platforms like <WebsiteHoverCard client:load href="https://ableroadmap.com" label="ABLE Roadmap" title="ABLE Roadmap — Daily Momentum Coach" description="A daily momentum coach & life roadmap workspace to track habits, goals, and deep work focus." domain="ableroadmap.com" images={['/images/previews/able/slide1.svg', '/images/previews/able/slide2.svg', '/images/previews/able/slide3.svg']} accentColor="accent" /> and <WebsiteHoverCard client:load href="https://satoritrailheads.com" label="Satori Trailheads" title="Satori Trailheads — Outdoor Expeditions" description="Interactive mountain trailheads, topographic telemetry, and field guide waypoint maps." domain="satoritrailheads.com" images={['/images/previews/satori/slide1.svg', '/images/previews/satori/slide2.svg', '/images/previews/satori/slide3.svg']} accentColor="accent" />.
         </p>
       </section>
 
