@@ -63,7 +63,7 @@ export const MobileNavMenu: React.FC<MobileNavMenuProps> = ({ activeDomain = 'ro
             {/* Navigation Links Feed */}
             <nav className="flex flex-col gap-2 py-6">
               <a
-                href="/"
+                href="https://brookjacob.studio"
                 className={`px-4 py-3 rounded-xl font-serif text-base font-semibold transition-colors ${
                   activeDomain === 'root'
                     ? 'bg-paper-border/40 dark:bg-carbon-border/40 text-paper-accent dark:text-carbon-accent'
@@ -74,7 +74,7 @@ export const MobileNavMenu: React.FC<MobileNavMenuProps> = ({ activeDomain = 'ro
               </a>
 
               <a
-                href="/prints"
+                href="https://printmaker.brookjacob.studio"
                 className={`px-4 py-3 rounded-xl font-serif text-base font-semibold transition-colors ${
                   activeDomain === 'prints'
                     ? 'bg-paper-border/40 dark:bg-carbon-border/40 text-paper-accent dark:text-carbon-accent'
@@ -85,7 +85,7 @@ export const MobileNavMenu: React.FC<MobileNavMenuProps> = ({ activeDomain = 'ro
               </a>
 
               <a
-                href="/code"
+                href="https://developer.brookjacob.studio"
                 className={`px-4 py-3 rounded-xl font-serif text-base font-semibold transition-colors ${
                   activeDomain === 'code'
                     ? 'bg-paper-border/40 dark:bg-carbon-border/40 text-blue-600 dark:text-blue-400'
@@ -96,7 +96,7 @@ export const MobileNavMenu: React.FC<MobileNavMenuProps> = ({ activeDomain = 'ro
               </a>
 
               <a
-                href="/blog"
+                href="https://brookjacob.studio/blog"
                 className={`px-4 py-3 rounded-xl font-serif text-base font-semibold transition-colors ${
                   activeDomain === 'blog'
                     ? 'bg-paper-border/40 dark:bg-carbon-border/40 text-paper-accent dark:text-carbon-accent'

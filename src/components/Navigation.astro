@@ -23,7 +23,7 @@ const { activeDomain = 'root' } = Astro.props;
 <header class="w-full border-b border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg sticky top-0 z-40 transition-colors">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
     <!-- Brand / Home Link -->
-    <a href="/" class="group flex items-center gap-2 text-paper-text dark:text-carbon-text no-underline">
+    <a href="https://brookjacob.studio" class="group flex items-center gap-2 text-paper-text dark:text-carbon-text no-underline">
       <span class="font-serif text-xl font-bold tracking-tight group-hover:text-paper-accent dark:group-hover:text-carbon-accent transition-colors">
         Jacob Brook
       </span>
@@ -41,7 +41,7 @@ const { activeDomain = 'root' } = Astro.props;
       <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
         <!-- Root Portal Link -->
         <a 
-          href="/" 
+          href="https://brookjacob.studio" 
           class={`px-3 py-1.5 rounded-md transition-colors ${
             activeDomain === 'root' 
               ? 'text-paper-accent dark:text-carbon-accent bg-paper-border/30 dark:bg-carbon-border/30 font-semibold' 
@@ -53,7 +53,7 @@ const { activeDomain = 'root' } = Astro.props;
 
         <!-- Printmaking Portfolio Link -->
         <a 
-          href="/prints" 
+          href="https://printmaker.brookjacob.studio" 
           class={`px-3 py-1.5 rounded-md transition-colors focus-tactile ${
             activeDomain === 'prints' 
               ? 'text-paper-accent dark:text-carbon-accent bg-paper-border/30 dark:bg-carbon-border/30 font-semibold' 
@@ -65,7 +65,7 @@ const { activeDomain = 'root' } = Astro.props;
 
         <!-- Developer Portfolio Link -->
         <a 
-          href="/code" 
+          href="https://developer.brookjacob.studio" 
           class={`px-3 py-1.5 rounded-md transition-colors focus-tech ${
             activeDomain === 'code' 
               ? 'text-blue-600 dark:text-blue-400 bg-paper-border/30 dark:bg-carbon-border/30 font-semibold' 
@@ -77,7 +77,7 @@ const { activeDomain = 'root' } = Astro.props;
 
         <!-- Blog Link -->
         <a 
-          href="/blog" 
+          href="https://brookjacob.studio/blog" 
           class={`px-3 py-1.5 rounded-md transition-colors ${
             activeDomain === 'blog' 
               ? 'text-paper-accent dark:text-carbon-accent bg-paper-border/30 dark:bg-carbon-border/30 font-semibold' 

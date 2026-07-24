@@ -93,7 +93,7 @@ export const QuickNavMenu: React.FC = () => {
           {/* Section 3: Index Portals */}
           <DropdownMenu.Item asChild>
             <a
-              href="/"
+              href="https://brookjacob.studio"
               className="flex items-center justify-between px-2.5 py-2 text-xs font-semibold rounded-lg text-paper-accent dark:text-carbon-accent hover:bg-paper-border/30 dark:hover:bg-carbon-border/30 transition-colors outline-none cursor-pointer"
             >
               <span>Root Portal</span>
