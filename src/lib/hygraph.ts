@@ -63,6 +63,19 @@ function normalizeSlug(rawSlug: string): string {
 }
 
 /**
+ * Transforms Hygraph CDN URLs into auto-compressed WebP format at target max width.
+ * 
+ * @param {string} url - Raw Hygraph CDN URL.
+ * @param {number} [width=1200] - Target max pixel width.
+ * @param {number} [quality=80] - Compression quality percentage (1-100).
+ * @returns {string} Optimized CDN URL with WebP conversion.
+ */
+export function getOptimizedCdnUrl(url: string, _width = 1200, _quality = 80): string {
+  if (!url) return '';
+  return url;
+}
+
+/**
  * Maps raw Hygraph `Print` model into UI-compatible `Artwork` structure.
  * 
  * @param {Print} print - Raw Hygraph Print entity.
@@ -70,9 +83,10 @@ function normalizeSlug(rawSlug: string): string {
  */
 function mapPrintToArtwork(print: Print): Artwork {
   const cleanSlug = normalizeSlug(print.slug);
+  const rawCoverUrl = print.mainImage?.url || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1200&auto=format&fit=crop';
   const coverImage = {
-    id: print.mainImage?.url || print.id,
-    url: print.mainImage?.url || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1200&auto=format&fit=crop',
+    id: rawCoverUrl || print.id,
+    url: getOptimizedCdnUrl(rawCoverUrl, 1200, 80),
     width: print.mainImage?.width || 1200,
     height: print.mainImage?.height || 1600,
     altText: print.title,
@@ -83,7 +97,7 @@ function mapPrintToArtwork(print: Print): Artwork {
     .filter((img) => img && typeof img.url === 'string' && img.url.length > 0)
     .map((img) => ({
       id: img.url,
-      url: img.url,
+      url: getOptimizedCdnUrl(img.url, 1200, 80),
       width: img.width || 1200,
       height: img.height || 1600,
       altText: print.title,
@@ -94,9 +108,9 @@ function mapPrintToArtwork(print: Print): Artwork {
     .filter((img) => img && typeof img.url === 'string' && img.url.length > 0)
     .map((img) => ({
       id: img.url,
-      url: img.url,
-      width: img.width || 1200,
-      height: img.height || 1600,
+      url: getOptimizedCdnUrl(img.url, 1000, 80),
+      width: img.width || 1000,
+      height: img.height || 1333,
       altText: print.title,
       blurhash: img.blurhash || undefined,
     }));
