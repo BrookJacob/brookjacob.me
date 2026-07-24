@@ -17,22 +17,46 @@ interface Props {
 }
 
 const { artwork } = Astro.props;
+const hasGallery = artwork && artwork.galleryImages && artwork.galleryImages.length > 0;
+const secondaryImage = hasGallery ? artwork.galleryImages![0] : null;
 ---
 
 <article class="group relative flex flex-col bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl overflow-hidden focus-tactile transition-all">
-  <!-- Medium Bleed Artwork Image Header with Blurhash Progressive Render -->
+  <!-- Medium Bleed Artwork Image Header with Timed Hover Cross-Fade -->
   <a href={`/prints/${artwork.slug}`} class="block overflow-hidden relative aspect-[4/5] bg-paper-border/20 dark:bg-carbon-border/20">
+    <!-- Primary Main Image (Fades out on hover if secondary image exists) -->
     <BlurhashCanvas
       client:load
       src={artwork.coverImage.url}
       alt={artwork.coverImage.altText || artwork.title}
       blurhash={artwork.coverImage.blurhash}
-      className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+      className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-700 ease-in-out ${
+        secondaryImage ? 'group-hover:opacity-0 z-10' : 'z-10'
+      }`}
     />
-    <!-- Subtle Year Tag overlay -->
-    <span class="absolute top-3 right-3 z-20 bg-paper-bg/90 dark:bg-carbon-bg/90 backdrop-blur text-paper-text dark:text-carbon-text text-xs font-semibold px-2.5 py-1 rounded border border-paper-border/60 dark:border-carbon-border/60">
-      {artwork.year}
-    </span>
+
+    <!-- Secondary Gallery Image (Smoothly fades in on hover) -->
+    {secondaryImage && (
+      <BlurhashCanvas
+        client:load
+        src={secondaryImage.url}
+        alt={secondaryImage.altText || `${artwork.title} gallery detail`}
+        blurhash={secondaryImage.blurhash}
+        className="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-in-out z-0"
+      />
+    )}
+
+    <!-- Subtle Year Tag & Gallery Count overlay -->
+    <div class="absolute top-3 right-3 z-20 flex items-center gap-1.5">
+      {hasGallery && (
+        <span class="bg-paper-bg/90 dark:bg-carbon-bg/90 backdrop-blur text-paper-accent dark:text-carbon-accent text-[10px] font-mono font-semibold px-2 py-0.5 rounded border border-paper-border/60 dark:border-carbon-border/60">
+          +{artwork.galleryImages!.length} views
+        </span>
+      )}
+      <span class="bg-paper-bg/90 dark:bg-carbon-bg/90 backdrop-blur text-paper-text dark:text-carbon-text text-xs font-semibold px-2.5 py-1 rounded border border-paper-border/60 dark:border-carbon-border/60">
+        {artwork.year}
+      </span>
+    </div>
   </a>
 
   <!-- Content & Metadata Footer -->
