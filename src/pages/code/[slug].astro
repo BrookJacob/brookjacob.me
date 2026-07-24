@@ -26,7 +26,7 @@ const { slug } = Astro.params;
 const project = await getProjectBySlug(slug as string);
 
 if (!project) {
-  return Astro.redirect('/code');
+  return Astro.redirect('/');
 }
 ---
 
@@ -44,7 +44,7 @@ if (!project) {
       <!-- Return Navigation -->
       <div class="mb-8">
         <a 
-          href="/code" 
+          href="/" 
           class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-paper-muted dark:text-carbon-muted hover:text-paper-text dark:hover:text-carbon-text transition-colors"
         >
           &larr; Return to Developer Showcase

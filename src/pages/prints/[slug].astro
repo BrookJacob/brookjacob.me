@@ -30,7 +30,7 @@ const { slug } = Astro.params;
 const artwork = await getArtworkBySlug(slug as string);
 
 if (!artwork) {
-  return Astro.redirect('/prints');
+  return Astro.redirect('/');
 }
 ---
 
@@ -52,7 +52,7 @@ if (!artwork) {
       <!-- Back Link -->
       <div class="mb-8">
         <a 
-          href="/prints" 
+          href="/" 
           class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-paper-muted dark:text-carbon-muted hover:text-paper-text dark:hover:text-carbon-text transition-colors"
         >
           &larr; Return to Printmaking Gallery
