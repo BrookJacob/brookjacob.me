@@ -54,8 +54,8 @@ const latestProjects = projects.slice(0, 2).map((p) => ({
 
     <!-- Right Controls: Quick Jump Menu + Navigation Links + Mobile Drawer -->
     <div class="flex items-center gap-3">
-      <!-- Radix UI Quick Jump Dropdown Menu Primitive -->
-      <QuickNavMenu client:load latestPrints={latestPrints} latestProjects={latestProjects} />
+      <!-- Radix UI Quick Jump Dropdown Menu Primitive (Hydrated during browser idle time) -->
+      <QuickNavMenu client:idle latestPrints={latestPrints} latestProjects={latestProjects} />
 
       <!-- Desktop Navigation Links (Hidden on small screens to prevent crowding) -->
       <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
@@ -98,8 +98,8 @@ const latestProjects = projects.slice(0, 2).map((p) => ({
         </a>
       </nav>
 
-      <!-- Radix UI Sliding Mobile Menu Drawer Primitive -->
-      <MobileNavMenu client:load activeDomain={activeDomain} />
+      <!-- Radix UI Sliding Mobile Menu Drawer Primitive (Hydrated only on mobile viewports) -->
+      <MobileNavMenu client:media="(max-width: 768px)" activeDomain={activeDomain} />
     </div>
   </div>
 </header>
