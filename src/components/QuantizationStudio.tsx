@@ -19,7 +19,11 @@ interface ColorSwatch {
   inkPass: number;
 }
 
-export const QuantizationStudio: React.FC = () => {
+export interface QuantizationStudioProps {
+  initialImageSrc?: string;
+}
+
+export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialImageSrc }) => {
   const [paletteSize, setPaletteSize] = useState<number>(5);
   const [blurRadius, setBlurRadius] = useState<number>(8);
   const [motherMix, setMotherMix] = useState<number>(10);
@@ -29,6 +33,7 @@ export const QuantizationStudio: React.FC = () => {
   const [swatches, setSwatches] = useState<ColorSwatch[]>([]);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [imageLoaded, setImageLoaded] = useState<boolean>(false);
+  const [selectedPreset, setSelectedPreset] = useState<string>(initialImageSrc ? 'initial' : 'sunset');
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const originalCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -40,6 +45,52 @@ export const QuantizationStudio: React.FC = () => {
   const motherColorPickerId = useId();
   const stepSliderId = useId();
   const fileInputId = useId();
+  const presetSelectId = useId();
+
+  // Helper: Load image from URL
+  const loadImageFromUrl = (url: string) => {
+    setIsProcessing(true);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const origCanvas = originalCanvasRef.current;
+      if (!origCanvas) return;
+      const ctx = origCanvas.getContext('2d');
+      if (!ctx) return;
+
+      const maxDim = 800;
+      let w = img.width;
+      let h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) {
+          h = Math.round((h * maxDim) / w);
+          w = maxDim;
+        } else {
+          w = Math.round((w * maxDim) / h);
+          h = maxDim;
+        }
+      }
+
+      origCanvas.width = w;
+      origCanvas.height = h;
+      ctx.drawImage(img, 0, 0, w, h);
+      setImageLoaded(true);
+      processImage();
+    };
+    img.onerror = () => {
+      // Fallback to procedural sample image if loading fails
+      const origCanvas = originalCanvasRef.current;
+      if (!origCanvas) return;
+      const ctx = origCanvas.getContext('2d');
+      if (!ctx) return;
+      origCanvas.width = 600;
+      origCanvas.height = 400;
+      drawSampleImage(ctx, 600, 400);
+      setImageLoaded(true);
+      processImage();
+    };
+    img.src = url;
+  };
 
   // Helper: Convert hex to RGB
   const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
@@ -106,16 +157,20 @@ export const QuantizationStudio: React.FC = () => {
 
   // Initialize sample canvas on mount
   useEffect(() => {
-    const origCanvas = originalCanvasRef.current;
-    if (!origCanvas) return;
-    const ctx = origCanvas.getContext('2d');
-    if (!ctx) return;
+    if (initialImageSrc) {
+      loadImageFromUrl(initialImageSrc);
+    } else {
+      const origCanvas = originalCanvasRef.current;
+      if (!origCanvas) return;
+      const ctx = origCanvas.getContext('2d');
+      if (!ctx) return;
 
-    origCanvas.width = 600;
-    origCanvas.height = 400;
-    drawSampleImage(ctx, 600, 400);
-    setImageLoaded(true);
-  }, []);
+      origCanvas.width = 600;
+      origCanvas.height = 400;
+      drawSampleImage(ctx, 600, 400);
+      setImageLoaded(true);
+    }
+  }, [initialImageSrc]);
 
   // Process Quantization & Rendering Pipeline
   const processImage = () => {
@@ -151,22 +206,43 @@ export const QuantizationStudio: React.FC = () => {
 
     const blurredData = blurCtx.getImageData(0, 0, width, height).data;
 
-    // Step 2: Simplified K-Means Quantization (Grid sampling centroids)
+    // Step 2: K-Means++ Quantization (Distance-Based Centroid Initialization)
     const samplePoints: [number, number, number][] = [];
     const step = Math.max(1, Math.floor(data.length / 4000));
     for (let i = 0; i < blurredData.length; i += step * 4) {
       samplePoints.push([blurredData[i], blurredData[i + 1], blurredData[i + 2]]);
     }
 
-    // Initialize K centroids uniformly
+    // K-Means++ Centroid Initialization for distinct color sampling
     let centroids: [number, number, number][] = [];
-    for (let i = 0; i < paletteSize; i++) {
-      const idx = Math.floor((i / paletteSize) * samplePoints.length);
-      centroids.push([...samplePoints[idx]]);
+    if (samplePoints.length > 0) {
+      // First centroid: sample point near middle index
+      const firstIdx = Math.floor(samplePoints.length / 2);
+      centroids.push([...samplePoints[firstIdx]]);
+
+      while (centroids.length < paletteSize) {
+        let maxDist = -1;
+        let bestCandidate = samplePoints[0];
+
+        for (const p of samplePoints) {
+          let minDistToCentroids = Infinity;
+          for (const c of centroids) {
+            const dist = (p[0] - c[0]) ** 2 + (p[1] - c[1]) ** 2 + (p[2] - c[2]) ** 2;
+            if (dist < minDistToCentroids) {
+              minDistToCentroids = dist;
+            }
+          }
+          if (minDistToCentroids > maxDist) {
+            maxDist = minDistToCentroids;
+            bestCandidate = p;
+          }
+        }
+        centroids.push([...bestCandidate]);
+      }
     }
 
-    // Run 5 iterations of K-Means clustering
-    for (let iter = 0; iter < 5; iter++) {
+    // Run 6 iterations of K-Means clustering
+    for (let iter = 0; iter < 6; iter++) {
       const clusters: [number, number, number][][] = Array.from({ length: paletteSize }, () => []);
       for (const p of samplePoints) {
         let minDist = Infinity;
@@ -209,20 +285,30 @@ export const QuantizationStudio: React.FC = () => {
       Math.round(b * (1 - mixRatio) + motherRgb.b * mixRatio),
     ]);
 
-    // Step 4: Sort Swatches by Perceived Luminance (Lightest ink pass to Darkest)
-    const swatchesList: ColorSwatch[] = harmonizedCentroids
-      .map(([r, g, b]) => {
-        const lum = getLuminance(r, g, b);
-        return {
-          r,
-          g,
-          b,
-          hex: rgbToHex(r, g, b),
-          luminance: Math.round(lum),
-          inkPass: 1,
-        };
-      })
-      .sort((a, b) => b.luminance - a.luminance);
+    // Step 4: Deduplicate Swatches & Sort by Perceived Luminance (Lightest to Darkest)
+    const rawSwatches = harmonizedCentroids.map(([r, g, b]) => {
+      const lum = getLuminance(r, g, b);
+      return {
+        r,
+        g,
+        b,
+        hex: rgbToHex(r, g, b),
+        luminance: Math.round(lum),
+        inkPass: 1,
+      };
+    });
+
+    // Deduplicate swatches by hex code
+    const uniqueSwatchesMap = new Map<string, ColorSwatch>();
+    for (const s of rawSwatches) {
+      if (!uniqueSwatchesMap.has(s.hex)) {
+        uniqueSwatchesMap.set(s.hex, s);
+      }
+    }
+
+    const swatchesList: ColorSwatch[] = Array.from(uniqueSwatchesMap.values()).sort(
+      (a, b) => b.luminance - a.luminance
+    );
 
     // Assign sequential ink pass order numbers (1 = Lightest, K = Darkest)
     swatchesList.forEach((s, idx) => {
@@ -334,12 +420,44 @@ export const QuantizationStudio: React.FC = () => {
           </h2>
         </div>
 
-        {/* Upload Custom File Button */}
-        <div>
+        {/* Preset Select & Upload Custom File Controls */}
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            id={presetSelectId}
+            aria-label="Choose Image Preset"
+            value={selectedPreset}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSelectedPreset(val);
+              if (val === 'sunset') {
+                const origCanvas = originalCanvasRef.current;
+                if (origCanvas) {
+                  const ctx = origCanvas.getContext('2d');
+                  if (ctx) {
+                    origCanvas.width = 600;
+                    origCanvas.height = 400;
+                    drawSampleImage(ctx, 600, 400);
+                    setImageLoaded(true);
+                    processImage();
+                  }
+                }
+              } else if (val === 'initial' && initialImageSrc) {
+                loadImageFromUrl(initialImageSrc);
+              }
+            }}
+            className="text-xs px-2.5 py-1.5 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text font-medium"
+          >
+            <option value="sunset">🌄 Mountain Sunset Preset</option>
+            {initialImageSrc && <option value="initial">🖼️ Custom Studio Artwork</option>}
+          </select>
+
           <input
             type="file"
             ref={fileInputRef}
-            onChange={handleFileUpload}
+            onChange={(e) => {
+              setSelectedPreset('custom');
+              handleFileUpload(e);
+            }}
             accept="image/*"
             className="hidden"
             id={fileInputId}
@@ -348,7 +466,7 @@ export const QuantizationStudio: React.FC = () => {
             htmlFor={fileInputId}
             className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded bg-paper-accent dark:bg-carbon-accent text-white hover:opacity-90 transition-opacity"
           >
-            📷 Upload Image
+            📷 Upload Custom Image
           </label>
         </div>
       </div>
