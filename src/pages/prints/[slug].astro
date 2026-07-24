@@ -12,7 +12,7 @@
 import Navigation from '../../components/Navigation.astro';
 import Footer from '../../components/Footer.astro';
 import MuseumPlacard from '../../components/MuseumPlacard.astro';
-import { LightboxModal } from '../../components/LightboxModal';
+import { InteractiveImageViewer } from '../../components/InteractiveImageViewer';
 import { getAllArtworks, getArtworkBySlug } from '../../lib/hygraph';
 import '../../styles/global.css';
 
@@ -47,10 +47,10 @@ if (!artwork) {
   <body class="min-h-screen flex flex-col justify-between">
     <Navigation activeDomain="prints" />
 
-    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 py-4 sm:py-6 flex flex-col justify-center min-h-[calc(100vh-8rem)]">
       
       <!-- Back Link -->
-      <div class="mb-6">
+      <div class="mb-4">
         <a 
           href="/" 
           class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-paper-muted dark:text-carbon-muted hover:text-paper-text dark:hover:text-carbon-text transition-colors"
@@ -59,22 +59,18 @@ if (!artwork) {
         </a>
       </div>
 
-      <!-- Main Detail Grid Layout: High-Res Lightbox View vs Museum Placard -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- Main Detail Grid Layout: In-Page Pan & Zoom Interactive Image Viewer vs Museum Placard -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         
-        <!-- Left Column: High-Res Image with Radix UI Lightbox Zoom Modal (Client Hydrated) -->
+        <!-- Left Column: In-Page Pan & Zoom Interactive Image Viewer (Client Hydrated) -->
         <div class="lg:col-span-7 flex flex-col gap-2">
-          <LightboxModal 
+          <InteractiveImageViewer 
             client:load 
             src={artwork.coverImage.url} 
             alt={artwork.coverImage.altText || artwork.title} 
             blurhash={artwork.coverImage.blurhash}
             title={artwork.title}
-            technique={artwork.technique}
           />
-          <p class="text-xs text-center text-paper-muted dark:text-carbon-muted italic font-mono">
-            Click image above for full-screen Pan &amp; Zoom inspection modal.
-          </p>
         </div>
 
         <!-- Right Column: Museum Placard Card -->
