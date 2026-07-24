@@ -84,7 +84,19 @@ if (fs.existsSync(printsDir)) {
     }
   }
 
+  // Copy top-level prints gallery index.html and print slug pages into dist/prints (resolves /nora, /whiskey, etc.)
   copyDirSync(tempPrintsDir, printsDir);
+
+  // Mirror individual print slug subdirectories into dist/prints/prints/[slug] (resolves /prints/nora, /prints/whiskey, etc.)
+  const nestedPrintsDir = path.join(printsDir, 'prints');
+  fs.mkdirSync(nestedPrintsDir, { recursive: true });
+  const printEntries = fs.readdirSync(tempPrintsDir, { withFileTypes: true });
+  for (const entry of printEntries) {
+    if (entry.isDirectory()) {
+      copyDirSync(path.join(tempPrintsDir, entry.name), path.join(nestedPrintsDir, entry.name));
+    }
+  }
+
   fs.rmSync(tempPrintsDir, { recursive: true, force: true });
   console.log('✅ Created isolated dist/prints output for printmaker.brookjacob.studio');
 }
@@ -109,7 +121,19 @@ if (fs.existsSync(codeDir)) {
     }
   }
 
+  // Copy top-level code showcase index.html and project slug pages into dist/code (resolves /able-roadmap, /satori-trailheads, etc.)
   copyDirSync(tempCodeDir, codeDir);
+
+  // Mirror individual project slug subdirectories into dist/code/code/[slug] (resolves /code/able-roadmap, /code/satori-trailheads, etc.)
+  const nestedCodeDir = path.join(codeDir, 'code');
+  fs.mkdirSync(nestedCodeDir, { recursive: true });
+  const codeEntries = fs.readdirSync(tempCodeDir, { withFileTypes: true });
+  for (const entry of codeEntries) {
+    if (entry.isDirectory()) {
+      copyDirSync(path.join(tempCodeDir, entry.name), path.join(nestedCodeDir, entry.name));
+    }
+  }
+
   fs.rmSync(tempCodeDir, { recursive: true, force: true });
   console.log('✅ Created isolated dist/code output for developer.brookjacob.studio');
 }
