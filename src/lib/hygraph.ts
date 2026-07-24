@@ -47,7 +47,7 @@ const MOCK_PROJECTS: Project[] = [
     longDescription: 'Engineered with Astro SSG, Radix UI dialog primitives, Tailwind CSS design system tokens, and automated deployment via GitHub Actions repository dispatches to Firebase Hosting.',
     techStack: ['Astro', 'TypeScript', 'React', 'Tailwind CSS', 'Radix UI', 'Firebase'],
     githubUrl: 'https://github.com/brookjacob/brookjacob.me',
-    liveUrl: 'https://brookjacob.me',
+    liveUrl: 'https://brookjacob.studio',
     featured: true,
   },
 ];
@@ -234,7 +234,7 @@ export async function getAllProjects(): Promise<Project[]> {
       longDescription: art.content,
       techStack: art.techStack || ['TypeScript', 'Astro', 'React'],
       githubUrl: art.repoUrl || undefined,
-      liveUrl: 'https://code.brookjacob.me',
+      liveUrl: 'https://developer.brookjacob.studio',
       featured: true,
     }));
   }

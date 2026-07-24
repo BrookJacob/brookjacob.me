@@ -3,7 +3,7 @@
  * 
  * Copies built bundle assets (_astro directory) and public static assets
  * into dist/prints and dist/code target sub-directories so that multi-domain
- * Firebase hosting targets (prints.brookjacob.me and code.brookjacob.me)
+ * Firebase hosting targets (printmaker.brookjacob.studio and developer.brookjacob.studio)
  * have full access to CSS stylesheets, JS hydration chunks, and image assets.
  */
 
