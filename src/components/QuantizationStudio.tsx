@@ -48,7 +48,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   const [isEyedropperActive, setIsEyedropperActive] = useState<boolean>(false);
   const [isCumulativeMode, setIsCumulativeMode] = useState<boolean>(true);
   const [isMirrored, setIsMirrored] = useState<boolean>(false);
-  const [colorSpace, setColorSpace] = useState<'lab' | 'rgb'>('lab');
+  const [colorSpace, setColorSpace] = useState<'lab' | 'false-lab' | 'rgb'>('lab');
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const originalCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -157,6 +157,46 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     const da = c1[1] - c2[1];
     const db = c1[2] - c2[2];
     return dL * dL + da * da + db * db;
+  };
+
+  // Helper: False CIELAB conversion - falsely interprets sRGB [R, G, B] bytes directly as [L*, a*, b*]
+  // This happy accident produced the iconic palette in the physical print "View From A Distance"!
+  const rgbToFalseLab = (r: number, g: number, b: number): [number, number, number] => {
+    const L = (r / 255) * 100;
+    const a = g - 128;
+    const bVal = b - 128;
+    return [L, a, bVal];
+  };
+
+  // Helper: Convert CIELAB [L*, a*, b*] back to sRGB [R, G, B]
+  const labToRgb = (L: number, a: number, b: number): [number, number, number] => {
+    const fy = (L + 16) / 116;
+    const fx = a / 500 + fy;
+    const fz = fy - b / 200;
+
+    const fInv = (t: number) => {
+      const t3 = t * t * t;
+      return t3 > 0.008856 ? t3 : (t - 16 / 116) / 7.787;
+    };
+
+    const x = fInv(fx) * 0.95047;
+    const y = fInv(fy) * 1.00000;
+    const z = fInv(fz) * 1.08883;
+
+    const rLinear = x * 3.2406 + y * -1.5372 + z * -0.4986;
+    const gLinear = x * -0.9689 + y * 1.8758 + z * 0.0415;
+    const bLinear = x * 0.0557 + y * -0.2040 + z * 1.0570;
+
+    const gamma = (v: number) => {
+      if (v <= 0) return 0;
+      return v > 0.0031308 ? 1.055 * Math.pow(v, 1 / 2.4) - 0.055 : 12.92 * v;
+    };
+
+    return [
+      Math.min(255, Math.max(0, Math.round(gamma(rLinear) * 255))),
+      Math.min(255, Math.max(0, Math.round(gamma(gLinear) * 255))),
+      Math.min(255, Math.max(0, Math.round(gamma(bLinear) * 255))),
+    ];
   };
 
   // Draw default procedural test image 1: Mountain Sunset
@@ -446,20 +486,29 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       }
     }
 
-    // Step 3: Mother Color Harmony Integration
+    // Step 3: Mother Color Harmony Integration & False CIELAB Translation
     const motherRgb = hexToRgb(motherHex);
     const mixRatio = motherMix / 100;
 
     const harmonizedCentroids = centroids.map(([r, g, b], idx) => {
       // Keep pinned colors un-mixed if user wants exact color match, or harmonized
-      if (idx < numPinned && motherMix === 0) {
-        return [r, g, b];
+      let cr = r;
+      let cg = g;
+      let cb = b;
+      if (idx >= numPinned || motherMix > 0) {
+        cr = Math.round(r * (1 - mixRatio) + motherRgb.r * mixRatio);
+        cg = Math.round(g * (1 - mixRatio) + motherRgb.g * mixRatio);
+        cb = Math.round(b * (1 - mixRatio) + motherRgb.b * mixRatio);
       }
-      return [
-        Math.round(r * (1 - mixRatio) + motherRgb.r * mixRatio),
-        Math.round(g * (1 - mixRatio) + motherRgb.g * mixRatio),
-        Math.round(b * (1 - mixRatio) + motherRgb.b * mixRatio),
-      ];
+
+      // If False CIELAB mode is active (the serendipitous mistake behind "View From A Distance"),
+      // falsely interpret sRGB bytes as [L*, a*, b*] and convert back via labToRgb!
+      if (colorSpace === 'false-lab') {
+        const [fl, fa, fb] = rgbToFalseLab(cr, cg, cb);
+        return labToRgb(fl, fa, fb);
+      }
+
+      return [cr, cg, cb];
     });
 
     // Step 4: Deduplicate Swatches & Sort by Perceived Luminance (Lightest to Darkest)
@@ -502,10 +551,10 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     const outputImgData = procCtx.createImageData(width, height);
     const outData = outputImgData.data;
 
-    // Pre-calculate CIELAB [L, a, b] coordinates for each swatch
+    // Pre-calculate LAB coordinates for each swatch based on active colorSpace mode
     const swatchLabs = swatchesList.map((s) => ({
       swatch: s,
-      lab: rgbToLab(s.r, s.g, s.b),
+      lab: colorSpace === 'false-lab' ? rgbToFalseLab(s.r, s.g, s.b) : rgbToLab(s.r, s.g, s.b),
     }));
 
     // If blurRadius == 0, use crisp raw un-blurred image data to guarantee razor-sharp edge contours
@@ -519,8 +568,8 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       let minDist = Infinity;
       let closestSwatch = swatchesList[0];
 
-      if (colorSpace === 'lab') {
-        const pixLab = rgbToLab(r, g, b);
+      if (colorSpace === 'lab' || colorSpace === 'false-lab') {
+        const pixLab = colorSpace === 'false-lab' ? rgbToFalseLab(r, g, b) : rgbToLab(r, g, b);
         for (const item of swatchLabs) {
           const dist = labDistSq(pixLab, item.lab);
           if (dist < minDist) {
@@ -844,10 +893,11 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
               id={colorSpaceSelectId}
               aria-label="Color Space"
               value={colorSpace}
-              onChange={(e) => setColorSpace(e.target.value as 'lab' | 'rgb')}
-              className="text-xs px-2 py-1 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text cursor-pointer"
+              onChange={(e) => setColorSpace(e.target.value as 'lab' | 'false-lab' | 'rgb')}
+              className="text-xs px-2 py-1 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text cursor-pointer font-medium"
             >
-              <option value="lab">✨ CIELAB Perceptual (main.py)</option>
+              <option value="lab">✨ CIELAB Perceptual (main.py default)</option>
+              <option value="false-lab">🔮 Serendipitous False CIELAB ("View From A Distance")</option>
               <option value="rgb">🎨 Standard sRGB</option>
             </select>
           </div>

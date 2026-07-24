@@ -97,9 +97,25 @@ const hasExternalLiveUrl = Boolean(
         {/* Embedded Interactive React Quantization Studio for image-quantization project */}
         {slug === 'image-quantization' && (
           <div class="my-10">
+            {/* Serendipitous Discovery Callout Box */}
+            <div class="p-5 rounded-xl border border-purple-500/30 bg-purple-500/10 mb-6 font-serif">
+              <span class="text-xs font-mono uppercase tracking-widest font-semibold text-purple-600 dark:text-purple-400 block mb-1">
+                🔮 Serendipitous Printmaking Discovery: False CIELAB
+              </span>
+              <h4 class="font-bold text-lg mb-2 text-paper-text dark:text-carbon-text">
+                The Happy Accident Behind "View From A Distance"
+              </h4>
+              <p class="text-sm text-paper-muted dark:text-carbon-muted leading-relaxed">
+                Sometimes in computational printmaking, a software bug yields an unexpected masterpiece. While developing <code class="font-mono text-xs px-1 py-0.5 bg-paper-border/40 dark:bg-carbon-border/40 rounded">main.py</code>, a byte-mapping bug falsely interpreted raw sRGB pixel arrays directly as CIELAB <span class="font-mono text-xs">[L*, a*, b*]</span> coordinates before running K-Means clustering and converting back to RGB space. Rather than corrupting the image, this happy accident generated the surreal, hyper-vibrant ink palette used in the physical reduction edition <a href="/prints/view-from-a-distance" class="text-purple-600 dark:text-purple-400 font-semibold underline">View From A Distance</a>.
+              </p>
+              <p class="text-xs text-purple-700 dark:text-purple-300 font-mono mt-3">
+                👉 Select <strong>🔮 Serendipitous False CIELAB ("View From A Distance")</strong> in the studio toolbar below to experiment with this exact color palette transformation live!
+              </p>
+            </div>
+
             <h3 class="font-serif text-2xl font-bold mb-2">Interactive Browser Quantization Studio</h3>
             <p class="text-sm text-paper-muted dark:text-carbon-muted mb-4 font-serif">
-              Upload custom image artwork or test sample mountain landscape to experiment with palette reduction, directional carving blurs, mother-color undertones, step-by-step reduction layer accumulation, and automated carving guides.
+              Upload custom image artwork or test sample presets to experiment with palette reduction, directional carving blurs, mother-color undertones, step-by-step reduction layer accumulation, and automated carving guides.
             </p>
             <QuantizationStudio client:load />
           </div>
