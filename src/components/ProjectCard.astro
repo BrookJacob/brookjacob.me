@@ -16,6 +16,13 @@ interface Props {
 }
 
 const { project } = Astro.props;
+
+const hasExternalLiveUrl = Boolean(
+  project.liveUrl &&
+  !project.liveUrl.includes('brookjacob.studio') &&
+  !project.liveUrl.includes('brookjacob.me') &&
+  !project.liveUrl.startsWith('/')
+);
 ---
 
 <article class="group flex flex-col bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl p-6 focus-tech transition-all">
@@ -41,7 +48,7 @@ const { project } = Astro.props;
           </svg>
         </a>
       )}
-      {project.liveUrl && (
+      {hasExternalLiveUrl && (
         <a 
           href={project.liveUrl} 
           target="_blank" 

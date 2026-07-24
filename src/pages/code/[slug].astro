@@ -36,6 +36,13 @@ const allArtworks = await getAllArtworks();
 const relatedPrints = allArtworks.filter(
   (art) => art.title.toLowerCase() !== 'woman' && art.slug.toLowerCase() !== 'woman'
 );
+
+const hasExternalLiveUrl = Boolean(
+  project.liveUrl &&
+  !project.liveUrl.includes('brookjacob.studio') &&
+  !project.liveUrl.includes('brookjacob.me') &&
+  !project.liveUrl.startsWith('/')
+);
 ---
 
 <html lang="en">
@@ -127,8 +134,8 @@ const relatedPrints = allArtworks.filter(
         <!-- Repository Actions -->
         <div class="p-6 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl flex items-center justify-between gap-4">
           <div>
-            <h3 class="font-serif text-lg font-bold">Source Code & Live Preview</h3>
-            <p class="text-xs text-paper-muted dark:text-carbon-muted">Inspect repository commits or view active deployment.</p>
+            <h3 class="font-serif text-lg font-bold">Source Code & Repository</h3>
+            <p class="text-xs text-paper-muted dark:text-carbon-muted">Inspect repository commits and architecture breakdowns.</p>
           </div>
           <div class="flex gap-3">
             {project.githubUrl && (
@@ -141,7 +148,7 @@ const relatedPrints = allArtworks.filter(
                 GitHub Repo &rarr;
               </a>
             )}
-            {project.liveUrl && (
+            {hasExternalLiveUrl && (
               <a 
                 href={project.liveUrl} 
                 target="_blank" 
