@@ -672,7 +672,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   };
 
   return (
-    <div className="w-full bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl shadow-md p-4 sm:p-6 my-8 font-sans">
+    <div className="w-full max-w-full overflow-hidden bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl shadow-md p-4 sm:p-6 my-8 font-sans">
       
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-paper-border dark:border-carbon-border pb-4 mb-6 gap-3">
@@ -718,7 +718,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
                 }
               }
             }}
-            className="text-xs px-2.5 py-1.5 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text font-medium cursor-pointer"
+            className="text-xs px-2.5 py-1.5 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text font-medium cursor-pointer max-w-full truncate"
           >
             <option value="sunset">🌄 Mountain Sunset Preset</option>
             <option value="wave">🌊 Ocean Wave Preset</option>
@@ -885,16 +885,16 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         </div>
 
         {/* Transfer, Mirror & Color Space Controls */}
-        <div className="flex flex-wrap items-center gap-3 font-medium">
+        <div className="flex flex-wrap items-center gap-3 font-medium max-w-full">
           {/* CIELAB Color Space Selector (main.py) */}
-          <div className="flex items-center gap-1.5">
-            <label htmlFor={colorSpaceSelectId} className="text-paper-muted dark:text-carbon-muted">Color Space:</label>
+          <div className="flex items-center gap-1.5 max-w-full">
+            <label htmlFor={colorSpaceSelectId} className="text-paper-muted dark:text-carbon-muted flex-shrink-0">Color Space:</label>
             <select
               id={colorSpaceSelectId}
               aria-label="Color Space"
               value={colorSpace}
               onChange={(e) => setColorSpace(e.target.value as 'lab' | 'false-lab' | 'rgb')}
-              className="text-xs px-2 py-1 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text cursor-pointer font-medium"
+              className="text-xs px-2 py-1 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text cursor-pointer font-medium max-w-full truncate"
             >
               <option value="lab">✨ CIELAB Perceptual (main.py default)</option>
               <option value="false-lab">🔮 Serendipitous False CIELAB ("View From A Distance")</option>
@@ -903,7 +903,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
           </div>
 
           {/* Cumulative Transfer Mode Toggle */}
-          <label className="inline-flex items-center gap-1.5 cursor-pointer">
+          <label className="inline-flex items-center gap-1.5 cursor-pointer flex-shrink-0">
             <input
               type="checkbox"
               checked={isCumulativeMode}
@@ -914,7 +914,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
           </label>
 
           {/* Press Mirror View Toggle */}
-          <label className="inline-flex items-center gap-1.5 cursor-pointer">
+          <label className="inline-flex items-center gap-1.5 cursor-pointer flex-shrink-0">
             <input
               type="checkbox"
               checked={isMirrored}
@@ -927,11 +927,11 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
 
       </div>
 
-      {/* Tab Navigation Controls */}
-      <div className="flex border-b border-paper-border dark:border-carbon-border mb-4 text-xs font-semibold">
+      {/* Tab Navigation Controls (Scrollable on small screens without expanding page) */}
+      <div className="flex border-b border-paper-border dark:border-carbon-border mb-4 text-xs font-semibold overflow-x-auto whitespace-nowrap max-w-full">
         <button
           onClick={() => setActiveTab('canvas')}
-          className={`px-4 py-2 border-b-2 transition-colors ${
+          className={`px-4 py-2 border-b-2 transition-colors flex-shrink-0 ${
             activeTab === 'canvas'
               ? 'border-blue-600 text-blue-600 dark:text-blue-400 font-bold'
               : 'border-transparent text-paper-muted dark:text-carbon-muted hover:text-paper-text'
@@ -941,7 +941,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         </button>
         <button
           onClick={() => setActiveTab('swatches')}
-          className={`px-4 py-2 border-b-2 transition-colors ${
+          className={`px-4 py-2 border-b-2 transition-colors flex-shrink-0 ${
             activeTab === 'swatches'
               ? 'border-blue-600 text-blue-600 dark:text-blue-400 font-bold'
               : 'border-transparent text-paper-muted dark:text-carbon-muted hover:text-paper-text'
@@ -951,7 +951,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         </button>
         <button
           onClick={() => setActiveTab('script')}
-          className={`px-4 py-2 border-b-2 transition-colors ${
+          className={`px-4 py-2 border-b-2 transition-colors flex-shrink-0 ${
             activeTab === 'script'
               ? 'border-blue-600 text-blue-600 dark:text-blue-400 font-bold'
               : 'border-transparent text-paper-muted dark:text-carbon-muted hover:text-paper-text'
