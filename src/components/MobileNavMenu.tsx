@@ -107,32 +107,6 @@ export const MobileNavMenu: React.FC<MobileNavMenuProps> = ({ activeDomain = 'ro
               </a>
             </nav>
 
-            {/* Featured Platforms Callout in Mobile Drawer */}
-            <div className="pt-4 border-t border-paper-border/60 dark:border-carbon-border/60">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-paper-muted dark:text-carbon-muted px-1">
-                Featured Platforms
-              </span>
-              <div className="flex flex-col gap-1.5 mt-2">
-                <a
-                  href="https://ableroadmap.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-paper-text dark:text-carbon-text hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                >
-                  <span>ABLE Roadmap</span>
-                  <span className="text-[10px] opacity-60">ableroadmap.com ↗</span>
-                </a>
-                <a
-                  href="https://satoritrailheads.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-paper-text dark:text-carbon-text hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                >
-                  <span>Satori Trailheads</span>
-                  <span className="text-[10px] opacity-60">satoritrailheads.com ↗</span>
-                </a>
-              </div>
-            </div>
           </div>
 
           {/* Drawer Footer */}
