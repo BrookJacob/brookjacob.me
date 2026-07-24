@@ -68,24 +68,6 @@ for (const target of targets) {
       }
     }
     console.log(`✅ Copied all static assets (images, fonts, root files) to dist/${target}/`);
-
-    // Duplicate sub-pages into dist/${target}/${target} sub-directory
-    // so that both /prints/[slug] and /code/[slug] paths resolve properly when hosted on subdomains
-    const nestedTargetDir = path.join(targetDir, target);
-    fs.mkdirSync(nestedTargetDir, { recursive: true });
-    const targetEntries = fs.readdirSync(targetDir, { withFileTypes: true });
-    for (const entry of targetEntries) {
-      if (entry.name !== target && entry.name !== '_astro') {
-        const srcPath = path.join(targetDir, entry.name);
-        const destPath = path.join(nestedTargetDir, entry.name);
-        if (entry.isDirectory()) {
-          copyDirSync(srcPath, destPath);
-        } else {
-          fs.copyFileSync(srcPath, destPath);
-        }
-      }
-    }
-    console.log(`✅ Mirrored subdomain nested sub-routes to dist/${target}/${target}/`);
   }
 }
 
