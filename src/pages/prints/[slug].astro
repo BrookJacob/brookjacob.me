@@ -66,14 +66,13 @@ if (!artwork) {
         <div class="lg:col-span-7 flex flex-col gap-2">
           <InteractiveImageViewer 
             client:load 
-            src={artwork.coverImage.url} 
-            alt={artwork.coverImage.altText || artwork.title} 
-            blurhash={artwork.coverImage.blurhash}
-            title={artwork.title}
+            mainImage={artwork.coverImage}
+            galleryImages={artwork.galleryImages}
+            alt={artwork.coverImage.altText || artwork.title}
           />
         </div>
 
-        <!-- Right Column: Museum Placard Card -->
+        <!-- Right Column: Museum Placard Card with Process Photos Carousel -->
         <div class="lg:col-span-5">
           <MuseumPlacard 
             placard={{
@@ -84,6 +83,7 @@ if (!artwork) {
               editionSize: artwork.editionSize,
               blockDimensions: artwork.blockDimensions,
               processNotes: artwork.processNotes,
+              processImages: artwork.processImages,
             }}
           />
         </div>

@@ -10,12 +10,14 @@
  */
 
 import type { MuseumPlacardData } from '../lib/types';
+import ProcessPhotosCarousel from './ProcessPhotosCarousel';
 
 interface Props {
   placard: MuseumPlacardData;
 }
 
 const { placard } = Astro.props;
+const hasProcessImages = placard.processImages && placard.processImages.length > 0;
 ---
 
 <aside class="w-full bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border p-6 sm:p-8 rounded-xl shadow-sm transition-colors relative overflow-hidden">
@@ -55,7 +57,7 @@ const { placard } = Astro.props;
     </div>
   </dl>
 
-  <!-- Process Notes & Artist Narrative Breakdown (Rendered conditionally only if present) -->
+  <!-- Process Notes & Artist Narrative Breakdown -->
   {placard.processNotes && placard.processNotes.trim().length > 0 && (
     <div>
       <h3 class="text-xs uppercase tracking-wider font-semibold text-paper-muted dark:text-carbon-muted mb-2">
@@ -65,5 +67,10 @@ const { placard } = Astro.props;
         {placard.processNotes}
       </p>
     </div>
+  )}
+
+  <!-- Studio & Process Photos Carousel -->
+  {hasProcessImages && (
+    <ProcessPhotosCarousel client:load images={placard.processImages!} />
   )}
 </aside>
