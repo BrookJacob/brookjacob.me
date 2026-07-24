@@ -1,12 +1,5 @@
 ---
-/**
- * Footer Component
- * 
- * Editorial footer providing copyright, domain portal index links,
- * GitHub repository reference, and accessibility statements.
- * 
- * @component
- */
+import { DOMAINS } from '../lib/urls';
 ---
 
 <footer class="w-full border-t border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg py-12 transition-colors">
@@ -24,11 +17,11 @@
     <!-- Domain Links & Copyright -->
     <div class="flex flex-col items-center md:items-end gap-3 text-center md:text-right">
       <div class="flex flex-wrap items-center justify-center md:justify-end gap-x-3 gap-y-1.5 text-xs font-medium text-paper-muted dark:text-carbon-muted">
-        <a href="https://brookjacob.studio" class="hover:text-paper-accent dark:hover:text-carbon-accent transition-colors whitespace-nowrap">brookjacob.studio</a>
+        <a href={DOMAINS.portal} class="hover:text-paper-accent dark:hover:text-carbon-accent transition-colors whitespace-nowrap">brookjacob.studio</a>
         <span class="hidden sm:inline opacity-50">•</span>
-        <a href="https://printmaker.brookjacob.studio" class="hover:text-paper-accent dark:hover:text-carbon-accent transition-colors whitespace-nowrap">printmaker.brookjacob.studio</a>
+        <a href={DOMAINS.prints} class="hover:text-paper-accent dark:hover:text-carbon-accent transition-colors whitespace-nowrap">printmaker.brookjacob.studio</a>
         <span class="hidden sm:inline opacity-50">•</span>
-        <a href="https://developer.brookjacob.studio" class="hover:text-paper-accent dark:hover:text-carbon-accent transition-colors whitespace-nowrap">developer.brookjacob.studio</a>
+        <a href={DOMAINS.code} class="hover:text-paper-accent dark:hover:text-carbon-accent transition-colors whitespace-nowrap">developer.brookjacob.studio</a>
       </div>
       <!-- Year and Copyright -->
       <p class="text-xs text-paper-muted dark:text-carbon-muted opacity-80">

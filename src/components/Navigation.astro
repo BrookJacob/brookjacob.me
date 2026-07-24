@@ -13,6 +13,7 @@
 import QuickNavMenu from './QuickNavMenu';
 import MobileNavMenu from './MobileNavMenu';
 import { getAllArtworks, getAllProjects } from '../lib/hygraph';
+import { DOMAINS } from '../lib/urls';
 
 interface Props {
   activeDomain?: 'root' | 'prints' | 'code' | 'blog';
@@ -28,21 +29,21 @@ const latestPrints = artworks.slice(0, 2).map((a) => ({
   title: a.title,
   slug: a.slug,
   yearOrTag: `${a.year}`,
-  url: `https://printmaker.brookjacob.studio/${a.slug}`,
+  url: `${DOMAINS.prints}/${a.slug}`,
 }));
 
 const latestProjects = projects.slice(0, 2).map((p) => ({
   title: p.title,
   slug: p.slug,
   yearOrTag: p.techStack[0] || 'Software',
-  url: `https://developer.brookjacob.studio/${p.slug}`,
+  url: `${DOMAINS.code}/${p.slug}`,
 }));
 ---
 
 <header class="w-full border-b border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg sticky top-0 z-40 transition-colors">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
     <!-- Brand / Home Link -->
-    <a href="https://brookjacob.studio" class="group flex items-center gap-2 text-paper-text dark:text-carbon-text no-underline">
+    <a href={DOMAINS.portal} class="group flex items-center gap-2 text-paper-text dark:text-carbon-text no-underline">
       <span class="font-serif text-xl font-bold tracking-tight group-hover:text-paper-accent dark:group-hover:text-carbon-accent transition-colors">
         Jacob Brook
       </span>
@@ -62,7 +63,7 @@ const latestProjects = projects.slice(0, 2).map((p) => ({
 
         <!-- Printmaking Portfolio Link -->
         <a 
-          href="https://printmaker.brookjacob.studio" 
+          href={DOMAINS.prints} 
           class={`px-3 py-1.5 rounded-md transition-colors focus-tactile ${
             activeDomain === 'prints' 
               ? 'text-paper-accent dark:text-carbon-accent bg-paper-border/30 dark:bg-carbon-border/30 font-semibold' 
@@ -74,7 +75,7 @@ const latestProjects = projects.slice(0, 2).map((p) => ({
 
         <!-- Developer Portfolio Link -->
         <a 
-          href="https://developer.brookjacob.studio" 
+          href={DOMAINS.code} 
           class={`px-3 py-1.5 rounded-md transition-colors focus-tech ${
             activeDomain === 'code' 
               ? 'text-blue-600 dark:text-blue-400 bg-paper-border/30 dark:bg-carbon-border/30 font-semibold' 
@@ -86,7 +87,7 @@ const latestProjects = projects.slice(0, 2).map((p) => ({
 
         <!-- Blog Link -->
         <a 
-          href="https://brookjacob.studio/blog" 
+          href={DOMAINS.blog} 
           class={`px-3 py-1.5 rounded-md transition-colors ${
             activeDomain === 'blog' 
               ? 'text-paper-accent dark:text-carbon-accent bg-paper-border/30 dark:bg-carbon-border/30 font-semibold' 
