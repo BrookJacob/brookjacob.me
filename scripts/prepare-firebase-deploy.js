@@ -1,10 +1,10 @@
 /**
  * Prepare Firebase Multi-Site Deployment Script
  * 
- * Copies built bundle assets (_astro directory) and public static assets (including images directory)
- * into dist/prints and dist/code target sub-directories so that multi-domain
- * Firebase hosting targets (printmaker.brookjacob.studio and developer.brookjacob.studio)
- * have full access to CSS stylesheets, JS hydration chunks, and image assets.
+ * Separates Astro build output (dist) into 3 isolated deployment targets:
+ *  1. dist/portal -> deployed to root-portal (brookjacob.studio / brookjacob.me)
+ *  2. dist/prints -> deployed to prints-portfolio (printmaker.brookjacob.studio)
+ *  3. dist/code   -> deployed to code-portfolio (developer.brookjacob.studio)
  */
 
 import fs from 'fs';
@@ -16,11 +16,11 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 
 const distDir = path.join(projectRoot, 'dist');
-const astroAssetsDir = path.join(distDir, '_astro');
+const portalDir = path.join(distDir, 'portal');
+const printsDir = path.join(distDir, 'prints');
+const codeDir = path.join(distDir, 'code');
 
-const targets = ['prints', 'code'];
-
-console.log('🚀 Preparing Firebase multi-site deployment assets...');
+console.log('🚀 Preparing isolated Firebase multi-site deployment targets...');
 
 if (!fs.existsSync(distDir)) {
   console.error('❌ dist directory not found. Please run astro build first.');
@@ -45,30 +45,73 @@ function copyDirSync(src, dest) {
   }
 }
 
-// Copy all static assets (files & subdirectories like `images`) to each hosting target
-for (const target of targets) {
-  const targetDir = path.join(distDir, target);
-  if (fs.existsSync(targetDir)) {
-    // Copy _astro folder
-    const targetAstroDir = path.join(targetDir, '_astro');
-    copyDirSync(astroAssetsDir, targetAstroDir);
-    console.log(`✅ Copied _astro assets to dist/${target}/_astro`);
+// Read initial root entries right after astro build
+const rootEntries = fs.readdirSync(distDir, { withFileTypes: true });
 
-    // Copy all static assets from dist (excluding target dirs 'prints' and 'code' and 'index.html')
-    const entries = fs.readdirSync(distDir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (entry.name !== 'prints' && entry.name !== 'code' && entry.name !== 'index.html' && entry.name !== '_astro') {
-        const srcPath = path.join(distDir, entry.name);
-        const destPath = path.join(targetDir, entry.name);
-        if (entry.isDirectory()) {
-          copyDirSync(srcPath, destPath);
-        } else {
-          fs.copyFileSync(srcPath, destPath);
-        }
-      }
+// 1. Prepare Portal Target (dist/portal)
+// Contains portal index.html, blog, images, _astro, but NO prints/ or code/
+fs.mkdirSync(portalDir, { recursive: true });
+for (const entry of rootEntries) {
+  if (entry.name !== 'portal' && entry.name !== 'prints' && entry.name !== 'code') {
+    const srcPath = path.join(distDir, entry.name);
+    const destPath = path.join(portalDir, entry.name);
+    if (entry.isDirectory()) {
+      copyDirSync(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
     }
-    console.log(`✅ Copied all static assets (images, fonts, root files) to dist/${target}/`);
   }
 }
+console.log('✅ Created isolated dist/portal output (no /prints or /code routes present)');
 
-console.log('🎉 Firebase deployment asset preparation complete!');
+// 2. Prepare Prints Target (dist/prints)
+if (fs.existsSync(printsDir)) {
+  const tempPrintsDir = path.join(distDir, '_temp_prints');
+  copyDirSync(printsDir, tempPrintsDir);
+
+  fs.rmSync(printsDir, { recursive: true, force: true });
+  fs.mkdirSync(printsDir, { recursive: true });
+
+  for (const entry of rootEntries) {
+    if (entry.name !== 'portal' && entry.name !== 'prints' && entry.name !== 'code' && entry.name !== 'index.html' && entry.name !== 'blog') {
+      const srcPath = path.join(distDir, entry.name);
+      const destPath = path.join(printsDir, entry.name);
+      if (entry.isDirectory()) {
+        copyDirSync(srcPath, destPath);
+      } else {
+        fs.copyFileSync(srcPath, destPath);
+      }
+    }
+  }
+
+  copyDirSync(tempPrintsDir, printsDir);
+  fs.rmSync(tempPrintsDir, { recursive: true, force: true });
+  console.log('✅ Created isolated dist/prints output for printmaker.brookjacob.studio');
+}
+
+// 3. Prepare Code Target (dist/code)
+if (fs.existsSync(codeDir)) {
+  const tempCodeDir = path.join(distDir, '_temp_code');
+  copyDirSync(codeDir, tempCodeDir);
+
+  fs.rmSync(codeDir, { recursive: true, force: true });
+  fs.mkdirSync(codeDir, { recursive: true });
+
+  for (const entry of rootEntries) {
+    if (entry.name !== 'portal' && entry.name !== 'prints' && entry.name !== 'code' && entry.name !== 'index.html' && entry.name !== 'blog') {
+      const srcPath = path.join(distDir, entry.name);
+      const destPath = path.join(codeDir, entry.name);
+      if (entry.isDirectory()) {
+        copyDirSync(srcPath, destPath);
+      } else {
+        fs.copyFileSync(srcPath, destPath);
+      }
+    }
+  }
+
+  copyDirSync(tempCodeDir, codeDir);
+  fs.rmSync(tempCodeDir, { recursive: true, force: true });
+  console.log('✅ Created isolated dist/code output for developer.brookjacob.studio');
+}
+
+console.log('🎉 Isolated multi-site build preparation complete!');
