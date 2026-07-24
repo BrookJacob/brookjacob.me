@@ -108,7 +108,14 @@ exports.hygraphDeployWebhook = onRequest({ secrets: [githubPatSecret] }, async (
       res.status(200).json({ success: true, message: 'GitHub deployment triggered successfully' });
     } else {
       const errorText = await response.text();
-      logger.error('ERROR from GitHub API:', response.status, errorText);
+      logger.error('ERROR from GitHub API:', {
+        status: response.status,
+        statusText: response.statusText,
+        acceptedScopes: response.headers.get('x-accepted-oauth-scopes'),
+        oauthScopes: response.headers.get('x-oauth-scopes'),
+        requestId: response.headers.get('x-github-request-id'),
+        errorBody: errorText,
+      });
       res.status(response.status).json({ error: 'GitHub API error', status: response.status, details: errorText });
     }
   } catch (error) {
