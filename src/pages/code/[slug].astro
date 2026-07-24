@@ -9,7 +9,9 @@
 
 import Navigation from '../../components/Navigation.astro';
 import Footer from '../../components/Footer.astro';
-import { getAllProjects, getProjectBySlug } from '../../lib/hygraph';
+import { QuantizationStudio } from '../../components/QuantizationStudio';
+import ArtworkCard from '../../components/ArtworkCard.astro';
+import { getAllProjects, getProjectBySlug, getAllArtworks } from '../../lib/hygraph';
 import '../../styles/global.css';
 
 /**
@@ -28,6 +30,12 @@ const project = await getProjectBySlug(slug as string);
 if (!project) {
   return Astro.redirect('/');
 }
+
+// Fetch physical printmaking artworks for cross-linking (excluding "Woman")
+const allArtworks = await getAllArtworks();
+const relatedPrints = allArtworks.filter(
+  (art) => art.title.toLowerCase() !== 'woman' && art.slug.toLowerCase() !== 'woman'
+);
 ---
 
 <html lang="en">
@@ -78,6 +86,43 @@ if (!project) {
         <p class="text-base sm:text-lg mb-8 font-serif leading-relaxed">
           {project.longDescription}
         </p>
+
+        {/* Embedded Interactive React Quantization Studio for image-quantization project */}
+        {slug === 'image-quantization' && (
+          <div class="my-10">
+            <h3 class="font-serif text-2xl font-bold mb-2">Interactive Browser Quantization Studio</h3>
+            <p class="text-sm text-paper-muted dark:text-carbon-muted mb-4 font-serif">
+              Upload custom image artwork or test sample mountain landscape to experiment with palette reduction, directional carving blurs, mother-color undertones, step-by-step reduction layer accumulation, and automated carving guides.
+            </p>
+            <QuantizationStudio client:load />
+          </div>
+        )}
+
+        {/* Physical Printmaking Studio Application Gallery Cross-Links */}
+        {slug === 'image-quantization' && (
+          <section class="my-12 pt-8 border-t border-paper-border dark:border-carbon-border">
+            <span class="text-xs font-mono uppercase tracking-widest font-semibold text-paper-accent dark:text-carbon-accent">
+              Studio Applications
+            </span>
+            <h3 class="font-serif text-2xl font-bold mt-1 mb-2">Physical Prints Preprocessed with Image Quantization</h3>
+            <p class="text-sm text-paper-muted dark:text-carbon-muted mb-6 font-serif">
+              Explore physical reduction linocut editions pressed in the studio using palette layers and carving scripts calculated by this computational engine.
+            </p>
+            {relatedPrints.length > 0 ? (
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {relatedPrints.map((artwork) => (
+                  <ArtworkCard artwork={artwork} />
+                ))}
+              </div>
+            ) : (
+              <div class="p-6 bg-paper-border/20 dark:bg-carbon-border/20 rounded-xl text-center">
+                <p class="text-xs text-paper-muted dark:text-carbon-muted font-mono">
+                  Visit the <a href="https://printmaker.brookjacob.studio" class="text-blue-600 underline">Printmaker Studio Gallery</a> to view active physical reduction editions.
+                </p>
+              </div>
+            )}
+          </section>
+        )}
 
         <!-- Repository Actions -->
         <div class="p-6 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl flex items-center justify-between gap-4">
