@@ -18,6 +18,28 @@
         "**/.*",
         "**/node_modules/**"
       ],
+      "redirects": [
+        {
+          "source": "/prints",
+          "destination": "https://printmaker.brookjacob.studio",
+          "type": 301
+        },
+        {
+          "source": "/prints/:path*",
+          "destination": "https://printmaker.brookjacob.studio/prints/:path*",
+          "type": 301
+        },
+        {
+          "source": "/code",
+          "destination": "https://developer.brookjacob.studio",
+          "type": 301
+        },
+        {
+          "source": "/code/:path*",
+          "destination": "https://developer.brookjacob.studio/code/:path*",
+          "type": 301
+        }
+      ],
       "rewrites": [
         {
           "source": "**",

@@ -27,6 +27,11 @@ const artworks = await getAllArtworks();
       name="description" 
       content="Medium-bleed visual gallery feed of original two-color reduction linocuts and woodblock prints." 
     />
+    <script is:inline>
+      if (window.location.hostname === 'brookjacob.studio' || window.location.hostname === 'brookjacob.me') {
+        window.location.href = 'https://printmaker.brookjacob.studio' + window.location.pathname;
+      }
+    </script>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
     <Navigation activeDomain="prints" />
