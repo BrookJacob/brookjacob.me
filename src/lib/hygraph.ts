@@ -50,6 +50,17 @@ const MOCK_PROJECTS: Project[] = [
     liveUrl: 'https://brookjacob.studio',
     featured: true,
   },
+  {
+    id: 'proj-4',
+    slug: 'image-quantization',
+    title: 'Image Quantization & Multi-Block Linocut Tooling Engine',
+    description: 'Python & OpenCV/Scikit-Learn algorithmic engine translating continuous tone artwork into physical reduction linocut ink passes, mother-color palettes, and carving guides.',
+    longDescription: 'An end-to-end computational printmaking engine built in Python (main.py) and interactive browser JS. Translates continuous-tone imagery into discrete K-Means ink swatches, applies asymmetric edge-preserving box blurs for carving gougeability, blends mother-color undertones for ink harmony, calculates luminance-based carving scripts, and simulates brayer split-fount rolls.',
+    techStack: ['Python', 'OpenCV', 'Scikit-Learn', 'Tkinter', 'Canvas2D', 'TypeScript', 'React'],
+    githubUrl: 'https://github.com/brookjacob/brookjacob.me',
+    liveUrl: '/code/image-quantization',
+    featured: true,
+  },
 ];
 
 /**

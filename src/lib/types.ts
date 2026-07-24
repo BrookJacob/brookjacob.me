@@ -34,6 +34,7 @@ export interface Print {
   mainImage: CMSImage;
   galleryImages?: CMSImage[] | null;
   processImages?: CMSImage[] | null;
+  codeCaseStudySlug?: string;
 }
 
 /**
@@ -99,6 +100,7 @@ export interface Project {
   liveUrl?: string;
   featured?: boolean;
   coverImage?: CMSImage;
+  relatedPrintSlugs?: string[];
 }
 
 /**
@@ -123,4 +125,5 @@ export interface MuseumPlacardData {
   blockDimensions: string;
   processNotes: string;
   processImages?: CMSImage[] | null;
+  codeCaseStudySlug?: string;
 }
