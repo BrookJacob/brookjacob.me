@@ -24,25 +24,24 @@ const secondaryImage = hasGallery ? artwork.galleryImages![0] : null;
 <article class="group relative flex flex-col bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl overflow-hidden focus-tactile transition-all">
   <!-- Medium Bleed Artwork Image Header with Timed Hover Cross-Fade -->
   <a href={`/prints/${artwork.slug}`} class="block overflow-hidden relative aspect-[4/5] bg-paper-border/20 dark:bg-carbon-border/20">
-    <!-- Primary Main Image (Fades out on hover if secondary image exists) -->
+    <!-- Primary Main Cover Image (Base Layer: z-10, always opacity-100) -->
     <BlurhashCanvas
       client:load
       src={artwork.coverImage.url}
       alt={artwork.coverImage.altText || artwork.title}
       blurhash={artwork.coverImage.blurhash}
-      className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-        secondaryImage ? 'group-hover:opacity-0 z-10' : 'z-10'
-      }`}
+      className="w-full h-full object-cover absolute inset-0 z-10"
     />
 
-    <!-- Secondary Gallery Image (Smoothly fades in on hover) -->
+    <!-- Secondary Gallery Detail Image (Overlay Layer: z-20, preloaded, smooth cross-fade on hover) -->
     {secondaryImage && (
       <BlurhashCanvas
         client:load
+        loading="eager"
         src={secondaryImage.url}
         alt={secondaryImage.altText || `${artwork.title} gallery detail`}
         blurhash={secondaryImage.blurhash}
-        className="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 ease-in-out z-0"
+        className="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 ease-in-out z-20 pointer-events-none"
       />
     )}
 
