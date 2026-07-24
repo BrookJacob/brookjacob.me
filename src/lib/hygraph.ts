@@ -79,12 +79,34 @@ function mapPrintToArtwork(print: Print): Artwork {
     blurhash: print.mainImage?.blurhash || undefined,
   };
 
+  const galleryImages = (print.galleryImages || [])
+    .filter((img) => img && typeof img.url === 'string' && img.url.length > 0)
+    .map((img) => ({
+      id: img.url,
+      url: img.url,
+      width: img.width || 1200,
+      height: img.height || 1600,
+      altText: print.title,
+      blurhash: img.blurhash || undefined,
+    }));
+
+  const processImages = (print.processImages || [])
+    .filter((img) => img && typeof img.url === 'string' && img.url.length > 0)
+    .map((img) => ({
+      id: img.url,
+      url: img.url,
+      width: img.width || 1200,
+      height: img.height || 1600,
+      altText: print.title,
+      blurhash: img.blurhash || undefined,
+    }));
+
   return {
     ...print,
     slug: cleanSlug,
     coverImage,
-    galleryImages: print.galleryImages || [],
-    processImages: print.processImages || [],
+    galleryImages,
+    processImages,
     technique: 'Reduction Linocut Print',
     paperStock: print.paperDimensions ? `Custom Rag (${print.paperDimensions})` : 'Fine Art Cotton Rag Paper',
     editionSize: `${print.editionTotal}`,
