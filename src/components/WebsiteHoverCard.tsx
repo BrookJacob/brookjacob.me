@@ -68,14 +68,11 @@ export const WebsiteHoverCard: React.FC<WebsiteHoverCardProps> = ({
   return (
     <HoverCard.Root openDelay={150} closeDelay={200} onOpenChange={handleOpenChange}>
       <HoverCard.Trigger asChild>
-        <a
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`inline-block underline underline-offset-4 ${decorationColor} hover:text-paper-text dark:hover:text-carbon-text transition-colors font-medium cursor-pointer ${className}`}
+        <span
+          className={`inline-block underline underline-offset-4 decoration-dotted ${decorationColor} hover:text-paper-text dark:hover:text-carbon-text transition-colors font-medium cursor-pointer ${className}`}
         >
           {label}
-        </a>
+        </span>
       </HoverCard.Trigger>
 
       <HoverCard.Portal>
