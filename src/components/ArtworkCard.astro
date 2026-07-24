@@ -35,13 +35,11 @@ const secondaryImage = hasGallery ? artwork.galleryImages![0] : null;
 
     <!-- Secondary Gallery Detail Image (Overlay Layer: z-20, preloaded, smooth cross-fade on hover) -->
     {secondaryImage && (
-      <BlurhashCanvas
-        client:load
-        loading="eager"
+      <img
         src={secondaryImage.url}
         alt={secondaryImage.altText || `${artwork.title} gallery detail`}
-        blurhash={secondaryImage.blurhash}
-        className="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 ease-in-out z-20 pointer-events-none"
+        loading="eager"
+        class="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-in-out z-20 pointer-events-none"
       />
     )}
 
