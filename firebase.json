@@ -25,12 +25,22 @@
           "type": 301
         },
         {
+          "source": "/prints/",
+          "destination": "https://printmaker.brookjacob.studio",
+          "type": 301
+        },
+        {
           "source": "/prints/:path*",
           "destination": "https://printmaker.brookjacob.studio/prints/:path*",
           "type": 301
         },
         {
           "source": "/code",
+          "destination": "https://developer.brookjacob.studio",
+          "type": 301
+        },
+        {
+          "source": "/code/",
           "destination": "https://developer.brookjacob.studio",
           "type": 301
         },
@@ -54,6 +64,18 @@
         "firebase.json",
         "**/.*",
         "**/node_modules/**"
+      ],
+      "redirects": [
+        {
+          "source": "/prints",
+          "destination": "/",
+          "type": 301
+        },
+        {
+          "source": "/prints/",
+          "destination": "/",
+          "type": 301
+        }
       ]
     },
     {
@@ -63,6 +85,18 @@
         "firebase.json",
         "**/.*",
         "**/node_modules/**"
+      ],
+      "redirects": [
+        {
+          "source": "/code",
+          "destination": "/",
+          "type": 301
+        },
+        {
+          "source": "/code/",
+          "destination": "/",
+          "type": 301
+        }
       ]
     }
   ]
