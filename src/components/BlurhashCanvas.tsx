@@ -20,27 +20,27 @@ export interface BlurhashCanvasProps {
   className?: string;
   /** Image loading mode */
   loading?: 'lazy' | 'eager';
+  /** Object fit sizing mode */
+  objectFit?: 'contain' | 'cover';
 }
 
-/**
- * BlurhashCanvas React Component
- * 
- * @param {BlurhashCanvasProps} props - Component properties.
- * @returns {JSX.Element} Progressive image loader with instant fallback check.
- */
 export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
   blurhash,
   src,
   alt,
   className = '',
   loading = 'lazy',
+  objectFit = 'cover',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
 
-  // Check if image is already complete (cached or preloaded)
+  const fitClass = objectFit === 'contain' ? 'object-contain' : 'object-cover';
+
+  // Reset loaded state and check if image is already cached/complete when src changes
   useEffect(() => {
+    setLoaded(false);
     if (imgRef.current && imgRef.current.complete) {
       setLoaded(true);
     }
@@ -59,10 +59,9 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
       }
     } catch (error) {
       console.warn('Could not decode Blurhash string:', blurhash, error);
-      // Fallback: reveal image immediately if decode fails
       setLoaded(true);
     }
-  }, [blurhash]);
+  }, [blurhash, src]);
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
@@ -74,7 +73,7 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
         loading={loading}
         onLoad={() => setLoaded(true)}
         onError={() => setLoaded(true)}
-        className="w-full h-full object-cover block"
+        className={`w-full h-full ${fitClass} block`}
       />
 
       {/* BlurHash Canvas Overlay (fades out when image loads or finishes) */}
@@ -83,7 +82,7 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
           ref={canvasRef}
           width={32}
           height={32}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-out pointer-events-none z-10 ${
+          className={`absolute inset-0 w-full h-full ${fitClass} transition-opacity duration-500 ease-out pointer-events-none z-10 ${
             loaded ? 'opacity-0' : 'opacity-100'
           }`}
           aria-hidden="true"

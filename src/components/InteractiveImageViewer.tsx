@@ -182,7 +182,8 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
             src={activeImage.url}
             alt={activeImage.altText || alt}
             blurhash={activeImage.blurhash}
-            className="h-full w-full object-contain pointer-events-none rounded"
+            objectFit="contain"
+            className="h-full w-full pointer-events-none rounded"
           />
         </div>
 
