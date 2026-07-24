@@ -33,7 +33,7 @@ export interface QuantizationStudioProps {
 
 export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialImageSrc }) => {
   const [paletteSize, setPaletteSize] = useState<number>(6);
-  const [blurRadius, setBlurRadius] = useState<number>(8);
+  const [blurRadius, setBlurRadius] = useState<number>(0);
   const [motherMix, setMotherMix] = useState<number>(10);
   const [motherHex, setMotherHex] = useState<string>('#80828C');
   const [currentStep, setCurrentStep] = useState<number>(6);
@@ -43,11 +43,12 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   const [imageLoaded, setImageLoaded] = useState<boolean>(false);
   const [selectedPreset, setSelectedPreset] = useState<string>(initialImageSrc ? 'initial' : 'sunset');
 
-  // New features mirroring prep_transfer_cumulative.py & User Pinned Colors
+  // New features mirroring prep_transfer_cumulative.py & main.py CIELAB Perceptual Color Space
   const [pinnedColors, setPinnedColors] = useState<string[]>([]);
   const [isEyedropperActive, setIsEyedropperActive] = useState<boolean>(false);
   const [isCumulativeMode, setIsCumulativeMode] = useState<boolean>(true);
   const [isMirrored, setIsMirrored] = useState<boolean>(false);
+  const [colorSpace, setColorSpace] = useState<'lab' | 'rgb'>('lab');
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const originalCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -61,6 +62,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   const fileInputId = useId();
   const presetSelectId = useId();
   const customColorInputId = useId();
+  const colorSpaceSelectId = useId();
 
   // Helper: Load image from URL
   const loadImageFromUrl = (url: string) => {
@@ -127,7 +129,37 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     return 0.299 * r + 0.587 * g + 0.114 * b;
   };
 
-  // Draw default procedural test image
+  // Helper: Convert sRGB to CIELAB (L*a*b*) matching main.py (cv2.COLOR_RGB2Lab)
+  const rgbToLab = (r: number, g: number, b: number): [number, number, number] => {
+    let sr = r / 255;
+    let sg = g / 255;
+    let sb = b / 255;
+
+    sr = sr > 0.04045 ? Math.pow((sr + 0.055) / 1.055, 2.4) : sr / 12.92;
+    sg = sg > 0.04045 ? Math.pow((sg + 0.055) / 1.055, 2.4) : sg / 12.92;
+    sb = sb > 0.04045 ? Math.pow((sb + 0.055) / 1.055, 2.4) : sb / 12.92;
+
+    let x = (sr * 0.4124564 + sg * 0.3575761 + sb * 0.1804375) / 0.95047;
+    let y = (sr * 0.2126729 + sg * 0.7151522 + sb * 0.0721750) / 1.00000;
+    let z = (sr * 0.0193339 + sg * 0.1191920 + sb * 0.9503041) / 1.08883;
+
+    const f = (t: number) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
+    const fx = f(x);
+    const fy = f(y);
+    const fz = f(z);
+
+    return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
+  };
+
+  // Helper: Perceived Delta E distance in LAB space
+  const labDistSq = (c1: [number, number, number], c2: [number, number, number]): number => {
+    const dL = c1[0] - c2[0];
+    const da = c1[1] - c2[1];
+    const db = c1[2] - c2[2];
+    return dL * dL + da * da + db * db;
+  };
+
+  // Draw default procedural test image 1: Mountain Sunset
   const drawSampleImage = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     const skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.6);
     skyGrad.addColorStop(0, '#1a2a6c');
@@ -162,6 +194,95 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     landGrad.addColorStop(1, '#34e89e');
     ctx.fillStyle = landGrad;
     ctx.fillRect(0, height * 0.6, width, height * 0.4);
+  };
+
+  // Draw procedural test image 2: Ocean Wave Contour
+  const drawWaveImage = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    const sky = ctx.createLinearGradient(0, 0, 0, height);
+    sky.addColorStop(0, '#f4ecd8');
+    sky.addColorStop(0.5, '#e8d4b8');
+    sky.addColorStop(1, '#c27d38');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = '#b72a2a';
+    ctx.beginPath();
+    ctx.arc(width * 0.75, height * 0.4, width * 0.15, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#2c5d63';
+    ctx.beginPath();
+    ctx.moveTo(0, height * 0.65);
+    ctx.quadraticCurveTo(width * 0.25, height * 0.45, width * 0.5, height * 0.65);
+    ctx.quadraticCurveTo(width * 0.75, height * 0.85, width, height * 0.6);
+    ctx.lineTo(width, height);
+    ctx.lineTo(0, height);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#1e3843';
+    ctx.beginPath();
+    ctx.moveTo(0, height * 0.75);
+    ctx.quadraticCurveTo(width * 0.3, height * 0.5, width * 0.6, height * 0.75);
+    ctx.quadraticCurveTo(width * 0.85, height * 0.95, width, height * 0.7);
+    ctx.lineTo(width, height);
+    ctx.lineTo(0, height);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#faf6ed';
+    ctx.beginPath();
+    ctx.arc(width * 0.3, height * 0.52, width * 0.04, 0, Math.PI * 2);
+    ctx.arc(width * 0.35, height * 0.54, width * 0.03, 0, Math.PI * 2);
+    ctx.arc(width * 0.25, height * 0.55, width * 0.035, 0, Math.PI * 2);
+    ctx.fill();
+  };
+
+  // Draw procedural test image 3: Foggy Pine Forest
+  const drawForestImage = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    const sky = ctx.createLinearGradient(0, 0, 0, height);
+    sky.addColorStop(0, '#101820');
+    sky.addColorStop(0.6, '#2c3e50');
+    sky.addColorStop(1, '#86a8e7');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = '#fbfbfb';
+    ctx.beginPath();
+    ctx.arc(width * 0.2, height * 0.25, width * 0.07, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#4b6584';
+    ctx.beginPath();
+    ctx.moveTo(0, height * 0.55);
+    ctx.lineTo(width * 0.4, height * 0.38);
+    ctx.lineTo(width * 0.8, height * 0.6);
+    ctx.lineTo(width, height * 0.5);
+    ctx.lineTo(width, height);
+    ctx.lineTo(0, height);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#1e272e';
+    for (let x = 0; x < width; x += 40) {
+      const treeH = height * 0.3 + (x % 3) * 30;
+      ctx.beginPath();
+      ctx.moveTo(x - 25, height * 0.8);
+      ctx.lineTo(x, height * 0.8 - treeH);
+      ctx.lineTo(x + 25, height * 0.8);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    ctx.fillStyle = '#0f171e';
+    ctx.beginPath();
+    ctx.moveTo(0, height * 0.75);
+    ctx.lineTo(width * 0.6, height * 0.68);
+    ctx.lineTo(width, height * 0.8);
+    ctx.lineTo(width, height);
+    ctx.lineTo(0, height);
+    ctx.closePath();
+    ctx.fill();
   };
 
   // Initialize sample canvas on mount
@@ -377,23 +498,43 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
 
     setSwatches(swatchesList);
 
-    // Step 5: Render Quantized Image & Layer Stepper Filter (Mimicking prep_transfer_cumulative.py)
+    // Step 5: Render Quantized Image & Layer Stepper Filter (Matching main.py CIELAB Perceptual Space)
     const outputImgData = procCtx.createImageData(width, height);
     const outData = outputImgData.data;
 
-    for (let i = 0; i < blurredData.length; i += 4) {
-      const r = blurredData[i];
-      const g = blurredData[i + 1];
-      const b = blurredData[i + 2];
+    // Pre-calculate CIELAB [L, a, b] coordinates for each swatch
+    const swatchLabs = swatchesList.map((s) => ({
+      swatch: s,
+      lab: rgbToLab(s.r, s.g, s.b),
+    }));
+
+    // If blurRadius == 0, use crisp raw un-blurred image data to guarantee razor-sharp edge contours
+    const renderSourceData = blurRadius > 0 ? blurredData : data;
+
+    for (let i = 0; i < renderSourceData.length; i += 4) {
+      const r = renderSourceData[i];
+      const g = renderSourceData[i + 1];
+      const b = renderSourceData[i + 2];
 
       let minDist = Infinity;
       let closestSwatch = swatchesList[0];
 
-      for (const swatch of swatchesList) {
-        const dist = (r - swatch.r) ** 2 + (g - swatch.g) ** 2 + (b - swatch.b) ** 2;
-        if (dist < minDist) {
-          minDist = dist;
-          closestSwatch = swatch;
+      if (colorSpace === 'lab') {
+        const pixLab = rgbToLab(r, g, b);
+        for (const item of swatchLabs) {
+          const dist = labDistSq(pixLab, item.lab);
+          if (dist < minDist) {
+            minDist = dist;
+            closestSwatch = item.swatch;
+          }
+        }
+      } else {
+        for (const swatch of swatchesList) {
+          const dist = (r - swatch.r) ** 2 + (g - swatch.g) ** 2 + (b - swatch.b) ** 2;
+          if (dist < minDist) {
+            minDist = dist;
+            closestSwatch = swatch;
+          }
         }
       }
 
@@ -441,7 +582,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     if (imageLoaded) {
       processImage();
     }
-  }, [paletteSize, blurRadius, motherMix, motherHex, currentStep, pinnedColors, isCumulativeMode, imageLoaded]);
+  }, [paletteSize, blurRadius, motherMix, motherHex, currentStep, pinnedColors, isCumulativeMode, colorSpace, imageLoaded]);
 
   // Handle custom image upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -504,25 +645,35 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
             onChange={(e) => {
               const val = e.target.value;
               setSelectedPreset(val);
-              if (val === 'sunset') {
-                const origCanvas = originalCanvasRef.current;
-                if (origCanvas) {
-                  const ctx = origCanvas.getContext('2d');
-                  if (ctx) {
-                    origCanvas.width = 600;
-                    origCanvas.height = 400;
+              const origCanvas = originalCanvasRef.current;
+              if (origCanvas) {
+                const ctx = origCanvas.getContext('2d');
+                if (ctx) {
+                  origCanvas.width = 600;
+                  origCanvas.height = 400;
+                  if (val === 'sunset') {
                     drawSampleImage(ctx, 600, 400);
                     setImageLoaded(true);
                     processImage();
+                  } else if (val === 'wave') {
+                    drawWaveImage(ctx, 600, 400);
+                    setImageLoaded(true);
+                    processImage();
+                  } else if (val === 'forest') {
+                    drawForestImage(ctx, 600, 400);
+                    setImageLoaded(true);
+                    processImage();
+                  } else if (val === 'initial' && initialImageSrc) {
+                    loadImageFromUrl(initialImageSrc);
                   }
                 }
-              } else if (val === 'initial' && initialImageSrc) {
-                loadImageFromUrl(initialImageSrc);
               }
             }}
-            className="text-xs px-2.5 py-1.5 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text font-medium"
+            className="text-xs px-2.5 py-1.5 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text font-medium cursor-pointer"
           >
             <option value="sunset">🌄 Mountain Sunset Preset</option>
+            <option value="wave">🌊 Ocean Wave Preset</option>
+            <option value="forest">🌲 Foggy Pine Forest Preset</option>
             {initialImageSrc && <option value="initial">🖼️ Custom Studio Artwork</option>}
           </select>
 
@@ -564,7 +715,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
             onChange={(e) => {
               const val = parseInt(e.target.value);
               setPaletteSize(val);
-              if (currentStep > val) setCurrentStep(val);
+              setCurrentStep(val); // Always keep print pass stepper at complete pass count!
             }}
             className="w-full accent-blue-600"
           />
@@ -684,8 +835,23 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
           )}
         </div>
 
-        {/* Transfer & Mirror Mode Toggles */}
-        <div className="flex items-center gap-3 font-medium">
+        {/* Transfer, Mirror & Color Space Controls */}
+        <div className="flex flex-wrap items-center gap-3 font-medium">
+          {/* CIELAB Color Space Selector (main.py) */}
+          <div className="flex items-center gap-1.5">
+            <label htmlFor={colorSpaceSelectId} className="text-paper-muted dark:text-carbon-muted">Color Space:</label>
+            <select
+              id={colorSpaceSelectId}
+              aria-label="Color Space"
+              value={colorSpace}
+              onChange={(e) => setColorSpace(e.target.value as 'lab' | 'rgb')}
+              className="text-xs px-2 py-1 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text cursor-pointer"
+            >
+              <option value="lab">✨ CIELAB Perceptual (main.py)</option>
+              <option value="rgb">🎨 Standard sRGB</option>
+            </select>
+          </div>
+
           {/* Cumulative Transfer Mode Toggle */}
           <label className="inline-flex items-center gap-1.5 cursor-pointer">
             <input
@@ -694,7 +860,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
               onChange={(e) => setIsCumulativeMode(e.target.checked)}
               className="accent-blue-600 rounded"
             />
-            <span>Cumulative Transfer Mode (GIMP Plugin)</span>
+            <span>Cumulative Transfer Mode</span>
           </label>
 
           {/* Press Mirror View Toggle */}
@@ -705,7 +871,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
               onChange={(e) => setIsMirrored(e.target.checked)}
               className="accent-blue-600 rounded"
             />
-            <span>🪞 Press Transfer Mirror</span>
+            <span>🪞 Press Mirror</span>
           </label>
         </div>
 
