@@ -2,15 +2,17 @@
  * InteractiveImageViewer Component
  * 
  * In-page interactive image viewer component built directly into artwork detail pages.
- * Replaces popup modals with inline pan & zoom capabilities (zoom buttons, wheel zoom, drag panning)
- * while allowing users to select and toggle through mainImage and all galleryImages thumbnails.
+ * Features smooth pan & zoom capabilities (zoom buttons, wheel zoom, drag panning)
+ * and thumbnail selection for mainImage and all galleryImages.
+ * 
+ * Sizing is strictly locked to `object-contain` to prevent scale pops, with padding
+ * to prevent thumbnail border clipping.
  * 
  * @component
  */
 
 import React, { useState, useRef } from 'react';
 import type { CMSImage } from '../lib/types';
-import { BlurhashCanvas } from './BlurhashCanvas';
 
 export interface InteractiveImageViewerProps {
   mainImage: CMSImage;
@@ -23,11 +25,16 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
   galleryImages,
   alt,
 }) => {
-  // Combine mainImage and all galleryImages into unified list
-  const allImages: CMSImage[] = [
+  // Filter and deduplicate valid image payloads
+  const rawList: CMSImage[] = [
     mainImage,
     ...(galleryImages || []),
-  ].filter((img): img is CMSImage => Boolean(img && img.url));
+  ].filter((img): img is CMSImage => Boolean(img && typeof img.url === 'string' && img.url.length > 0));
+
+  // Deduplicate array by URL
+  const allImages: CMSImage[] = rawList.filter(
+    (img, index, self) => index === self.findIndex((t) => t.url === img.url)
+  );
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [scale, setScale] = useState<number>(1);
@@ -116,7 +123,7 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
       {/* Top Toolbar Controls: Zoom In, Zoom Out, Percentage Readout & Reset */}
       <div className="flex items-center justify-between px-3 py-2 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl text-xs font-mono">
         <span className="text-paper-muted dark:text-carbon-muted font-semibold hidden sm:inline">
-          {allImages.length > 1 ? `Image ${selectedIndex + 1} of ${allImages.length}` : 'Interactive Print View'}
+          {allImages.length > 1 ? `View ${selectedIndex + 1} of ${allImages.length}` : 'Interactive Print View'}
         </span>
 
         <div className="flex items-center gap-2 ml-auto sm:ml-0">
@@ -156,7 +163,7 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
         </div>
       </div>
 
-      {/* Main Image Viewport Area: Image is 100% contained */}
+      {/* Main Image Viewport Area: Locked to object-contain to eliminate scale pop */}
       <div
         ref={containerRef}
         onWheel={handleWheel}
@@ -167,7 +174,7 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className={`relative w-full h-[50vh] sm:h-[56vh] max-h-[540px] overflow-hidden rounded-xl border border-paper-border dark:border-carbon-border bg-paper-border/20 dark:bg-carbon-border/20 flex items-center justify-center p-2 select-none touch-none ${
+        className={`relative w-full h-[50vh] sm:h-[56vh] max-h-[540px] overflow-hidden rounded-xl border border-paper-border dark:border-carbon-border bg-paper-border/20 dark:bg-carbon-border/20 flex items-center justify-center p-3 select-none touch-none ${
           scale > 1 ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'
         }`}
       >
@@ -177,13 +184,10 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
           }}
         >
-          <BlurhashCanvas
-            key={activeImage.url}
+          <img
             src={activeImage.url}
             alt={activeImage.altText || alt}
-            blurhash={activeImage.blurhash}
-            objectFit="contain"
-            className="h-full w-full pointer-events-none rounded"
+            className="max-h-full max-w-full w-auto h-auto object-contain pointer-events-none rounded shadow-sm transition-opacity duration-300"
           />
         </div>
 
@@ -195,9 +199,9 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
         )}
       </div>
 
-      {/* Thumbnail Selector Strip for mainImage + galleryImages */}
+      {/* Thumbnail Selector Strip: Includes p-2 padding so scale-105 border is never cut off */}
       {allImages.length > 1 && (
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1">
+        <div className="flex items-center gap-2.5 overflow-x-auto p-2">
           {allImages.map((img, idx) => (
             <button
               key={img.url || idx}
@@ -208,7 +212,7 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
               }}
               className={`relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
                 selectedIndex === idx
-                  ? 'border-paper-accent dark:border-carbon-accent ring-2 ring-paper-accent/30 scale-105 z-10'
+                  ? 'border-paper-accent dark:border-carbon-accent ring-2 ring-paper-accent/30 scale-105 z-10 shadow-md'
                   : 'border-paper-border dark:border-carbon-border opacity-60 hover:opacity-100'
               }`}
               title={`View ${idx === 0 ? 'Main Artwork' : `Gallery Detail #${idx}`}`}
@@ -218,7 +222,7 @@ export const InteractiveImageViewer: React.FC<InteractiveImageViewerProps> = ({
                 alt={`${alt} view ${idx + 1}`}
                 className="w-full h-full object-cover pointer-events-none"
               />
-              <span className="absolute bottom-0 right-0 bg-black/75 text-white text-[9px] font-mono font-semibold px-1 py-0.2 rounded-tl">
+              <span className="absolute bottom-0 right-0 bg-black/80 text-white text-[9px] font-mono font-semibold px-1 py-0.2 rounded-tl">
                 {idx === 0 ? 'Main' : `#${idx}`}
               </span>
             </button>
