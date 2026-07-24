@@ -4,10 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "astro dev --port 4321",
+    "dev:portal": "astro dev --port 4321",
+    "dev:prints": "astro dev --port 4322",
+    "dev:code": "astro dev --port 4323",
     "start": "astro dev",
     "build": "node scripts/optimize-hover-images.js && astro build && node scripts/prepare-firebase-deploy.js",
     "preview": "astro preview",
+    "preview:firebase": "npm run build && firebase emulators:start --only hosting",
     "astro": "astro",
     "optimize-images": "node scripts/optimize-hover-images.js"
   },
