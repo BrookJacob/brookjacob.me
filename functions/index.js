@@ -249,24 +249,33 @@ exports.hygraphBlurhashWebhook = onRequest({ secrets: [hygraphTokenSecret] }, as
     let imageUrl = null;
     let existingBlurhash = null;
 
-    // Payload Case 1: Webhook triggered on 'Asset' model directly
-    if (data.url && data.id) {
-      assetId = data.id;
-      imageUrl = data.url;
-      existingBlurhash = data.blurhash;
-    } 
-    // Payload Case 2: Webhook triggered on 'Print' model with nested 'mainImage'
-    else if (data.mainImage) {
-      if (typeof data.mainImage === 'object') {
-        assetId = data.mainImage.id;
-        imageUrl = data.mainImage.url;
-        existingBlurhash = data.mainImage.blurhash;
-      } else if (typeof data.mainImage === 'string') {
-        assetId = data.mainImage;
+    // 1. Direct ID extraction if payload represents an Asset model directly
+    if (data.id) {
+      if (data.url || data.__typename === 'Asset' || payload.model === 'Asset') {
+        assetId = data.id;
+        imageUrl = data.url || null;
+        existingBlurhash = data.blurhash;
       }
     }
 
-    // Payload Case 3: If asset ID exists but image URL or existing blurhash needs resolution from Hygraph API
+    // 2. Check nested mainImage / coverImage / image relation fields (Print or Article models)
+    const imgField = data.mainImage || data.coverImage || data.image;
+    if (imgField) {
+      if (typeof imgField === 'object' && !Array.isArray(imgField)) {
+        assetId = assetId || imgField.id;
+        imageUrl = imageUrl || imgField.url;
+        if (existingBlurhash === undefined) existingBlurhash = imgField.blurhash;
+      } else if (typeof imgField === 'string') {
+        assetId = assetId || imgField;
+      }
+    }
+
+    // 3. Fallback: If payload.data.id exists and assetId isn't resolved yet, set candidate assetId = data.id
+    if (!assetId && data.id) {
+      assetId = data.id;
+    }
+
+    // 4. Resolve missing image URL or BlurHash state directly from Hygraph GraphQL API
     if (assetId && (!imageUrl || existingBlurhash === undefined)) {
       logger.info('Resolving Asset details directly from Hygraph API for Asset ID:', assetId);
       const fetchedAsset = await fetchHygraphAssetDetails(assetId, hygraphToken);
@@ -277,10 +286,11 @@ exports.hygraphBlurhashWebhook = onRequest({ secrets: [hygraphTokenSecret] }, as
     }
 
     if (!assetId || !imageUrl) {
-      logger.warn('WARNING: Unhandled payload structure or missing image URL.', {
+      logger.info('SKIPPED: Payload structure contains no valid image asset URL.', {
         hasData: !!payload.data,
         assetId,
         imageUrl,
+        model: payload.model || data.__typename || 'Unknown',
         rawKeys: Object.keys(data),
       });
       res.status(200).json({ 
