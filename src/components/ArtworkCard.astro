@@ -53,9 +53,12 @@ const { artwork } = Astro.props;
     <!-- Edition metadata snippet -->
     <div class="mt-4 pt-3 border-t border-paper-border/60 dark:border-carbon-border/60 flex items-center justify-between text-xs text-paper-muted dark:text-carbon-muted">
       <span>Edition: {artwork.editionSize}</span>
-      <span class="group-hover:translate-x-1 transition-transform inline-flex items-center gap-1 font-semibold text-paper-text dark:text-carbon-text">
+      <a 
+        href={`/prints/${artwork.slug}`} 
+        class="group-hover:translate-x-1 transition-all inline-flex items-center gap-1 font-semibold text-paper-text dark:text-carbon-text hover:text-paper-accent dark:hover:text-carbon-accent"
+      >
         Inspect &rarr;
-      </span>
+      </a>
     </div>
   </div>
 </article>
