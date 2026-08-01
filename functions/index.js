@@ -7,11 +7,18 @@
  *    prevents infinite recursion loops, and updates Hygraph Asset records.
  */
 
-const { onRequest } = require('firebase-functions/v2/https');
+const { onRequest, onCall, HttpsError } = require('firebase-functions/v2/https');
 const { defineSecret } = require('firebase-functions/params');
 const logger = require('firebase-functions/logger');
 const sharp = require('sharp');
 const { encode } = require('blurhash');
+const admin = require('firebase-admin');
+
+// Initialize Firebase Admin SDK if not already initialized
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+const db = admin.firestore();
 
 // Define Cloud Secret Manager secret references
 const githubPatSecret = defineSecret('GITHUB_PAT');
@@ -343,3 +350,157 @@ exports.hygraphBlurhashWebhook = onRequest({ secrets: [hygraphTokenSecret] }, as
     res.status(500).json({ error: error.message });
   }
 });
+
+/**
+ * Allowed origin rules for CORS protection matching brookjacob.studio and its subdomains.
+ */
+const ALLOWED_ORIGINS = [
+  'https://brookjacob.studio',
+  'https://brookjacob.me',
+  /https:\/\/.*\.brookjacob\.studio$/,
+  /https:\/\/.*\.brookjacob\.me$/,
+  /http:\/\/localhost:\d+$/,
+];
+
+/**
+ * 1. submitContactForm Cloud Function
+ * 
+ * Callable function for multi-subdomain contact message submissions.
+ * Validates, sanitizes payload, enforces App Check security, and writes to `contact_messages`.
+ */
+exports.submitContactForm = onCall({ cors: ALLOWED_ORIGINS }, async (request) => {
+  // 1. Security Check: Enforce App Check verification
+  if (!request.app) {
+    logger.warn('submitContactForm rejected: Missing App Check context');
+    throw new HttpsError('failed-precondition', 'App Check verification required.');
+  }
+
+  const { senderName, senderEmail, message, sourceSubdomain } = request.data || {};
+
+  // 2. Input Validation & Sanitization
+  if (!senderName || typeof senderName !== 'string' || senderName.trim().length === 0) {
+    throw new HttpsError('invalid-argument', 'Sender name is required.');
+  }
+  if (!senderEmail || typeof senderEmail !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(senderEmail.trim())) {
+    throw new HttpsError('invalid-argument', 'A valid email address is required.');
+  }
+  if (!message || typeof message !== 'string' || message.trim().length === 0) {
+    throw new HttpsError('invalid-argument', 'Message content is required.');
+  }
+
+  const cleanName = senderName.trim().slice(0, 150);
+  const cleanEmail = senderEmail.trim().toLowerCase().slice(0, 254);
+  const cleanMessage = message.trim().slice(0, 5000);
+  const cleanSubdomain = (sourceSubdomain && typeof sourceSubdomain === 'string')
+    ? sourceSubdomain.trim().toLowerCase().slice(0, 50)
+    : 'main';
+
+  try {
+    // 3. Write to Firestore contact_messages collection
+    const docRef = await db.collection('contact_messages').add({
+      sourceSubdomain: cleanSubdomain,
+      senderName: cleanName,
+      senderEmail: cleanEmail,
+      message: cleanMessage,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      status: 'unread',
+    });
+
+    logger.info(`Contact message created successfully: ${docRef.id} from ${cleanSubdomain} (${cleanEmail})`);
+
+    return {
+      success: true,
+      messageId: docRef.id,
+    };
+  } catch (error) {
+    logger.error('Error in submitContactForm Cloud Function:', error);
+    throw new HttpsError('internal', 'Unable to submit contact message. Please try again later.');
+  }
+});
+
+/**
+ * 2. castVote Cloud Function
+ * 
+ * Callable function for anonymous print voting & demand-gauge system.
+ * Enforces App Check and Anonymous Auth, checks for duplicate votes via transaction,
+ * and atomically increments vote count for 'want_print' votes.
+ */
+exports.castVote = onCall({ cors: ALLOWED_ORIGINS }, async (request) => {
+  // 1. Security Check: Enforce App Check
+  if (!request.app) {
+    logger.warn('castVote rejected: Missing App Check context');
+    throw new HttpsError('failed-precondition', 'App Check verification required.');
+  }
+
+  // 2. Security Check: Enforce Auth (Anonymous Auth UID required)
+  if (!request.auth || !request.auth.uid) {
+    logger.warn('castVote rejected: Unauthenticated call');
+    throw new HttpsError('unauthenticated', 'User must be authenticated anonymously to vote.');
+  }
+
+  const uid = request.auth.uid;
+  const { hygraphId, voteType, votingGroup } = request.data || {};
+
+  // 3. Payload Validation
+  if (!hygraphId || typeof hygraphId !== 'string' || hygraphId.trim().length === 0) {
+    throw new HttpsError('invalid-argument', 'Target hygraphId is required.');
+  }
+
+  if (voteType !== 'want_print' && voteType !== 'pass') {
+    throw new HttpsError('invalid-argument', "voteType must be 'want_print' or 'pass'.");
+  }
+
+  const cleanHygraphId = hygraphId.trim();
+
+  try {
+    // 4. Run Firestore Transaction
+    await db.runTransaction(async (transaction) => {
+      const voteRef = db.collection('potential_prints').doc(cleanHygraphId).collection('votes').doc(uid);
+      const voteDoc = await transaction.get(voteRef);
+
+      // Check if user has already voted
+      if (voteDoc.exists) {
+        logger.warn(`Duplicate vote attempt by UID ${uid} on print ${cleanHygraphId}`);
+        throw new HttpsError('already-exists', 'You have already submitted a vote for this artwork.');
+      }
+
+      const printRef = db.collection('potential_prints').doc(cleanHygraphId);
+      const printDoc = await transaction.get(printRef);
+
+      // Initialize parent potential_prints document if not created yet
+      if (!printDoc.exists) {
+        transaction.set(printRef, {
+          voteCount: voteType === 'want_print' ? 1 : 0,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          votingGroup: votingGroup && typeof votingGroup === 'string' ? votingGroup.trim() : null,
+        });
+      } else if (voteType === 'want_print') {
+        transaction.update(printRef, {
+          voteCount: admin.firestore.FieldValue.increment(1),
+        });
+      }
+
+      // Record individual vote in subcollection
+      transaction.set(voteRef, {
+        voteType,
+        votedAt: admin.firestore.FieldValue.serverTimestamp(),
+        votingGroup: votingGroup && typeof votingGroup === 'string' ? votingGroup.trim() : null,
+      });
+    });
+
+    logger.info(`Vote cast successfully: UID ${uid} voted '${voteType}' on ${cleanHygraphId}`);
+
+    return {
+      success: true,
+      hygraphId: cleanHygraphId,
+      voteType,
+    };
+  } catch (error) {
+    if (error instanceof HttpsError) {
+      throw error;
+    }
+    logger.error('Error in castVote Cloud Function transaction:', error);
+    throw new HttpsError('internal', 'Unable to cast vote. Please try again later.');
+  }
+});
+
