@@ -50,11 +50,11 @@ export function getFirebaseApp(): FirebaseApp {
           self.FIREBASE_APPCHECK_DEBUG_TOKEN = import.meta.env.PUBLIC_FIREBASE_APPCHECK_DEBUG_TOKEN || true;
         }
         
-        // Use ReCaptchaEnterpriseProvider if configured as Enterprise key or by default
-        const isEnterprise = import.meta.env.PUBLIC_RECAPTCHA_IS_ENTERPRISE !== 'false';
-        const provider = isEnterprise
-          ? new ReCaptchaEnterpriseProvider(recaptchaSiteKey)
-          : new ReCaptchaV3Provider(recaptchaSiteKey);
+        // Use ReCaptchaEnterpriseProvider by default, or ReCaptchaV3Provider if explicitly set
+        const providerType = import.meta.env.PUBLIC_RECAPTCHA_PROVIDER || (import.meta.env.PUBLIC_RECAPTCHA_IS_ENTERPRISE === 'false' ? 'v3' : 'enterprise');
+        const provider = providerType === 'v3'
+          ? new ReCaptchaV3Provider(recaptchaSiteKey)
+          : new ReCaptchaEnterpriseProvider(recaptchaSiteKey);
 
         appCheck = initializeAppCheck(app, {
           provider,

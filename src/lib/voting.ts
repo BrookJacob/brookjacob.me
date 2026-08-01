@@ -106,10 +106,16 @@ export async function voteOnPrint(
     }
 
     // Handle App Check or Auth failures
-    if (error?.code === 'functions/failed-precondition' || error?.code === 'functions/unauthenticated' || error?.message?.includes('App Check')) {
+    if (
+      error?.code === 'functions/failed-precondition' ||
+      error?.code === 'functions/unauthenticated' ||
+      error?.code === 'auth/firebase-app-check-token-is-invalid' ||
+      error?.message?.includes('App Check') ||
+      error?.message?.includes('app-check')
+    ) {
       return {
         success: false,
-        message: 'Security verification failed (App Check). If testing locally, register the browser console debug token in Firebase Console.',
+        message: 'Security verification failed (App Check token invalid). Please verify reCAPTCHA Enterprise API is enabled in GCP Console.',
       };
     }
 
