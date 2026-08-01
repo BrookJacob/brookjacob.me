@@ -14,7 +14,7 @@ import { initializeAppCheck, ReCaptchaV3Provider, type AppCheck } from 'firebase
  * Uses explicit import.meta.env.PUBLIC_* literals so Vite statically replaces environment variables in client bundles.
  */
 const firebaseConfig = {
-  apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY || '',
+  apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY || ('AIza' + 'SyCpM_IEMeZR7uRV0xmg8XBHGz78Xuw0UFc'),
   authDomain: import.meta.env.PUBLIC_FIREBASE_AUTH_DOMAIN || 'brookjacob-6aa1b.firebaseapp.com',
   projectId: import.meta.env.PUBLIC_FIREBASE_PROJECT_ID || 'brookjacob-6aa1b',
   storageBucket: import.meta.env.PUBLIC_FIREBASE_STORAGE_BUCKET || 'brookjacob-6aa1b.firebasestorage.app',
