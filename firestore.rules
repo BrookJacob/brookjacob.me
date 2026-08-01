@@ -23,5 +23,10 @@ service cloud.firestore {
       allow read: if false;
       allow write: if false;
     }
+
+    // Default fallback rule: deny all read and write operations for unlisted collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }
