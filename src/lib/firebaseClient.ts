@@ -7,7 +7,7 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, signInAnonymously, type Auth, type User } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getFunctions, type Functions } from 'firebase/functions';
-import { initializeAppCheck, ReCaptchaV3Provider, type AppCheck } from 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider, ReCaptchaV3Provider, type AppCheck } from 'firebase/app-check';
 
 /**
  * Firebase Client SDK Configuration.
@@ -41,12 +41,23 @@ export function getFirebaseApp(): FirebaseApp {
   if (!getApps().length) {
     app = initializeApp(firebaseConfig);
     
-    // Initialize App Check if reCAPTCHA v3 site key is available
+    // Initialize App Check if reCAPTCHA site key is available
     const recaptchaSiteKey = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY;
     if (recaptchaSiteKey && recaptchaSiteKey !== 'your_recaptcha_v3_site_key') {
       try {
+        if (typeof window !== 'undefined' && (import.meta.env.DEV || import.meta.env.PUBLIC_FIREBASE_APPCHECK_DEBUG_TOKEN)) {
+          // @ts-ignore
+          self.FIREBASE_APPCHECK_DEBUG_TOKEN = import.meta.env.PUBLIC_FIREBASE_APPCHECK_DEBUG_TOKEN || true;
+        }
+        
+        // Use ReCaptchaEnterpriseProvider if configured as Enterprise key or by default
+        const isEnterprise = import.meta.env.PUBLIC_RECAPTCHA_IS_ENTERPRISE !== 'false';
+        const provider = isEnterprise
+          ? new ReCaptchaEnterpriseProvider(recaptchaSiteKey)
+          : new ReCaptchaV3Provider(recaptchaSiteKey);
+
         appCheck = initializeAppCheck(app, {
-          provider: new ReCaptchaV3Provider(recaptchaSiteKey),
+          provider,
           isTokenAutoRefreshEnabled: true,
         });
       } catch (err) {

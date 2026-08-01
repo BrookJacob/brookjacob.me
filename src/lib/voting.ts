@@ -106,10 +106,10 @@ export async function voteOnPrint(
     }
 
     // Handle App Check or Auth failures
-    if (error?.code === 'functions/failed-precondition' || error?.code === 'functions/unauthenticated') {
+    if (error?.code === 'functions/failed-precondition' || error?.code === 'functions/unauthenticated' || error?.message?.includes('App Check')) {
       return {
         success: false,
-        message: 'Authentication or security check failed. Please refresh the page and try again.',
+        message: 'Security verification failed (App Check). If testing locally, register the browser console debug token in Firebase Console.',
       };
     }
 
