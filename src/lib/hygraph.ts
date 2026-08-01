@@ -8,11 +8,12 @@
 
 import { GraphQLClient } from 'graphql-request';
 import type { Artwork, BlogPost, Project, Print, Article } from './types';
+import { getEnvVar } from './env';
 
 /**
  * Reads Hygraph endpoint from environment configuration.
  */
-const endpoint = process.env.HYGRAPH_ENDPOINT || 'https://us-west-2.cdn.hygraph.com/content/cmleb20kj014707w90z5k39wb/master';
+const endpoint = getEnvVar('HYGRAPH_ENDPOINT', 'https://us-west-2.cdn.hygraph.com/content/cmleb20kj014707w90z5k39wb/master');
 const client = new GraphQLClient(endpoint);
 
 /**

@@ -8,17 +8,18 @@ import { getAuth, signInAnonymously, type Auth, type User } from 'firebase/auth'
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getFunctions, type Functions } from 'firebase/functions';
 import { initializeAppCheck, ReCaptchaV3Provider, type AppCheck } from 'firebase/app-check';
+import { getEnvVar } from './env';
 
 /**
- * Firebase Client SDK Configuration loaded from environment variables.
+ * Firebase Client SDK Configuration loaded safely across environments.
  */
 const firebaseConfig = {
-  apiKey: process.env.PUBLIC_FIREBASE_API_KEY || '',
-  authDomain: process.env.PUBLIC_FIREBASE_AUTH_DOMAIN || 'brookjacob-me.firebaseapp.com',
-  projectId: process.env.PUBLIC_FIREBASE_PROJECT_ID || 'brookjacob-me',
-  storageBucket: process.env.PUBLIC_FIREBASE_STORAGE_BUCKET || 'brookjacob-me.appspot.com',
-  messagingSenderId: process.env.PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: process.env.PUBLIC_FIREBASE_APP_ID || '',
+  apiKey: getEnvVar('PUBLIC_FIREBASE_API_KEY'),
+  authDomain: getEnvVar('PUBLIC_FIREBASE_AUTH_DOMAIN', 'brookjacob-6aa1b.firebaseapp.com'),
+  projectId: getEnvVar('PUBLIC_FIREBASE_PROJECT_ID', 'brookjacob-6aa1b'),
+  storageBucket: getEnvVar('PUBLIC_FIREBASE_STORAGE_BUCKET', 'brookjacob-6aa1b.firebasestorage.app'),
+  messagingSenderId: getEnvVar('PUBLIC_FIREBASE_MESSAGING_SENDER_ID', '738473721967'),
+  appId: getEnvVar('PUBLIC_FIREBASE_APP_ID', '1:738473721967:web:f87878f5b760bd4f960d9a'),
 };
 
 let app: FirebaseApp;
@@ -41,7 +42,7 @@ export function getFirebaseApp(): FirebaseApp {
     app = initializeApp(firebaseConfig);
     
     // Initialize App Check if reCAPTCHA v3 site key is available
-    const recaptchaSiteKey = process.env.PUBLIC_RECAPTCHA_SITE_KEY;
+    const recaptchaSiteKey = getEnvVar('PUBLIC_RECAPTCHA_SITE_KEY');
     if (recaptchaSiteKey && recaptchaSiteKey !== 'your_recaptcha_v3_site_key') {
       try {
         appCheck = initializeAppCheck(app, {
