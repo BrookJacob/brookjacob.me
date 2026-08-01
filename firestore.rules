@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // potential_prints Collection & Votes Subcollection:
+    // Read-only for authenticated/anonymous clients to display vote totals.
+    // Direct client write/update/delete operations are completely blocked.
+    // All vote mutations MUST be executed via Firebase Cloud Functions (Firebase Admin SDK).
+    match /potential_prints/{hygraphId} {
+      allow read: if true;
+      allow write: if false;
+
+      match /votes/{uid} {
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+
+    // contact_messages Collection:
+    // Completely blocked from direct client read, write, update, or delete operations.
+    // All form submissions MUST be executed via the `submitContactForm` Cloud Function.
+    match /contact_messages/{messageId} {
+      allow read: if false;
+      allow write: if false;
+    }
+  }
+}
