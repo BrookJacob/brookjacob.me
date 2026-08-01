@@ -3,7 +3,7 @@
  * Printmaking Gallery Feed Page (printmaker.brookjacob.studio)
  * 
  * Displays medium-bleed visual feed of relief printmaking artwork items,
- * demand-gauge voting gallery for upcoming potential prints, and studio contact integration.
+ * Radix UI Accordion demand-gauge voting gallery for upcoming potential prints, and studio contact integration.
  * 
  * @page
  */
@@ -11,7 +11,7 @@
 import Navigation from '../../components/Navigation.astro';
 import Footer from '../../components/Footer.astro';
 import ArtworkCard from '../../components/ArtworkCard.astro';
-import PotentialPrintsGallery from '../../components/PotentialPrintsGallery';
+import PotentialPrintsAccordion from '../../components/PotentialPrintsAccordion';
 import ContactFormModal from '../../components/ContactFormModal';
 import { getAllArtworks } from '../../lib/hygraph';
 import '../../styles/global.css';
@@ -35,7 +35,7 @@ const artworks = await getAllArtworks();
 
     <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 py-12">
       <!-- Gallery Feed Header & Contact Action -->
-      <section class="mb-12 border-b border-paper-border dark:border-carbon-border pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <section class="mb-8 border-b border-paper-border dark:border-carbon-border pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <span class="text-xs uppercase tracking-widest font-semibold text-paper-accent dark:text-carbon-accent font-mono">
             Studio Archive
@@ -58,16 +58,14 @@ const artworks = await getAllArtworks();
         </div>
       </section>
 
+      <!-- Expandable Radix UI Accordion: Demand-Gauge Voting Panel at Top -->
+      <PotentialPrintsAccordion client:load />
+
       <!-- Published Artwork Grid Feed -->
-      <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
         {artworks.map((artwork) => (
           <ArtworkCard artwork={artwork} />
         ))}
-      </section>
-
-      <!-- Demand-Gauge Voting Section for Potential Prints -->
-      <section class="mt-16 pt-12 border-t border-paper-border dark:border-carbon-border">
-        <PotentialPrintsGallery client:load />
       </section>
     </main>
 
