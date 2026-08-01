@@ -48,7 +48,7 @@ export function getFirebaseApp(): FirebaseApp {
     app = initializeApp(firebaseConfig);
     
     // Initialize App Check if reCAPTCHA site key is available
-    const recaptchaSiteKey = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY;
+    const recaptchaSiteKey = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY || '6LdmbXAtAAAAAM6Gy_XQgjPdk14Ls0hrS914Woce';
     if (recaptchaSiteKey && recaptchaSiteKey !== 'your_recaptcha_v3_site_key') {
       try {
         // Use ReCaptchaEnterpriseProvider by default, or ReCaptchaV3Provider if explicitly set
