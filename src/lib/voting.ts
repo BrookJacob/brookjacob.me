@@ -110,12 +110,13 @@ export async function voteOnPrint(
       error?.code === 'functions/failed-precondition' ||
       error?.code === 'functions/unauthenticated' ||
       error?.code === 'auth/firebase-app-check-token-is-invalid' ||
+      error?.message?.includes('firebase-app-check-token-is-invalid') ||
       error?.message?.includes('App Check') ||
       error?.message?.includes('app-check')
     ) {
       return {
         success: false,
-        message: 'Security verification failed (App Check token invalid). Please verify reCAPTCHA Enterprise API is enabled in GCP Console.',
+        message: 'Security verification failed (App Check token is invalid). Please ensure reCAPTCHA Enterprise API is enabled and domain is whitelisted in GCP Console.',
       };
     }
 
