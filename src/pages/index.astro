@@ -11,6 +11,7 @@
 import Navigation from '../components/Navigation.astro';
 import Footer from '../components/Footer.astro';
 import WebsiteHoverCard from '../components/WebsiteHoverCard';
+import ContactFormModal from '../components/ContactFormModal';
 import { DOMAINS } from '../lib/urls';
 import '../styles/global.css';
 ---
@@ -140,6 +141,11 @@ import '../styles/global.css';
           </div>
         </a>
 
+      </section>
+
+      <!-- Embedded Contact Section -->
+      <section class="max-w-2xl mx-auto w-full">
+        <ContactFormModal client:load isEmbedded sourceSubdomain="main" />
       </section>
 
     </main>

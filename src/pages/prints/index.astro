@@ -3,7 +3,7 @@
  * Printmaking Gallery Feed Page (printmaker.brookjacob.studio)
  * 
  * Displays medium-bleed visual feed of relief printmaking artwork items,
- * displaying high-res image previews, titles, years, techniques, and edition sizes.
+ * demand-gauge voting gallery for upcoming potential prints, and studio contact integration.
  * 
  * @page
  */
@@ -11,6 +11,8 @@
 import Navigation from '../../components/Navigation.astro';
 import Footer from '../../components/Footer.astro';
 import ArtworkCard from '../../components/ArtworkCard.astro';
+import PotentialPrintsGallery from '../../components/PotentialPrintsGallery';
+import ContactFormModal from '../../components/ContactFormModal';
 import { getAllArtworks } from '../../lib/hygraph';
 import '../../styles/global.css';
 
@@ -32,24 +34,40 @@ const artworks = await getAllArtworks();
     <Navigation activeDomain="prints" />
 
     <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 py-12">
-      <!-- Gallery Feed Header -->
-      <section class="mb-12 border-b border-paper-border dark:border-carbon-border pb-8">
-        <span class="text-xs uppercase tracking-widest font-semibold text-paper-accent dark:text-carbon-accent">
-          Studio Archive
-        </span>
-        <h1 class="font-serif text-4xl sm:text-5xl font-extrabold text-paper-text dark:text-carbon-text mt-2">
-          Printmaking Portfolio
-        </h1>
-        <p class="text-base sm:text-lg text-paper-muted dark:text-carbon-muted mt-3 max-w-3xl font-serif">
-          A visual collection of multi-layered reduction linocuts pressed on fine cotton paper.
-        </p>
+      <!-- Gallery Feed Header & Contact Action -->
+      <section class="mb-12 border-b border-paper-border dark:border-carbon-border pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <span class="text-xs uppercase tracking-widest font-semibold text-paper-accent dark:text-carbon-accent font-mono">
+            Studio Archive
+          </span>
+          <h1 class="font-serif text-4xl sm:text-5xl font-extrabold text-paper-text dark:text-carbon-text mt-2">
+            Printmaking Portfolio
+          </h1>
+          <p class="text-base sm:text-lg text-paper-muted dark:text-carbon-muted mt-3 max-w-3xl font-serif">
+            A visual collection of multi-layered reduction linocuts pressed on fine cotton paper.
+          </p>
+        </div>
+
+        <div>
+          <ContactFormModal
+            client:load
+            sourceSubdomain="print"
+            triggerButtonText="Inquire / Custom Print"
+            triggerButtonClassName="px-5 py-3 rounded-lg bg-paper-accent dark:bg-carbon-accent text-white font-mono text-xs font-semibold tracking-wide hover:opacity-90 active:scale-95 transition-all shadow-sm flex items-center gap-2 whitespace-nowrap"
+          />
+        </div>
       </section>
 
-      <!-- Artwork Grid Feed -->
+      <!-- Published Artwork Grid Feed -->
       <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {artworks.map((artwork) => (
           <ArtworkCard artwork={artwork} />
         ))}
+      </section>
+
+      <!-- Demand-Gauge Voting Section for Potential Prints -->
+      <section class="mt-16 pt-12 border-t border-paper-border dark:border-carbon-border">
+        <PotentialPrintsGallery client:load />
       </section>
     </main>
 
