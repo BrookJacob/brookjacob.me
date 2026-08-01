@@ -22,6 +22,12 @@ const firebaseConfig = {
   appId: import.meta.env.PUBLIC_FIREBASE_APP_ID || '1:738473721967:web:f87878f5b760bd4f960d9a',
 };
 
+// Set App Check debug token flag early at top-level module scope for dev environments
+if (typeof window !== 'undefined' && (import.meta.env.DEV || import.meta.env.PUBLIC_FIREBASE_APPCHECK_DEBUG_TOKEN)) {
+  // @ts-ignore
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN = import.meta.env.PUBLIC_FIREBASE_APPCHECK_DEBUG_TOKEN || true;
+}
+
 let app: FirebaseApp;
 let auth: Auth;
 let firestore: Firestore;
@@ -45,17 +51,13 @@ export function getFirebaseApp(): FirebaseApp {
     const recaptchaSiteKey = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY;
     if (recaptchaSiteKey && recaptchaSiteKey !== 'your_recaptcha_v3_site_key') {
       try {
-        if (typeof window !== 'undefined' && (import.meta.env.DEV || import.meta.env.PUBLIC_FIREBASE_APPCHECK_DEBUG_TOKEN)) {
-          // @ts-ignore
-          self.FIREBASE_APPCHECK_DEBUG_TOKEN = import.meta.env.PUBLIC_FIREBASE_APPCHECK_DEBUG_TOKEN || true;
-        }
-        
         // Use ReCaptchaEnterpriseProvider by default, or ReCaptchaV3Provider if explicitly set
         const providerType = import.meta.env.PUBLIC_RECAPTCHA_PROVIDER || (import.meta.env.PUBLIC_RECAPTCHA_IS_ENTERPRISE === 'false' ? 'v3' : 'enterprise');
         const provider = providerType === 'v3'
           ? new ReCaptchaV3Provider(recaptchaSiteKey)
           : new ReCaptchaEnterpriseProvider(recaptchaSiteKey);
 
+        console.info(`[FirebaseClient] Initializing App Check with ${providerType} provider (site key: ${recaptchaSiteKey.substring(0, 6)}...)`);
         appCheck = initializeAppCheck(app, {
           provider,
           isTokenAutoRefreshEnabled: true,
@@ -63,6 +65,8 @@ export function getFirebaseApp(): FirebaseApp {
       } catch (err) {
         console.warn('[FirebaseClient] App Check initialization skipped:', err);
       }
+    } else {
+      console.warn('[FirebaseClient] App Check skipped: PUBLIC_RECAPTCHA_SITE_KEY is not defined.');
     }
   } else {
     app = getApp();
