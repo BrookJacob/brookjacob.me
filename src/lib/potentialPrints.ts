@@ -12,7 +12,7 @@ import { getEnvVar } from './env';
 /**
  * Hygraph Content API endpoint read from environment configuration.
  */
-const HYGRAPH_ENDPOINT = getEnvVar('HYGRAPH_ENDPOINT', 'https://us-west-2.cdn.hygraph.com/content/cmleb20kj014707w90z5k39wb/master');
+const HYGRAPH_ENDPOINT = import.meta.env.PUBLIC_HYGRAPH_ENDPOINT || import.meta.env.HYGRAPH_ENDPOINT || 'https://us-west-2.cdn.hygraph.com/content/cmleb20kj014707w90z5k39wb/master';
 const client = new GraphQLClient(HYGRAPH_ENDPOINT);
 
 /**
