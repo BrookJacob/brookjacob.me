@@ -7,7 +7,7 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, signInAnonymously, type Auth, type User } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getFunctions, type Functions } from 'firebase/functions';
-import { initializeAppCheck, ReCaptchaEnterpriseProvider, ReCaptchaV3Provider, type AppCheck } from 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider, ReCaptchaV3Provider, getToken, type AppCheck } from 'firebase/app-check';
 
 /**
  * Firebase Client SDK Configuration.
@@ -118,6 +118,16 @@ export async function ensureAnonymousAuth(): Promise<User> {
   if (authInstance.currentUser) {
     return authInstance.currentUser;
   }
+
+  // Pre-fetch App Check token to verify attestation status and surface diagnostic details if it fails
+  if (appCheck) {
+    try {
+      await getToken(appCheck, false);
+    } catch (appCheckErr) {
+      console.warn('[FirebaseClient] App Check token pre-fetch warning:', appCheckErr);
+    }
+  }
+
   const userCredential = await signInAnonymously(authInstance);
   return userCredential.user;
 }
