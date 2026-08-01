@@ -93,6 +93,18 @@ export async function voteOnPrint(
       };
     }
 
+    // Handle Firebase Auth configuration missing error (Anonymous authentication disabled in Firebase console)
+    if (
+      error?.code === 'auth/configuration-not-found' ||
+      error?.code === 'auth/operation-not-allowed' ||
+      error?.message?.includes('configuration-not-found')
+    ) {
+      return {
+        success: false,
+        message: 'Anonymous Authentication is not enabled in Firebase Console. Enable "Anonymous" under Firebase Auth > Sign-in method.',
+      };
+    }
+
     // Handle App Check or Auth failures
     if (error?.code === 'functions/failed-precondition' || error?.code === 'functions/unauthenticated') {
       return {
