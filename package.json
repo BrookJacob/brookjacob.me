@@ -13,7 +13,8 @@
     "preview": "astro preview",
     "preview:firebase": "npm run build && firebase emulators:start --only hosting",
     "astro": "astro",
-    "optimize-images": "node scripts/optimize-hover-images.js"
+    "optimize-images": "node scripts/optimize-hover-images.js",
+    "sync-prints": "node scripts/sync-prints.js"
   },
   "dependencies": {
     "@astrojs/react": "^3.0.0",
@@ -26,6 +27,8 @@
     "astro": "^4.0.0",
     "blurhash": "^2.0.5",
     "clsx": "^2.1.0",
+    "firebase": "^10.12.0",
+    "firebase-admin": "^12.0.0",
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
     "react": "^18.2.0",
