@@ -8,6 +8,9 @@ on:
     types: [hygraph_publish, hygraph_content_published]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
