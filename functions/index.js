@@ -20,9 +20,12 @@ if (!admin.apps.length) {
 }
 const db = admin.firestore();
 
+const { Resend } = require('resend');
+
 // Define Cloud Secret Manager secret references
 const githubPatSecret = defineSecret('GITHUB_PAT');
 const hygraphTokenSecret = defineSecret('HYGRAPH_PAT_TOKEN');
+const resendApiKeySecret = defineSecret('RESEND_API_KEY');
 
 const GITHUB_REPO = process.env.GITHUB_REPO || 'BrookJacob/brookjacob.me';
 const HYGRAPH_ENDPOINT = process.env.HYGRAPH_ENDPOINT || 'https://us-west-2.cdn.hygraph.com/content/cmleb20kj014707w90z5k39wb/master';
@@ -368,7 +371,7 @@ const ALLOWED_ORIGINS = [
  * Callable function for multi-subdomain contact message submissions.
  * Validates, sanitizes payload, enforces App Check security, and writes to `contact_messages`.
  */
-exports.submitContactForm = onCall({ cors: ALLOWED_ORIGINS }, async (request) => {
+exports.submitContactForm = onCall({ secrets: [resendApiKeySecret], cors: ALLOWED_ORIGINS }, async (request) => {
   // 1. Security Check: Enforce App Check verification
   if (!request.app) {
     logger.warn('submitContactForm rejected: Missing App Check context');
@@ -407,6 +410,154 @@ exports.submitContactForm = onCall({ cors: ALLOWED_ORIGINS }, async (request) =>
     });
 
     logger.info(`Contact message created successfully: ${docRef.id} from ${cleanSubdomain} (${cleanEmail})`);
+
+    // 4. Send Dual Email Notifications via Resend API (if RESEND_API_KEY secret is configured)
+    const resendApiKey = (resendApiKeySecret.value() || process.env.RESEND_API_KEY || '').trim();
+    if (resendApiKey) {
+      try {
+        const resend = new Resend(resendApiKey);
+        const adminEmail = process.env.NOTIFICATION_EMAIL || 'brookjacob@gmail.com';
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+
+        // A. Dispatch Admin Notification Email to brookjacob@gmail.com
+        await resend.emails.send({
+          from: `Studio Alerts <${fromEmail}>`,
+          to: adminEmail,
+          replyTo: cleanEmail,
+          subject: `[${cleanSubdomain.toUpperCase()}] Contact Inquiry from ${cleanName}`,
+          html: `
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <meta charset="utf-8" />
+                <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f3ef; color: #1c1b1a; margin: 0; padding: 24px; }
+                  .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e5e2da; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+                  .header { background: #141413; color: #e6e4dd; padding: 24px 32px; text-align: left; }
+                  .badge { display: inline-block; background: #c85a32; color: #ffffff; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 4px 10px; border-radius: 4px; margin-bottom: 8px; }
+                  .content { padding: 32px; }
+                  .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 14px; }
+                  .meta-table td { padding: 8px 0; border-bottom: 1px solid #f0eee8; }
+                  .meta-label { color: #6b6965; font-weight: 600; width: 140px; }
+                  .message-box { background: #fbf9f5; border: 1px solid #e5e2da; border-left: 4px solid #c85a32; padding: 20px; border-radius: 6px; font-size: 15px; line-height: 1.6; color: #1c1b1a; white-space: pre-wrap; margin-top: 16px; }
+                  .action-btn { display: inline-block; background: #c85a32; color: #ffffff !important; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 24px; }
+                  .footer { padding: 20px 32px; background: #fbf9f5; border-top: 1px solid #e5e2da; font-size: 12px; color: #6b6965; text-align: center; }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <div class="header">
+                    <span class="badge">${cleanSubdomain} Subdomain</span>
+                    <h2 style="margin: 4px 0 0 0; font-size: 20px; font-weight: 700;">New Contact Form Submission</h2>
+                  </div>
+                  <div class="content">
+                    <table class="meta-table">
+                      <tr>
+                        <td class="meta-label">Sender Name:</td>
+                        <td><strong>${cleanName}</strong></td>
+                      </tr>
+                      <tr>
+                        <td class="meta-label">Sender Email:</td>
+                        <td><a href="mailto:${cleanEmail}" style="color: #c85a32; text-decoration: none;">${cleanEmail}</a></td>
+                      </tr>
+                      <tr>
+                        <td class="meta-label">Subdomain Origin:</td>
+                        <td><code>${cleanSubdomain}.brookjacob.studio</code></td>
+                      </tr>
+                      <tr>
+                        <td class="meta-label">Submission ID:</td>
+                        <td><code style="font-size: 12px;">${docRef.id}</code></td>
+                      </tr>
+                    </table>
+
+                    <div style="font-weight: 600; color: #6b6965; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Message Content:</div>
+                    <div class="message-box">${cleanMessage}</div>
+
+                    <div style="text-align: center;">
+                      <a href="mailto:${cleanEmail}?subject=Re:%20Inquiry%20from%20brookjacob.studio" class="action-btn">Reply to ${cleanName} &rarr;</a>
+                    </div>
+                  </div>
+                  <div class="footer">
+                    Jacob Brook Studio & Software Practice • Autonomous Firestore System
+                  </div>
+                </div>
+              </body>
+            </html>
+          `,
+        });
+
+        // B. Dispatch Professional Receipt / Verification Email to Sender (cleanEmail)
+        await resend.emails.send({
+          from: `Jacob Brook <${fromEmail}>`,
+          to: cleanEmail,
+          replyTo: adminEmail,
+          subject: 'Message Received — Jacob Brook Studio',
+          html: `
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <meta charset="utf-8" />
+                <style>
+                  body { font-family: Georgia, 'Times New Roman', serif; background-color: #f4f3ef; color: #1c1b1a; margin: 0; padding: 24px; }
+                  .container { max-width: 580px; margin: 0 auto; background: #fbf9f5; border-radius: 12px; border: 1px solid #e5e2da; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+                  .header { padding: 36px 36px 20px 36px; border-bottom: 1px solid #e5e2da; text-align: center; }
+                  .studio-title { font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #1c1b1a; margin: 0; }
+                  .studio-subtitle { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #c85a32; margin-top: 6px; font-weight: 600; }
+                  .content { padding: 36px; font-size: 16px; line-height: 1.7; color: #1c1b1a; }
+                  .message-preview { background: #ffffff; border: 1px solid #e5e2da; padding: 20px; border-radius: 8px; font-size: 14px; color: #6b6965; margin: 24px 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; white-space: pre-wrap; line-height: 1.6; }
+                  .signature { margin-top: 32px; pt: 20px; border-top: 1px solid #e5e2da; }
+                  .footer { padding: 24px 36px; background: #141413; color: #9e9c96; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 12px; text-align: center; line-height: 1.6; }
+                  .footer a { color: #e07a5f; text-decoration: none; }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <div class="header">
+                    <h1 class="studio-title">Jacob Brook</h1>
+                    <div class="studio-subtitle">Printmaking Studio & Web Development</div>
+                  </div>
+                  <div class="content">
+                    <p style="margin-top: 0;">Hi ${cleanName},</p>
+                    <p>
+                      Thank you for reaching out through <strong>${cleanSubdomain}.brookjacob.studio</strong>.
+                      I have received your message and will review it shortly.
+                    </p>
+                    <p>
+                      I aim to respond to all inquiries within <strong>1 to 2 business days</strong>. Whether you reached out regarding print edition purchases, custom reduction linocuts, or software development projects, I look forward to connecting with you.
+                    </p>
+
+                    <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #6b6965; margin-top: 28px; font-weight: 600;">
+                      Summary of Your Submitted Message:
+                    </div>
+                    <div class="message-preview">${cleanMessage}</div>
+
+                    <div class="signature">
+                      <p style="margin: 0; font-weight: 700;">Warm regards,</p>
+                      <p style="margin: 4px 0 0 0; color: #6b6965; font-size: 14px;">Jacob Brook</p>
+                    </div>
+                  </div>
+                  <div class="footer">
+                    <p style="margin: 0;"><strong>Jacob Brook Studio</strong> • Relief Printmaking & Web Practice</p>
+                    <p style="margin: 6px 0 0 0;">
+                      <a href="https://brookjacob.studio">brookjacob.studio</a> • 
+                      <a href="https://printmaker.brookjacob.studio">Printmaker</a> • 
+                      <a href="https://developer.brookjacob.studio">Developer Showcase</a>
+                    </p>
+                  </div>
+                </div>
+              </body>
+            </html>
+          `,
+        });
+
+        logger.info(`Resend email notifications (Admin alert + Sender receipt) sent for message ID: ${docRef.id}`);
+      } catch (resendError) {
+        logger.error('Error dispatching emails via Resend:', resendError);
+        // Message is still safely persisted in Firestore; request succeeds
+      }
+    } else {
+      logger.info('Resend email notifications skipped (RESEND_API_KEY secret not set).');
+    }
 
     return {
       success: true,
