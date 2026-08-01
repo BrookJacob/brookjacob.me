@@ -3,7 +3,7 @@
  * Developer Work Showcase Page (developer.brookjacob.studio)
  * 
  * Showcases software engineering projects, tech stack badges, repository links,
- * live demo links, technical write-ups, and developer bio.
+ * live demo links, technical write-ups, developer bio, and contact inquiry integration.
  * 
  * @page
  */
@@ -13,6 +13,7 @@ import Footer from '../../components/Footer.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import DeveloperAvatar from '../../components/DeveloperAvatar';
 import WebsiteHoverCard from '../../components/WebsiteHoverCard';
+import ContactFormModal from '../../components/ContactFormModal';
 import { getAllProjects, getAllBlogPosts } from '../../lib/hygraph';
 import '../../styles/global.css';
 
@@ -38,19 +39,32 @@ const techPosts = blogPosts.filter((p) => p.category === 'software' || p.categor
     <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 py-12 flex flex-col gap-16">
       
       <!-- Developer Bio & Header Section -->
-      <section class="border-b border-paper-border dark:border-carbon-border pb-10">
-        <span class="text-xs font-mono uppercase tracking-widest font-semibold text-blue-600 dark:text-blue-400">
-          Web Applications & Platforms
-        </span>
-        <h1 class="font-serif text-4xl sm:text-5xl font-extrabold text-paper-text dark:text-carbon-text mt-2">
-          Developer Showcase
-        </h1>
-        <p class="text-lg text-paper-muted dark:text-carbon-muted mt-4 max-w-3xl leading-relaxed font-serif">
-          Developer behind <WebsiteHoverCard client:load href="https://ableroadmap.com" label="ABLE Roadmap" title="ABLE Roadmap — Daily Momentum Coach" description="A daily momentum coach & life roadmap workspace to track habits, goals, and deep work focus." domain="ableroadmap.com" images={['/images/previews/able/slide1.webp', '/images/previews/able/slide2.webp', '/images/previews/able/slide3.webp']} accentColor="blue" /> — a daily momentum coach & life roadmap workspace — and <WebsiteHoverCard client:load href="https://satoritrailheads.com" label="Satori Trailheads" title="Satori Trailheads — Outdoor Expeditions" description="Interactive mountain trailheads, topographic telemetry, and field guide waypoint maps." domain="satoritrailheads.com" images={['/images/previews/satori/slide1.webp', '/images/previews/satori/slide2.webp', '/images/previews/satori/slide3.webp']} accentColor="blue" />. Building full-stack web platforms, interactive tools, and web applications.
-        </p>
+      <section class="border-b border-paper-border dark:border-carbon-border pb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <span class="text-xs font-mono uppercase tracking-widest font-semibold text-blue-600 dark:text-blue-400">
+            Web Applications & Platforms
+          </span>
+          <h1 class="font-serif text-4xl sm:text-5xl font-extrabold text-paper-text dark:text-carbon-text mt-2">
+            Developer Showcase
+          </h1>
+          <p class="text-lg text-paper-muted dark:text-carbon-muted mt-4 max-w-3xl leading-relaxed font-serif">
+            Developer behind <WebsiteHoverCard client:load href="https://ableroadmap.com" label="ABLE Roadmap" title="ABLE Roadmap — Daily Momentum Coach" description="A daily momentum coach & life roadmap workspace to track habits, goals, and deep work focus." domain="ableroadmap.com" images={['/images/previews/able/slide1.webp', '/images/previews/able/slide2.webp', '/images/previews/able/slide3.webp']} accentColor="blue" /> — a daily momentum coach & life roadmap workspace — and <WebsiteHoverCard client:load href="https://satoritrailheads.com" label="Satori Trailheads" title="Satori Trailheads — Outdoor Expeditions" description="Interactive mountain trailheads, topographic telemetry, and field guide waypoint maps." domain="satoritrailheads.com" images={['/images/previews/satori/slide1.webp', '/images/previews/satori/slide2.webp', '/images/previews/satori/slide3.webp']} accentColor="blue" />. Building full-stack web platforms, interactive tools, and web applications.
+          </p>
+        </div>
 
-        <!-- Developer Bio Callout Card with Radix UI Avatar Primitive -->
-        <div class="mt-8 p-6 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-6">
+        <div>
+          <ContactFormModal
+            client:load
+            sourceSubdomain="dev"
+            triggerButtonText="Inquire / Work Together"
+            triggerButtonClassName="px-5 py-3 rounded-lg bg-blue-600 dark:bg-blue-500 text-white font-mono text-xs font-semibold tracking-wide hover:opacity-90 active:scale-95 transition-all shadow-sm flex items-center gap-2 whitespace-nowrap"
+          />
+        </div>
+      </section>
+
+      <!-- Developer Bio Callout Card -->
+      <section className="-mt-8">
+        <div class="p-6 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-6">
           <DeveloperAvatar client:load src="/avatar.jpg" alt="Jacob Brook profile" fallbackText="JB" />
           <div>
             <h2 class="font-serif text-lg font-bold text-paper-text dark:text-carbon-text">
@@ -120,6 +134,11 @@ const techPosts = blogPosts.filter((p) => p.category === 'software' || p.categor
           </div>
         </section>
       )}
+
+      <!-- Embedded Contact Form Section for Developer Subdomain -->
+      <section class="max-w-2xl mx-auto w-full pt-8 border-t border-paper-border dark:border-carbon-border">
+        <ContactFormModal client:load isEmbedded sourceSubdomain="dev" />
+      </section>
 
     </main>
 
