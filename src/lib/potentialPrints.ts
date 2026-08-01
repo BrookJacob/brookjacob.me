@@ -2,8 +2,8 @@
  * @file src/lib/potentialPrints.ts
  * @description Hygraph CMS Query Handler & Grouping Logic for Potential Prints (Demand-Gauge System).
  * 
- * Provides TypeScript interfaces, GraphQL data fetching, variant grouping helpers,
- * and Firestore real-time vote count merging.
+ * Supports multi-image concepts (unquantized photo + quantized reduction linocut preview + gallery assets),
+ * variant grouping helpers, and Firestore real-time vote count merging.
  */
 
 import { GraphQLClient, gql } from 'graphql-request';
@@ -26,11 +26,14 @@ export interface HygraphImageAsset {
 
 /**
  * PotentialPrint entity representing an upcoming artwork design under demand-gauge voting.
+ * Supports both quantized and unquantized image assets for side-by-side or tabbed comparison.
  */
 export interface PotentialPrint {
   id: string;
   title: string;
   image: HygraphImageAsset;
+  quantizedImage?: HygraphImageAsset | null;
+  galleryImages?: HygraphImageAsset[];
   isActive: boolean;
   votingGroup?: string | null;
   voteCount?: number;
@@ -46,7 +49,7 @@ export interface VotingGroup {
 }
 
 /**
- * GraphQL Query to fetch active PotentialPrint entries from Hygraph.
+ * GraphQL Query to fetch active PotentialPrint entries from Hygraph, including quantized assets.
  */
 const GET_POTENTIAL_PRINTS = gql`
   query GetPotentialPrints {
@@ -56,6 +59,18 @@ const GET_POTENTIAL_PRINTS = gql`
       isActive
       votingGroup
       image {
+        url
+        width
+        height
+        blurhash
+      }
+      quantizedImage {
+        url
+        width
+        height
+        blurhash
+      }
+      galleryImages {
         url
         width
         height
@@ -75,6 +90,12 @@ const GET_FALLBACK_PRINTS = gql`
       title
       display
       mainImage {
+        url
+        width
+        height
+        blurhash
+      }
+      galleryImages {
         url
         width
         height
@@ -110,6 +131,13 @@ export async function fetchPotentialPrints(): Promise<PotentialPrint[]> {
             height: p.mainImage?.height || 1600,
             blurhash: p.mainImage?.blurhash,
           },
+          quantizedImage: p.galleryImages?.[0] ? {
+            url: p.galleryImages[0].url,
+            width: p.galleryImages[0].width || 1200,
+            height: p.galleryImages[0].height || 1600,
+            blurhash: p.galleryImages[0].blurhash,
+          } : null,
+          galleryImages: p.galleryImages || [],
           isActive: p.display !== false,
           votingGroup: null,
           voteCount: 0,
