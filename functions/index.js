@@ -26,6 +26,7 @@ const { Resend } = require('resend');
 const githubPatSecret = defineSecret('GITHUB_PAT');
 const hygraphTokenSecret = defineSecret('HYGRAPH_PAT_TOKEN');
 const resendApiKeySecret = defineSecret('RESEND_API_KEY');
+const resendFromEmailSecret = defineSecret('RESEND_FROM_EMAIL');
 
 const GITHUB_REPO = process.env.GITHUB_REPO || 'BrookJacob/brookjacob.me';
 const HYGRAPH_ENDPOINT = process.env.HYGRAPH_ENDPOINT || 'https://us-west-2.cdn.hygraph.com/content/cmleb20kj014707w90z5k39wb/master';
@@ -371,7 +372,7 @@ const ALLOWED_ORIGINS = [
  * Callable function for multi-subdomain contact message submissions.
  * Validates, sanitizes payload, enforces App Check security, and writes to `contact_messages`.
  */
-exports.submitContactForm = onCall({ secrets: [resendApiKeySecret], cors: ALLOWED_ORIGINS }, async (request) => {
+exports.submitContactForm = onCall({ secrets: [resendApiKeySecret, resendFromEmailSecret], cors: ALLOWED_ORIGINS }, async (request) => {
   // 1. Security Check: Enforce App Check verification
   if (!request.app) {
     logger.warn('submitContactForm rejected: Missing App Check context');
@@ -417,11 +418,13 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret], cors: ALLOWE
       try {
         const resend = new Resend(resendApiKey);
         const adminEmail = process.env.NOTIFICATION_EMAIL || 'brookjacob@gmail.com';
-        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+        const rawFromEmail = (resendFromEmailSecret.value() || process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev').trim();
+        const emailMatch = rawFromEmail.match(/<([^>]+)>/);
+        const cleanFromAddress = emailMatch ? emailMatch[1].trim() : rawFromEmail;
 
         // A. Dispatch Admin Notification Email to brookjacob@gmail.com
         const adminRes = await resend.emails.send({
-          from: `Studio Alerts <${fromEmail}>`,
+          from: `Studio Alerts <${cleanFromAddress}>`,
           to: adminEmail,
           replyTo: cleanEmail,
           subject: `[${cleanSubdomain.toUpperCase()}] Contact Inquiry from ${cleanName}`,
@@ -487,14 +490,14 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret], cors: ALLOWE
         });
 
         if (adminRes.error) {
-          logger.error('Resend error sending admin notification:', adminRes.error);
+          logger.error('Resend error sending admin notification:', JSON.stringify(adminRes.error));
         } else {
           logger.info(`Resend admin notification sent successfully: ${adminRes.data?.id}`);
         }
 
         // B. Dispatch Professional Receipt / Verification Email to Sender (cleanEmail)
         const senderRes = await resend.emails.send({
-          from: `Jacob Brook <${fromEmail}>`,
+          from: `Jacob Brook <${cleanFromAddress}>`,
           to: cleanEmail,
           replyTo: adminEmail,
           subject: 'Message Received — Jacob Brook Studio',
@@ -557,7 +560,7 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret], cors: ALLOWE
         });
 
         if (senderRes.error) {
-          logger.error('Resend error sending sender confirmation receipt:', senderRes.error);
+          logger.error('Resend error sending sender confirmation receipt:', JSON.stringify(senderRes.error));
         } else {
           logger.info(`Resend sender receipt email sent successfully: ${senderRes.data?.id}`);
         }
