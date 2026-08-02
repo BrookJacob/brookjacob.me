@@ -8,6 +8,7 @@
 
 import { GraphQLClient, gql } from 'graphql-request';
 import { getEnvVar } from './env';
+import { getOptimizedCdnUrl } from './hygraph';
 
 /**
  * Hygraph Content API endpoint read from environment configuration.
@@ -116,7 +117,23 @@ export async function fetchPotentialPrints(): Promise<PotentialPrint[]> {
   try {
     const data = await client.request<{ potentialPrints: PotentialPrint[] }>(GET_POTENTIAL_PRINTS);
     if (data && Array.isArray(data.potentialPrints)) {
-      return data.potentialPrints.filter((print) => print.isActive !== false);
+      return data.potentialPrints
+        .filter((print) => print.isActive !== false)
+        .map((p) => ({
+          ...p,
+          image: p.image ? {
+            ...p.image,
+            url: getOptimizedCdnUrl(p.image.url, 800, 80),
+          } : p.image,
+          quantizedImage: p.quantizedImage ? {
+            ...p.quantizedImage,
+            url: getOptimizedCdnUrl(p.quantizedImage.url, 800, 80),
+          } : p.quantizedImage,
+          galleryImages: (p.galleryImages || []).map((img) => ({
+            ...img,
+            url: getOptimizedCdnUrl(img.url, 800, 80),
+          })),
+        }));
     }
   } catch (error) {
     console.warn('[potentialPrints] Primary query for `potentialPrints` encountered error, using fallback:', error);
@@ -127,18 +144,21 @@ export async function fetchPotentialPrints(): Promise<PotentialPrint[]> {
           id: p.id,
           title: p.title,
           image: {
-            url: p.mainImage?.url || '',
-            width: p.mainImage?.width || 1200,
-            height: p.mainImage?.height || 1600,
+            url: getOptimizedCdnUrl(p.mainImage?.url || '', 800, 80),
+            width: p.mainImage?.width || 800,
+            height: p.mainImage?.height || 1000,
             blurhash: p.mainImage?.blurhash,
           },
           quantizedImage: p.galleryImages?.[0] ? {
-            url: p.galleryImages[0].url,
-            width: p.galleryImages[0].width || 1200,
-            height: p.galleryImages[0].height || 1600,
+            url: getOptimizedCdnUrl(p.galleryImages[0].url, 800, 80),
+            width: p.galleryImages[0].width || 800,
+            height: p.galleryImages[0].height || 1000,
             blurhash: p.galleryImages[0].blurhash,
           } : null,
-          galleryImages: p.galleryImages || [],
+          galleryImages: (p.galleryImages || []).map((img: any) => ({
+            ...img,
+            url: getOptimizedCdnUrl(img.url, 800, 80),
+          })),
           isActive: p.display !== false,
           votingGroup: null,
           voteCount: 0,

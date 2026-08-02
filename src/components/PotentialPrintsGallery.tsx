@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { BlurhashCanvas } from './BlurhashCanvas';
 import {
   fetchPotentialPrints,
   groupPotentialPrintsByVotingGroup,
@@ -46,9 +47,11 @@ export const PotentialPrintCard: React.FC<PotentialPrintCardProps> = ({ print, o
   }, [print.id]);
 
   const hasQuantized = !!print.quantizedImage?.url;
-  const currentImageUrl = activeImageTab === 'quantized' && hasQuantized
-    ? print.quantizedImage!.url
-    : print.image?.url;
+  const currentAsset = activeImageTab === 'quantized' && hasQuantized
+    ? print.quantizedImage
+    : print.image;
+  const currentImageUrl = currentAsset?.url;
+  const currentBlurhash = currentAsset?.blurhash;
 
   const handleVote = async (type: 'want_print' | 'pass') => {
     if (isVoting || userVotedType) return;
@@ -78,11 +81,12 @@ export const PotentialPrintCard: React.FC<PotentialPrintCardProps> = ({ print, o
       {/* Image Preview Container */}
       <div className="relative group aspect-[4/5] bg-neutral-100 dark:bg-neutral-900 overflow-hidden">
         {currentImageUrl ? (
-          <img
+          <BlurhashCanvas
+            key={`${print.id}-${activeImageTab}`}
             src={currentImageUrl}
             alt={print.title}
+            blurhash={currentBlurhash}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-paper-muted dark:text-carbon-muted text-xs font-mono">
