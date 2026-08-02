@@ -6,7 +6,7 @@
  * without getting stuck.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { decode } from 'blurhash';
 
 export interface BlurhashCanvasProps {
@@ -34,21 +34,33 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const [loaded, setLoaded] = useState<boolean>(false);
+
+  // Synchronously detect if image is already downloaded / cached in browser memory
+  const [loaded, setLoaded] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const testImg = new Image();
+      testImg.src = src;
+      return testImg.complete && testImg.naturalWidth > 0;
+    }
+    return false;
+  });
 
   const fitClass = objectFit === 'contain' ? 'object-contain' : 'object-cover';
 
-  // Reset loaded state and check if image is already cached/complete when src changes
-  useEffect(() => {
-    setLoaded(false);
-    if (imgRef.current && imgRef.current.complete) {
+  // Check element completion status before layout paint
+  useLayoutEffect(() => {
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
       setLoaded(true);
     }
   }, [src]);
 
-  // Decode Blurhash string onto 32x32 canvas
+  // Decode Blurhash string onto 32x32 canvas ONLY if image isn't already loaded
   useEffect(() => {
-    if (!blurhash || !canvasRef.current || blurhash.length < 5) return;
+    if (loaded || !blurhash || !canvasRef.current || blurhash.length < 5) return;
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+      setLoaded(true);
+      return;
+    }
     try {
       const pixels = decode(blurhash, 32, 32);
       const ctx = canvasRef.current.getContext('2d');
@@ -61,7 +73,7 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
       console.warn('Could not decode Blurhash string:', blurhash, error);
       setLoaded(true);
     }
-  }, [blurhash, src]);
+  }, [blurhash, src, loaded]);
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
@@ -77,7 +89,7 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
       />
 
       {/* BlurHash Canvas Overlay (fades out when image loads or finishes) */}
-      {blurhash && blurhash.length >= 5 && (
+      {blurhash && blurhash.length >= 5 && !loaded && (
         <canvas
           ref={canvasRef}
           width={32}
