@@ -304,8 +304,8 @@ exports.hygraphBlurhashWebhook = onRequest({ secrets: [hygraphTokenSecret] }, as
         model: payload.model || data.__typename || 'Unknown',
         rawKeys: Object.keys(data),
       });
-      res.status(200).json({ 
-        skipped: true, 
+      res.status(200).json({
+        skipped: true,
         reason: 'No valid image URL or Asset ID found in payload structure',
         receivedKeys: Object.keys(data),
       });
@@ -419,20 +419,51 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret, resendFromEma
         const resend = new Resend(resendApiKey);
         const adminEmail = process.env.NOTIFICATION_EMAIL || 'brookjacob@gmail.com';
         const rawFromSecret = (resendFromEmailSecret.value() || process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev').trim();
-        const emailMatch = rawFromSecret.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-        const cleanFromAddress = emailMatch ? emailMatch[0] : 'onboarding@resend.dev';
+        const unquoted = rawFromSecret.replace(/^["']+|["']+$|\r|\n/g, '').trim();
+
+        let cleanFromAddress = 'onboarding@resend.dev';
+        const emailMatch = unquoted.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+        if (emailMatch) {
+          cleanFromAddress = emailMatch[0];
+        } else if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(unquoted)) {
+          cleanFromAddress = `notifications@${unquoted}`;
+        }
 
         const adminFromHeader = `Studio Alerts <${cleanFromAddress}>`;
         const senderFromHeader = `Jacob Brook <${cleanFromAddress}>`;
 
-        logger.info(`Resend headers resolved: Admin="${adminFromHeader}", Sender="${senderFromHeader}" (Raw secret: "${rawFromSecret}")`);
+        // Resolve canonical domain and domain-specific copy based on cleanSubdomain
+        let domainUrl = 'https://brookjacob.studio';
+        let fullSubdomainHost = 'brookjacob.studio';
+        let studioSubtitle = 'Printmaking Studio & Web Practice';
+        let senderBodyCopy = 'Whether you reached out regarding print edition purchases, custom reduction linocuts, or software engineering projects, I look forward to connecting with you.';
+        let footerTitle = 'Jacob Brook Studio';
+        let footerText = 'Relief Printmaking & Software Practice';
+
+        if (cleanSubdomain === 'print' || cleanSubdomain === 'printmaker') {
+          domainUrl = 'https://printmaker.brookjacob.studio';
+          fullSubdomainHost = 'printmaker.brookjacob.studio';
+          studioSubtitle = 'Relief Printmaking Studio';
+          senderBodyCopy = 'Whether you reached out regarding print edition purchases, custom reduction linocuts, or edition availability, I look forward to connecting with you.';
+          footerTitle = 'Jacob Brook Printmaking Studio';
+          footerText = 'Relief Printmaking Practice';
+        } else if (cleanSubdomain === 'dev' || cleanSubdomain === 'developer') {
+          domainUrl = 'https://developer.brookjacob.studio';
+          fullSubdomainHost = 'developer.brookjacob.studio';
+          studioSubtitle = 'Web Developer Practice';
+          senderBodyCopy = 'Whether you reached out regarding full-stack web applications, technical consulting, or software engineering projects, I look forward to connecting with you.';
+          footerTitle = 'Jacob Brook Software Practice';
+          footerText = 'Software Engineering & Web Systems';
+        }
+
+        logger.info(`Resend headers resolved: Admin="${adminFromHeader}", Sender="${senderFromHeader}" (Domain: ${fullSubdomainHost})`);
 
         // A. Dispatch Admin Notification Email to brookjacob@gmail.com
         const adminRes = await resend.emails.send({
           from: adminFromHeader,
           to: adminEmail,
           replyTo: cleanEmail,
-          subject: `[${cleanSubdomain.toUpperCase()}] Contact Inquiry from ${cleanName}`,
+          subject: `[${fullSubdomainHost.toUpperCase()}] Contact Inquiry from ${cleanName}`,
           html: `
             <!DOCTYPE html>
             <html>
@@ -455,7 +486,7 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret, resendFromEma
               <body>
                 <div class="container">
                   <div class="header">
-                    <span class="badge">${cleanSubdomain} Subdomain</span>
+                    <span class="badge">${fullSubdomainHost}</span>
                     <h2 style="margin: 4px 0 0 0; font-size: 20px; font-weight: 700;">New Contact Form Submission</h2>
                   </div>
                   <div class="content">
@@ -470,7 +501,7 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret, resendFromEma
                       </tr>
                       <tr>
                         <td class="meta-label">Subdomain Origin:</td>
-                        <td><code>${cleanSubdomain}.brookjacob.studio</code></td>
+                        <td><code>${fullSubdomainHost}</code></td>
                       </tr>
                       <tr>
                         <td class="meta-label">Submission ID:</td>
@@ -482,7 +513,7 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret, resendFromEma
                     <div class="message-box">${cleanMessage}</div>
 
                     <div style="text-align: center;">
-                      <a href="mailto:${cleanEmail}?subject=Re:%20Inquiry%20from%20brookjacob.studio" class="action-btn">Reply to ${cleanName} &rarr;</a>
+                      <a href="mailto:${cleanEmail}?subject=Re:%20Inquiry%20from%20${fullSubdomainHost}" class="action-btn">Reply to ${cleanName} &rarr;</a>
                     </div>
                   </div>
                   <div class="footer">
@@ -505,7 +536,7 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret, resendFromEma
           from: senderFromHeader,
           to: cleanEmail,
           replyTo: adminEmail,
-          subject: 'Message Received — Jacob Brook Studio',
+          subject: `Message Received — ${studioSubtitle}`,
           html: `
             <!DOCTYPE html>
             <html>
@@ -528,16 +559,19 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret, resendFromEma
                 <div class="container">
                   <div class="header">
                     <h1 class="studio-title">Jacob Brook</h1>
-                    <div class="studio-subtitle">Printmaking Studio & Web Development</div>
+                    <div class="studio-subtitle">${studioSubtitle}</div>
                   </div>
                   <div class="content">
                     <p style="margin-top: 0;">Hi ${cleanName},</p>
                     <p>
-                      Thank you for reaching out through <strong>${cleanSubdomain}.brookjacob.studio</strong>.
+                      Thank you for reaching out through <strong>${fullSubdomainHost}</strong>.
                       I have received your message and will review it shortly.
                     </p>
                     <p>
-                      I aim to respond to all inquiries within <strong>1 to 2 business days</strong>. Whether you reached out regarding print edition purchases, custom reduction linocuts, or software development projects, I look forward to connecting with you.
+                      I aim to respond to all inquiries within <strong>1 to 2 business days</strong>.
+                    </p>
+                    <p>
+                      ${senderBodyCopy}
                     </p>
 
                     <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #6b6965; margin-top: 28px; font-weight: 600;">
@@ -551,11 +585,9 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret, resendFromEma
                     </div>
                   </div>
                   <div class="footer">
-                    <p style="margin: 0;"><strong>Jacob Brook Studio</strong> • Relief Printmaking & Web Practice</p>
+                    <p style="margin: 0;"><strong>${footerTitle}</strong> • ${footerText}</p>
                     <p style="margin: 6px 0 0 0;">
-                      <a href="https://brookjacob.studio">brookjacob.studio</a> • 
-                      <a href="https://printmaker.brookjacob.studio">Printmaker</a> • 
-                      <a href="https://developer.brookjacob.studio">Developer Showcase</a>
+                      <a href="${domainUrl}">${fullSubdomainHost}</a>
                     </p>
                   </div>
                 </div>
