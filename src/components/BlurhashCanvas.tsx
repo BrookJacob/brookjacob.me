@@ -35,22 +35,24 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // Synchronously detect if image is already downloaded / cached in browser memory
-  const [loaded, setLoaded] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const testImg = new Image();
-      testImg.src = src;
-      return testImg.complete && testImg.naturalWidth > 0;
-    }
-    return false;
-  });
+  // Initialize as false to guarantee 100% hydration match between server HTML and initial client render
+  const [loaded, setLoaded] = useState<boolean>(false);
 
   const fitClass = objectFit === 'contain' ? 'object-contain' : 'object-cover';
 
-  // Check element completion status before layout paint
+  // Check element completion status synchronously before browser layout paint
   useLayoutEffect(() => {
     if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
       setLoaded(true);
+    }
+  }, [src]);
+
+  // Reset loaded state when src changes
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+      setLoaded(true);
+    } else {
+      setLoaded(false);
     }
   }, [src]);
 
@@ -88,8 +90,8 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
         className={`w-full h-full ${fitClass} block`}
       />
 
-      {/* BlurHash Canvas Overlay (fades out when image loads or finishes) */}
-      {blurhash && blurhash.length >= 5 && !loaded && (
+      {/* BlurHash Canvas Overlay (always in DOM when blurhash string exists to prevent hydration DOM mismatches) */}
+      {blurhash && blurhash.length >= 5 && (
         <canvas
           ref={canvasRef}
           width={32}
