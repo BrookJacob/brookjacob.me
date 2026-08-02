@@ -418,15 +418,18 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret, resendFromEma
       try {
         const resend = new Resend(resendApiKey);
         const adminEmail = process.env.NOTIFICATION_EMAIL || 'brookjacob@gmail.com';
-        const fromEmail = (resendFromEmailSecret.value() || process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev')
-          .trim()
-          .replace(/^["']+|["']+/g, '');
+        const rawFromSecret = (resendFromEmailSecret.value() || process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev').trim();
+        const emailMatch = rawFromSecret.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+        const cleanFromAddress = emailMatch ? emailMatch[0] : 'onboarding@resend.dev';
 
-        logger.info(`Resend sender address configured: "${fromEmail}"`);
+        const adminFromHeader = `Studio Alerts <${cleanFromAddress}>`;
+        const senderFromHeader = `Jacob Brook <${cleanFromAddress}>`;
+
+        logger.info(`Resend headers resolved: Admin="${adminFromHeader}", Sender="${senderFromHeader}" (Raw secret: "${rawFromSecret}")`);
 
         // A. Dispatch Admin Notification Email to brookjacob@gmail.com
         const adminRes = await resend.emails.send({
-          from: `Studio Alerts <${fromEmail}>`,
+          from: adminFromHeader,
           to: adminEmail,
           replyTo: cleanEmail,
           subject: `[${cleanSubdomain.toUpperCase()}] Contact Inquiry from ${cleanName}`,
@@ -499,7 +502,7 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret, resendFromEma
 
         // B. Dispatch Professional Receipt / Verification Email to Sender (cleanEmail)
         const senderRes = await resend.emails.send({
-          from: `Jacob Brook <${fromEmail}>`,
+          from: senderFromHeader,
           to: cleanEmail,
           replyTo: adminEmail,
           subject: 'Message Received — Jacob Brook Studio',
