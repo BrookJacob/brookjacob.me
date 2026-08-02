@@ -420,7 +420,7 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret], cors: ALLOWE
         const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 
         // A. Dispatch Admin Notification Email to brookjacob@gmail.com
-        await resend.emails.send({
+        const adminRes = await resend.emails.send({
           from: `Studio Alerts <${fromEmail}>`,
           to: adminEmail,
           replyTo: cleanEmail,
@@ -486,8 +486,14 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret], cors: ALLOWE
           `,
         });
 
+        if (adminRes.error) {
+          logger.error('Resend error sending admin notification:', adminRes.error);
+        } else {
+          logger.info(`Resend admin notification sent successfully: ${adminRes.data?.id}`);
+        }
+
         // B. Dispatch Professional Receipt / Verification Email to Sender (cleanEmail)
-        await resend.emails.send({
+        const senderRes = await resend.emails.send({
           from: `Jacob Brook <${fromEmail}>`,
           to: cleanEmail,
           replyTo: adminEmail,
@@ -550,7 +556,11 @@ exports.submitContactForm = onCall({ secrets: [resendApiKeySecret], cors: ALLOWE
           `,
         });
 
-        logger.info(`Resend email notifications (Admin alert + Sender receipt) sent for message ID: ${docRef.id}`);
+        if (senderRes.error) {
+          logger.error('Resend error sending sender confirmation receipt:', senderRes.error);
+        } else {
+          logger.info(`Resend sender receipt email sent successfully: ${senderRes.data?.id}`);
+        }
       } catch (resendError) {
         logger.error('Error dispatching emails via Resend:', resendError);
         // Message is still safely persisted in Firestore; request succeeds
