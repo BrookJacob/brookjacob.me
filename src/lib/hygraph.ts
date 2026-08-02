@@ -80,7 +80,7 @@ function normalizeSlug(rawSlug: string): string {
  * @param {number} [quality=80] - Compression quality percentage (1-100).
  * @returns {string} Optimized CDN URL with WebP conversion.
  */
-export function getOptimizedCdnUrl(url: string, _width = 1200, _quality = 80): string {
+export function getOptimizedCdnUrl(url: string, _width = 800, _quality = 80): string {
   if (!url) return '';
   return url;
 }
@@ -96,9 +96,9 @@ function mapPrintToArtwork(print: Print): Artwork {
   const rawCoverUrl = print.mainImage?.url || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1200&auto=format&fit=crop';
   const coverImage = {
     id: rawCoverUrl || print.id,
-    url: getOptimizedCdnUrl(rawCoverUrl, 1200, 80),
-    width: print.mainImage?.width || 1200,
-    height: print.mainImage?.height || 1600,
+    url: getOptimizedCdnUrl(rawCoverUrl, 800, 80),
+    width: print.mainImage?.width || 800,
+    height: print.mainImage?.height || 1000,
     altText: print.title,
     blurhash: print.mainImage?.blurhash || undefined,
   };
@@ -107,9 +107,9 @@ function mapPrintToArtwork(print: Print): Artwork {
     .filter((img) => img && typeof img.url === 'string' && img.url.length > 0)
     .map((img) => ({
       id: img.url,
-      url: getOptimizedCdnUrl(img.url, 1200, 80),
-      width: img.width || 1200,
-      height: img.height || 1600,
+      url: getOptimizedCdnUrl(img.url, 800, 80),
+      width: img.width || 800,
+      height: img.height || 1000,
       altText: print.title,
       blurhash: img.blurhash || undefined,
     }));
@@ -118,9 +118,9 @@ function mapPrintToArtwork(print: Print): Artwork {
     .filter((img) => img && typeof img.url === 'string' && img.url.length > 0)
     .map((img) => ({
       id: img.url,
-      url: getOptimizedCdnUrl(img.url, 1000, 80),
-      width: img.width || 1000,
-      height: img.height || 1333,
+      url: getOptimizedCdnUrl(img.url, 800, 80),
+      width: img.width || 800,
+      height: img.height || 1000,
       altText: print.title,
       blurhash: img.blurhash || undefined,
     }));
