@@ -12,6 +12,7 @@ import Footer from '../../components/Footer.astro';
 import { QuantizationStudio } from '../../components/QuantizationStudio';
 import ArtworkCard from '../../components/ArtworkCard.astro';
 import { getAllProjects, getProjectBySlug, getAllArtworks } from '../../lib/hygraph';
+import { DOMAINS, getPrintUrl } from '../../lib/urls';
 import '../../styles/global.css';
 
 /**
@@ -52,10 +53,10 @@ const hasExternalLiveUrl = Boolean(
     <title>{project.title} — Software Architecture Case Study</title>
     <meta name="description" content={project.description} />
   </head>
-  <body class="min-h-screen flex flex-col justify-between">
+  <body class="min-h-screen flex flex-col justify-between overflow-x-hidden">
     <Navigation activeDomain="code" />
 
-    <main class="flex-grow max-w-4xl mx-auto px-4 sm:px-6 py-12">
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-12 min-w-0">
       <!-- Return Navigation -->
       <div class="mb-8">
         <a 
@@ -88,7 +89,7 @@ const hasExternalLiveUrl = Boolean(
       </header>
 
       <!-- Project Detail Body -->
-      <article class="prose dark:prose-invert max-w-none text-paper-text dark:text-carbon-text leading-relaxed">
+      <article class="prose dark:prose-invert max-w-none text-paper-text dark:text-carbon-text leading-relaxed min-w-0 overflow-x-hidden">
         <h2 class="font-serif text-2xl font-bold mb-4">System Overview</h2>
         <p class="text-base sm:text-lg mb-8 font-serif leading-relaxed">
           {project.longDescription}
@@ -96,7 +97,7 @@ const hasExternalLiveUrl = Boolean(
 
         {/* Embedded Interactive React Quantization Studio for image-quantization project */}
         {slug === 'image-quantization' && (
-          <div class="my-10">
+          <div class="my-10 max-w-full overflow-hidden min-w-0">
             {/* Serendipitous Discovery Callout Box */}
             <div class="p-5 rounded-xl border border-purple-500/30 bg-purple-500/10 mb-6 font-serif">
               <span class="text-xs font-mono uppercase tracking-widest font-semibold text-purple-600 dark:text-purple-400 block mb-1">
@@ -106,7 +107,7 @@ const hasExternalLiveUrl = Boolean(
                 The Happy Accident Behind "View From A Distance"
               </h4>
               <p class="text-sm text-paper-muted dark:text-carbon-muted leading-relaxed">
-                Sometimes in computational printmaking, a software bug yields an unexpected masterpiece. While developing <code class="font-mono text-xs px-1 py-0.5 bg-paper-border/40 dark:bg-carbon-border/40 rounded">main.py</code>, a byte-mapping bug falsely interpreted raw sRGB pixel arrays directly as CIELAB <span class="font-mono text-xs">[L*, a*, b*]</span> coordinates before running K-Means clustering and converting back to RGB space. Rather than corrupting the image, this happy accident generated the surreal, hyper-vibrant ink palette used in the physical reduction edition <a href="https://printmaker.brookjacob.studio/prints/view-from-a-distance" class="text-purple-600 dark:text-purple-400 font-semibold underline">View From A Distance</a>.
+                Sometimes in computational printmaking, a software bug yields an unexpected masterpiece. While developing <code class="font-mono text-xs px-1 py-0.5 bg-paper-border/40 dark:bg-carbon-border/40 rounded">main.py</code>, a byte-mapping bug falsely interpreted raw sRGB pixel arrays directly as CIELAB <span class="font-mono text-xs">[L*, a*, b*]</span> coordinates before running K-Means clustering and converting back to RGB space. Rather than corrupting the image, this happy accident generated the surreal, hyper-vibrant ink palette used in the physical reduction edition <a href={getPrintUrl('view-from-a-distance')} class="text-purple-600 dark:text-purple-400 font-semibold underline">View From A Distance</a>.
               </p>
               <p class="text-xs text-purple-700 dark:text-purple-300 font-mono mt-3">
                 👉 Select <strong>🔮 Serendipitous False CIELAB ("View From A Distance")</strong> in the studio toolbar below to experiment with this exact color palette transformation live!
@@ -140,7 +141,7 @@ const hasExternalLiveUrl = Boolean(
             ) : (
               <div class="p-6 bg-paper-border/20 dark:bg-carbon-border/20 rounded-xl text-center">
                 <p class="text-xs text-paper-muted dark:text-carbon-muted font-mono">
-                  Visit the <a href="https://printmaker.brookjacob.studio" class="text-blue-600 underline">Printmaker Studio Gallery</a> to view active physical reduction editions.
+                  Visit the <a href={DOMAINS.prints} class="text-blue-600 underline">Printmaker Studio Gallery</a> to view active physical reduction editions.
                 </p>
               </div>
             )}

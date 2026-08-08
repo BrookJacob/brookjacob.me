@@ -22,3 +22,12 @@ export const DOMAINS = {
   code: IS_DEV ? 'http://localhost:4321/code' : 'https://developer.brookjacob.studio',
   blog: IS_DEV ? 'http://localhost:4321/blog' : 'https://brookjacob.studio/blog',
 };
+
+/**
+ * Generates environment-aware URLs for print items targeting the printmaker subdomain in production.
+ */
+export function getPrintUrl(slug?: string): string {
+  if (!slug) return DOMAINS.prints;
+  return `${DOMAINS.prints}/${slug}`;
+}
+
