@@ -672,10 +672,10 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   };
 
   return (
-    <div className="w-full max-w-full overflow-hidden bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl shadow-md p-4 sm:p-6 my-8 font-sans">
+    <div className="w-full max-w-full overflow-hidden bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl shadow-md p-3 sm:p-6 my-8 font-sans min-w-0">
       
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-paper-border dark:border-carbon-border pb-4 mb-6 gap-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-paper-border dark:border-carbon-border pb-4 mb-6 gap-3 min-w-0">
         <div>
           <span className="text-xs font-mono uppercase tracking-widest font-semibold text-blue-600 dark:text-blue-400">
             Interactive Reduction Linocut Studio
@@ -686,7 +686,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         </div>
 
         {/* Preset Select & Upload Custom File Controls */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 max-w-full min-w-0">
           <select
             id={presetSelectId}
             aria-label="Choose Image Preset"
@@ -718,7 +718,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
                 }
               }
             }}
-            className="text-xs px-2.5 py-1.5 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text font-medium cursor-pointer max-w-full truncate"
+            className="text-xs px-2.5 py-1.5 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text font-medium cursor-pointer max-w-full truncate min-w-0"
           >
             <option value="sunset">🌄 Mountain Sunset Preset</option>
             <option value="wave">🌊 Ocean Wave Preset</option>
@@ -739,7 +739,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
           />
           <label
             htmlFor={fileInputId}
-            className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded bg-paper-accent dark:bg-carbon-accent text-white hover:opacity-90 transition-opacity"
+            className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded bg-paper-accent dark:bg-carbon-accent text-white hover:opacity-90 transition-opacity shrink-0"
           >
             📷 Upload Custom Image
           </label>
@@ -747,10 +747,10 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       </div>
 
       {/* Control Sliders Grid (Extended up to 20 Inks) */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 bg-paper-border/20 dark:bg-carbon-border/20 p-4 rounded-lg text-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-paper-border/20 dark:bg-carbon-border/20 p-4 rounded-lg text-xs min-w-0">
         
         {/* Palette Size K Slider (3 to 20 Inks) */}
-        <div>
+        <div className="min-w-0">
           <div className="flex justify-between font-medium mb-1">
             <label htmlFor={kSliderId}>Total Ink Swatches (K):</label>
             <span className="font-mono font-bold text-blue-600 dark:text-blue-400">{paletteSize} Inks</span>
@@ -766,12 +766,12 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
               setPaletteSize(val);
               setCurrentStep(val); // Always keep print pass stepper at complete pass count!
             }}
-            className="w-full accent-blue-600"
+            className="w-full accent-blue-600 min-w-0"
           />
         </div>
 
         {/* Spatial Blur Slider */}
-        <div>
+        <div className="min-w-0">
           <div className="flex justify-between font-medium mb-1">
             <label htmlFor={blurSliderId}>Carving Blur Radius:</label>
             <span className="font-mono font-bold">{blurRadius}px</span>
@@ -783,17 +783,17 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
             max="25"
             value={blurRadius}
             onChange={(e) => setBlurRadius(parseInt(e.target.value))}
-            className="w-full accent-blue-600"
+            className="w-full accent-blue-600 min-w-0"
           />
         </div>
 
         {/* Mother Color Mix Slider & Picker */}
-        <div>
+        <div className="min-w-0">
           <div className="flex justify-between font-medium mb-1">
             <label htmlFor={motherMixSliderId}>Mother Color Undertone:</label>
             <span className="font-mono font-bold">{motherMix}%</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             <input
               id={motherMixSliderId}
               type="range"
@@ -801,7 +801,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
               max="30"
               value={motherMix}
               onChange={(e) => setMotherMix(parseInt(e.target.value))}
-              className="w-full accent-blue-600"
+              className="w-full accent-blue-600 min-w-0"
             />
             <input
               id={motherColorPickerId}
@@ -809,14 +809,14 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
               aria-label="Mother Color Undertone Picker"
               value={motherHex}
               onChange={(e) => setMotherHex(e.target.value)}
-              className="w-6 h-6 rounded cursor-pointer border-none bg-transparent"
+              className="w-6 h-6 rounded cursor-pointer border-none bg-transparent shrink-0"
               title="Change Mother Color undertone"
             />
           </div>
         </div>
 
         {/* Ink Pass Stepper Slider */}
-        <div>
+        <div className="min-w-0">
           <div className="flex justify-between font-medium mb-1">
             <label htmlFor={stepSliderId}>Print Pass Stepper:</label>
             <span className="font-mono font-bold text-green-600 dark:text-green-400">
@@ -830,20 +830,20 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
             max={swatches.length || paletteSize}
             value={currentStep}
             onChange={(e) => setCurrentStep(parseInt(e.target.value))}
-            className="w-full accent-green-600"
+            className="w-full accent-green-600 min-w-0"
           />
         </div>
 
       </div>
 
       {/* Toolbar: Pinned Colors & Transfer Modes */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-paper-border/10 dark:bg-carbon-border/10 rounded-lg mb-6 text-xs">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-3 bg-paper-border/10 dark:bg-carbon-border/10 rounded-lg mb-6 text-xs min-w-0">
         
         {/* Eyedropper & Pinned Color Controls */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap min-w-0">
           <button
             onClick={() => setIsEyedropperActive(!isEyedropperActive)}
-            className={`px-3 py-1.5 rounded font-semibold transition-colors flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded font-semibold transition-colors flex items-center gap-1.5 shrink-0 ${
               isEyedropperActive
                 ? 'bg-red-600 text-white animate-pulse'
                 : 'bg-paper-text text-paper-bg dark:bg-carbon-text dark:text-carbon-bg hover:opacity-90'
@@ -856,18 +856,18 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
             id={customColorInputId}
             type="color"
             onChange={(e) => addPinnedColor(e.target.value)}
-            className="w-7 h-7 rounded cursor-pointer border-none bg-transparent"
+            className="w-7 h-7 rounded cursor-pointer border-none bg-transparent shrink-0"
             title="Add Custom Locked Ink Color"
           />
 
           {/* Pinned Swatches List */}
           {pinnedColors.length > 0 && (
-            <div className="flex items-center gap-1.5 ml-2">
-              <span className="text-[11px] font-semibold text-paper-muted dark:text-carbon-muted">Pinned ({pinnedColors.length}):</span>
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+              <span className="text-[11px] font-semibold text-paper-muted dark:text-carbon-muted shrink-0">Pinned ({pinnedColors.length}):</span>
               {pinnedColors.map((hex) => (
                 <span
                   key={hex}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono border bg-paper-bg dark:bg-carbon-bg"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono border bg-paper-bg dark:bg-carbon-bg shrink-0"
                 >
                   <span className="w-2.5 h-2.5 rounded-full border inline-block" style={{ backgroundColor: hex }} />
                   {hex.toUpperCase()}
@@ -885,16 +885,16 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         </div>
 
         {/* Transfer, Mirror & Color Space Controls */}
-        <div className="flex flex-wrap items-center gap-3 font-medium max-w-full">
+        <div className="flex flex-wrap items-center gap-3 font-medium max-w-full min-w-0">
           {/* CIELAB Color Space Selector (main.py) */}
-          <div className="flex items-center gap-1.5 max-w-full">
-            <label htmlFor={colorSpaceSelectId} className="text-paper-muted dark:text-carbon-muted flex-shrink-0">Color Space:</label>
+          <div className="flex items-center gap-1.5 max-w-full min-w-0">
+            <label htmlFor={colorSpaceSelectId} className="text-paper-muted dark:text-carbon-muted shrink-0">Color Space:</label>
             <select
               id={colorSpaceSelectId}
               aria-label="Color Space"
               value={colorSpace}
               onChange={(e) => setColorSpace(e.target.value as 'lab' | 'false-lab' | 'rgb')}
-              className="text-xs px-2 py-1 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text cursor-pointer font-medium max-w-full truncate"
+              className="text-xs px-2 py-1 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text cursor-pointer font-medium max-w-full truncate min-w-0"
             >
               <option value="lab">✨ CIELAB Perceptual (main.py default)</option>
               <option value="false-lab">🔮 Serendipitous False CIELAB ("View From A Distance")</option>
@@ -903,7 +903,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
           </div>
 
           {/* Cumulative Transfer Mode Toggle */}
-          <label className="inline-flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+          <label className="inline-flex items-center gap-1.5 cursor-pointer shrink-0">
             <input
               type="checkbox"
               checked={isCumulativeMode}
@@ -914,7 +914,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
           </label>
 
           {/* Press Mirror View Toggle */}
-          <label className="inline-flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+          <label className="inline-flex items-center gap-1.5 cursor-pointer shrink-0">
             <input
               type="checkbox"
               checked={isMirrored}
@@ -928,10 +928,10 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       </div>
 
       {/* Tab Navigation Controls (Scrollable on small screens without expanding page) */}
-      <div className="flex border-b border-paper-border dark:border-carbon-border mb-4 text-xs font-semibold overflow-x-auto whitespace-nowrap max-w-full">
+      <div className="flex border-b border-paper-border dark:border-carbon-border mb-4 text-xs font-semibold overflow-x-auto whitespace-nowrap max-w-full min-w-0">
         <button
           onClick={() => setActiveTab('canvas')}
-          className={`px-4 py-2 border-b-2 transition-colors flex-shrink-0 ${
+          className={`px-4 py-2 border-b-2 transition-colors shrink-0 ${
             activeTab === 'canvas'
               ? 'border-blue-600 text-blue-600 dark:text-blue-400 font-bold'
               : 'border-transparent text-paper-muted dark:text-carbon-muted hover:text-paper-text'
@@ -941,7 +941,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         </button>
         <button
           onClick={() => setActiveTab('swatches')}
-          className={`px-4 py-2 border-b-2 transition-colors flex-shrink-0 ${
+          className={`px-4 py-2 border-b-2 transition-colors shrink-0 ${
             activeTab === 'swatches'
               ? 'border-blue-600 text-blue-600 dark:text-blue-400 font-bold'
               : 'border-transparent text-paper-muted dark:text-carbon-muted hover:text-paper-text'
@@ -951,7 +951,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         </button>
         <button
           onClick={() => setActiveTab('script')}
-          className={`px-4 py-2 border-b-2 transition-colors flex-shrink-0 ${
+          className={`px-4 py-2 border-b-2 transition-colors shrink-0 ${
             activeTab === 'script'
               ? 'border-blue-600 text-blue-600 dark:text-blue-400 font-bold'
               : 'border-transparent text-paper-muted dark:text-carbon-muted hover:text-paper-text'
@@ -962,17 +962,17 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       </div>
 
       {/* Tab Content: Canvas View (Kept mounted to preserve canvas pixel buffer) */}
-      <div className={activeTab === 'canvas' ? 'grid grid-cols-1 md:grid-cols-2 gap-4 items-center' : 'hidden'}>
+      <div className={activeTab === 'canvas' ? 'grid grid-cols-1 md:grid-cols-2 gap-4 items-start min-w-0' : 'hidden'}>
         {/* Source Image Canvas */}
-        <div className="flex flex-col items-center">
-          <span className="text-xs font-mono uppercase tracking-wider text-paper-muted dark:text-carbon-muted mb-2">
+        <div className="flex flex-col items-center min-w-0 w-full">
+          <span className="text-xs font-mono uppercase tracking-wider text-paper-muted dark:text-carbon-muted mb-2 text-center">
             Continuous Tone Input {isEyedropperActive && '(Click Image to Pick Color)'}
           </span>
-          <div className="w-full overflow-hidden rounded-lg border border-paper-border dark:border-carbon-border bg-black/5 flex items-center justify-center p-2">
+          <div className="w-full max-w-full overflow-hidden rounded-lg border border-paper-border dark:border-carbon-border bg-black/5 flex items-center justify-center p-2 min-w-0">
             <canvas
               ref={originalCanvasRef}
               onClick={handleCanvasClick}
-              className={`max-w-full h-auto rounded shadow-sm transition-transform duration-300 ${
+              className={`max-w-full w-full h-auto rounded shadow-sm transition-transform duration-300 block ${
                 isEyedropperActive ? 'cursor-crosshair ring-2 ring-red-500' : ''
               } ${isMirrored ? '-scale-x-100' : ''}`}
             />
@@ -980,17 +980,17 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         </div>
 
         {/* Quantized & Cumulative Reduction Output Canvas */}
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center min-w-0 w-full">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-mono uppercase tracking-wider text-paper-muted dark:text-carbon-muted">
+            <span className="text-xs font-mono uppercase tracking-wider text-paper-muted dark:text-carbon-muted text-center">
               Reduction Layer Output (Pass 1–{currentStep})
             </span>
             {isProcessing && <span className="text-xs text-blue-500 animate-pulse">Calculating...</span>}
           </div>
-          <div className="w-full overflow-hidden rounded-lg border border-paper-border dark:border-carbon-border bg-black/5 flex items-center justify-center p-2">
+          <div className="w-full max-w-full overflow-hidden rounded-lg border border-paper-border dark:border-carbon-border bg-black/5 flex items-center justify-center p-2 min-w-0">
             <canvas
               ref={canvasRef}
-              className={`max-w-full h-auto rounded shadow-sm transition-transform duration-300 ${
+              className={`max-w-full w-full h-auto rounded shadow-sm transition-transform duration-300 block ${
                 isMirrored ? '-scale-x-100' : ''
               }`}
             />
@@ -999,11 +999,11 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       </div>
 
       {/* Tab Content: Ink Swatches Grid */}
-      <div className={activeTab === 'swatches' ? 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3' : 'hidden'}>
+      <div className={activeTab === 'swatches' ? 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 min-w-0' : 'hidden'}>
         {swatches.map((swatch) => (
           <div
             key={swatch.hex}
-            className={`p-3 rounded-lg border text-xs flex flex-col items-center transition-all ${
+            className={`p-3 rounded-lg border text-xs flex flex-col items-center transition-all min-w-0 ${
               swatch.inkPass <= currentStep
                 ? 'border-paper-text/40 dark:border-carbon-text/40 bg-paper-border/10 dark:bg-carbon-border/10'
                 : 'opacity-40 border-dashed border-gray-400'
@@ -1030,7 +1030,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       </div>
 
       {/* Tab Content: Generated Carving Script */}
-      <div className={activeTab === 'script' ? 'bg-paper-bg dark:bg-carbon-bg p-4 rounded-lg border border-paper-border dark:border-carbon-border text-xs font-mono leading-relaxed space-y-3' : 'hidden'}>
+      <div className={activeTab === 'script' ? 'bg-paper-bg dark:bg-carbon-bg p-4 rounded-lg border border-paper-border dark:border-carbon-border text-xs font-mono leading-relaxed space-y-3 min-w-0 overflow-x-auto' : 'hidden'}>
         <div className="text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">
           --- AUTOMATED REDUCTION CARVING INSTRUCTIONS ---
         </div>
@@ -1042,8 +1042,8 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         </div>
 
         {swatches.map((swatch, idx) => (
-          <div key={swatch.hex} className="p-2 border border-paper-border dark:border-carbon-border rounded flex items-center justify-between">
-            <div>
+          <div key={swatch.hex} className="p-2 border border-paper-border dark:border-carbon-border rounded flex items-center justify-between min-w-0 gap-2">
+            <div className="min-w-0">
               <strong>Step {idx + 1}: Print Ink Pass {swatch.inkPass} ({swatch.hex}) {swatch.isPinned ? '📌 [Pinned Ink]' : ''}</strong>
               <div className="text-[11px] text-paper-muted dark:text-carbon-muted font-sans mt-0.5">
                 {idx < swatches.length - 1
@@ -1051,7 +1051,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
                   : 'Final pass completed! Lock in final dark outlines and detail cuts.'}
               </div>
             </div>
-            <div className="w-6 h-6 rounded border flex-shrink-0" style={{ backgroundColor: swatch.hex }} />
+            <div className="w-6 h-6 rounded border shrink-0" style={{ backgroundColor: swatch.hex }} />
           </div>
         ))}
       </div>
