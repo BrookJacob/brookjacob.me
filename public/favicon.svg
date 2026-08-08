@@ -1,4 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="6" fill="#1c1917"/>
-  <path d="M12 9h8v3h-5v11h-3V9z" fill="#f5f5f4"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Warm Terracotta Reduction Ink Pass Gradient -->
+    <linearGradient id="ink-terracotta" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF5436"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+    
+    <!-- Tech Cyan/Indigo Reduction Ink Pass Gradient -->
+    <linearGradient id="ink-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    
+    <!-- Obsidian Dark Linocut Block Background -->
+    <linearGradient id="bg-slate" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B0F19"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base Linocut Printing Block Surface -->
+  <rect width="512" height="512" rx="108" fill="url(#bg-slate)"/>
+  
+  <!-- Subtle Relief Block Outer Bevel -->
+  <rect x="32" y="32" width="448" height="448" rx="84" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="12"/>
+
+  <!-- Layer 1: 'J' Stem & Hook in Terracotta Reduction Ink -->
+  <path d="M 160 120 H 244 V 308 C 244 352 216 376 172 376 C 138 376 114 356 104 324 L 148 306 C 153 322 161 330 172 330 C 188 330 198 318 198 296 V 120 Z" fill="url(#ink-terracotta)"/>
+
+  <!-- Layer 2: Overlapping 'B' Monogram in Cyan/Indigo Ink (Screen Blend Translucency) -->
+  <path d="M 224 120 H 336 C 378 120 408 142 408 182 C 408 210 390 230 360 240 C 396 250 416 274 416 312 C 416 358 380 376 328 376 H 224 V 120 Z M 272 164 V 226 H 328 C 348 226 360 214 360 195 C 360 176 348 164 328 164 H 272 Z M 272 270 V 332 H 332 C 354 332 368 319 368 299 C 368 279 354 270 332 270 H 272 Z" fill="url(#ink-cyan)" opacity="0.9" style="mix-blend-mode: screen;"/>
 </svg>
