@@ -10,10 +10,11 @@
 
 import Navigation from '../../components/Navigation.astro';
 import Footer from '../../components/Footer.astro';
-import ArtworkCard from '../../components/ArtworkCard.astro';
 import PotentialPrintsAccordion from '../../components/PotentialPrintsAccordion';
 import ContactFormModal from '../../components/ContactFormModal';
+import { ArtworkGalleryFeed } from '../../components/ArtworkGalleryFeed';
 import { getAllArtworks } from '../../lib/hygraph';
+import { ClientRouter } from 'astro:transitions';
 import '../../styles/global.css';
 
 // Fetch artwork list statically at build time
@@ -31,6 +32,7 @@ const artworks = await getAllArtworks();
       name="description" 
       content="Medium-bleed visual gallery feed of original multi-layer reduction linocuts" 
     />
+    <ClientRouter />
   </head>
   <body class="min-h-screen flex flex-col justify-between">
     <Navigation activeDomain="prints" />
@@ -63,12 +65,8 @@ const artworks = await getAllArtworks();
       <!-- Expandable Radix UI Accordion: Upcoming Editions Voting Panel at Top -->
       <PotentialPrintsAccordion client:load />
 
-      <!-- Published Artwork Grid Feed -->
-      <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
-        {artworks.map((artwork) => (
-          <ArtworkCard artwork={artwork} />
-        ))}
-      </section>
+      <!-- Published Artwork Progressive Feed (10 initially, dynamically batches on scroll) -->
+      <ArtworkGalleryFeed client:load artworks={artworks} />
     </main>
 
     <Footer />
