@@ -15,7 +15,7 @@
  * @component
  */
 
-import React, { useState, useEffect, useRef, useId } from 'react';
+import { useState, useEffect, useRef, useId, type FC, type MouseEvent, type ChangeEvent } from 'react';
 
 interface ColorSwatch {
   r: number;
@@ -31,7 +31,7 @@ export interface QuantizationStudioProps {
   initialImageSrc?: string;
 }
 
-export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialImageSrc }) => {
+export const QuantizationStudio: FC<QuantizationStudioProps> = ({ initialImageSrc }) => {
   const [paletteSize, setPaletteSize] = useState<number>(6);
   const [blurRadius, setBlurRadius] = useState<number>(0);
   const [motherMix, setMotherMix] = useState<number>(10);
@@ -483,7 +483,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   };
 
   // Sample click/tap from Source continuous tone canvas
-  const handleSourceClick = (e: React.MouseEvent<HTMLElement>) => {
+  const handleSourceClick = (e: MouseEvent<HTMLElement>) => {
     if (!isEyedropperActive) return;
     const hex = sampleColorAtPoint(originalCanvasRef.current, e.clientX, e.clientY);
     if (hex) {
@@ -493,7 +493,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   };
 
   // Sample click/tap from Output quantized image
-  const handleOutputClick = (e: React.MouseEvent<HTMLElement>) => {
+  const handleOutputClick = (e: MouseEvent<HTMLElement>) => {
     if (!isEyedropperActive) return;
     const hex = sampleColorAtPoint(canvasRef.current, e.clientX, e.clientY);
     if (hex) {
@@ -818,7 +818,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   }, [currentStep, isCumulativeMode]);
 
   // Handle custom image upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
