@@ -52,7 +52,7 @@ function initFirebaseAdmin() {
  */
 const GET_POTENTIAL_PRINTS = gql`
   query GetPotentialPrints {
-    potentialPrints(where: { isActive: true }) {
+    potentialPrints(first: 100, where: { isActive: true }) {
       id
       title
       isActive
@@ -66,7 +66,7 @@ const GET_POTENTIAL_PRINTS = gql`
  */
 const GET_FALLBACK_PRINTS = gql`
   query GetFallbackPrints {
-    prints(where: { display: true }) {
+    prints(first: 100, where: { display: true }) {
       id
       title
       display

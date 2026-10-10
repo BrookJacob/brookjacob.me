@@ -147,45 +147,63 @@ function mapPrintToArtwork(print: Print): Artwork {
  */
 export async function getAllArtworks(): Promise<Artwork[]> {
   try {
-    const query = `
-      query GetPrints {
-        prints(orderBy: year_DESC) {
-          id
-          title
-          slug
-          year
-          editionTotal
-          description
-          price
-          paperDimensions
-          imageDimensions
-          display
-          printStatus
-          mainImage {
-            url
-            width
-            height
-            blurhash
-          }
-          galleryImages {
-            url
-            width
-            height
-            blurhash
-          }
-          processImages {
-            url
-            width
-            height
-            blurhash
+    const pageSize = 100;
+    let skip = 0;
+    const allPrints: Print[] = [];
+    let hasMore = true;
+
+    while (hasMore) {
+      const query = `
+        query GetPrints {
+          prints(first: ${pageSize}, skip: ${skip}, orderBy: year_DESC) {
+            id
+            title
+            slug
+            year
+            editionTotal
+            description
+            price
+            paperDimensions
+            imageDimensions
+            display
+            printStatus
+            mainImage {
+              url
+              width
+              height
+              blurhash
+            }
+            galleryImages {
+              url
+              width
+              height
+              blurhash
+            }
+            processImages {
+              url
+              width
+              height
+              blurhash
+            }
           }
         }
+      `;
+      const data = await client.request<{ prints: Print[] }>(query);
+      if (data && data.prints && data.prints.length > 0) {
+        allPrints.push(...data.prints);
+        if (data.prints.length < pageSize) {
+          hasMore = false;
+        } else {
+          skip += pageSize;
+        }
+      } else {
+        hasMore = false;
       }
-    `;
-    const data = await client.request<{ prints: Print[] }>(query);
-    if (data && data.prints && data.prints.length > 0) {
+    }
+
+    if (allPrints.length > 0) {
       // Filter displayed prints or show all if display flag is null/true
-      return data.prints
+      return allPrints
         .filter((p) => p.display !== false)
         .map(mapPrintToArtwork);
     }
@@ -215,7 +233,7 @@ export async function getAllBlogPosts(): Promise<BlogPost[]> {
   try {
     const query = `
       query GetArticles {
-        articles(orderBy: publishedAt_DESC) {
+        articles(first: 100, orderBy: publishedAt_DESC) {
           id
           title
           slug
