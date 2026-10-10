@@ -1,13 +1,13 @@
 /**
  * QuantizationStudio Component
  * 
- * Interactive JavaScript / React browser studio simulating the Python Image Quantization engine (`main.py`)
- * and GIMP 3.0 `prep_transfer_cumulative.py` plugin.
+ * Interactive browser studio simulating the reduction linocut workflows
+ * developed in the GIMP 3.0 `prep_transfer_cumulative.py` Python plugin.
  * 
  * Features:
- * - HTML5 Canvas 2D K-Means++ Color Quantization (Supports up to 20 inks)
+ * - HTML5 Canvas 2D K-Means++ Color Quantization (Supports up to 30 inks)
  * - Pinned Custom Colors & Semi-Supervised K-Means (Eyedropper canvas picking)
- * - Cumulative Layer Reduction Transfer (Mimicking prep_transfer_cumulative.py)
+ * - Cumulative Layer Reduction Transfer (Matching GIMP plugin pre-press logic)
  * - Press Mirror View (Horizontal Flip toggle for hand transfer registration)
  * - Directional Blur Smoothing & Mother Color Harmony blending
  * - Automated Perceived Luminance Linocut Carving Script Generator
@@ -43,8 +43,8 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   const [imageLoaded, setImageLoaded] = useState<boolean>(false);
   const [selectedPreset, setSelectedPreset] = useState<string>(initialImageSrc ? 'initial' : 'sunset');
 
-  // New features mirroring prep_transfer_cumulative.py & main.py CIELAB Perceptual Color Space
   const [pinnedColors, setPinnedColors] = useState<string[]>([]);
+  const [pendingCustomColor, setPendingCustomColor] = useState<string>('#3b82f6');
   const [isEyedropperActive, setIsEyedropperActive] = useState<boolean>(false);
   const [isCumulativeMode, setIsCumulativeMode] = useState<boolean>(true);
   const [isMirrored, setIsMirrored] = useState<boolean>(false);
@@ -55,6 +55,12 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const originalCanvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const clusterAssignmentsRef = useRef<{
+    indices: Uint8Array;
+    swatches: ColorSwatch[];
+    width: number;
+    height: number;
+  } | null>(null);
 
   const kSliderId = useId();
   const blurSliderId = useId();
@@ -681,10 +687,6 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
 
     setSwatches(swatchesList);
 
-    // Step 5: Render Quantized Image & Layer Stepper Filter (Matching main.py CIELAB Perceptual Space)
-    const outputImgData = procCtx.createImageData(width, height);
-    const outData = outputImgData.data;
-
     // Pre-calculate LAB coordinates for each swatch based on active colorSpace mode
     const swatchLabs = swatchesList.map((s) => ({
       swatch: s,
@@ -694,42 +696,76 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     // If blurRadius == 0, use crisp raw un-blurred image data to guarantee razor-sharp edge contours
     const renderSourceData = blurRadius > 0 ? blurredData : data;
 
-    for (let i = 0; i < renderSourceData.length; i += 4) {
+    // Step 5: Assign each pixel to closest swatch index and cache in Uint8Array
+    const numPixels = width * height;
+    const indices = new Uint8Array(numPixels);
+
+    for (let p = 0, i = 0; p < numPixels; p++, i += 4) {
       const r = renderSourceData[i];
       const g = renderSourceData[i + 1];
       const b = renderSourceData[i + 2];
 
       let minDist = Infinity;
-      let closestSwatch = swatchesList[0];
+      let bestIdx = 0;
 
       if (colorSpace === 'lab' || colorSpace === 'false-lab') {
         const pixLab = colorSpace === 'false-lab' ? rgbToFalseLab(r, g, b) : rgbToLab(r, g, b);
-        for (const item of swatchLabs) {
-          const dist = labDistSq(pixLab, item.lab);
+        for (let sIdx = 0; sIdx < swatchLabs.length; sIdx++) {
+          const dist = labDistSq(pixLab, swatchLabs[sIdx].lab);
           if (dist < minDist) {
             minDist = dist;
-            closestSwatch = item.swatch;
+            bestIdx = sIdx;
           }
         }
       } else {
-        for (const swatch of swatchesList) {
+        for (let sIdx = 0; sIdx < swatchesList.length; sIdx++) {
+          const swatch = swatchesList[sIdx];
           const dist = (r - swatch.r) ** 2 + (g - swatch.g) ** 2 + (b - swatch.b) ** 2;
           if (dist < minDist) {
             minDist = dist;
-            closestSwatch = swatch;
+            bestIdx = sIdx;
           }
         }
       }
 
-      const pixelPass = closestSwatch.inkPass;
-      const targetStep = Math.min(currentStep, swatchesList.length);
+      indices[p] = bestIdx;
+    }
 
-      if (isCumulativeMode) {
-        // prep_transfer_cumulative.py Cumulative Transfer Logic:
-        // At Pass S (currentStep), uncarved regions (final pass >= S) receive Pass S ink color.
-        // Carved regions (final pass < S) retain ink from their final pass.
+    clusterAssignmentsRef.current = { indices, swatches: swatchesList, width, height };
+
+    // Render the output pass using the fast mapping loop
+    renderPassOutput(currentStep, isCumulativeMode, swatchesList, indices, width, height);
+  };
+
+  // Fast Pass Output Renderer: Renders cached cluster indices in ~1-2ms without re-running K-Means
+  const renderPassOutput = (
+    step: number,
+    cumulative: boolean,
+    swatchesList: ColorSwatch[],
+    indices: Uint8Array,
+    width: number,
+    height: number
+  ) => {
+    const procCanvas = canvasRef.current;
+    if (!procCanvas) return;
+    const procCtx = procCanvas.getContext('2d');
+    if (!procCtx) return;
+
+    procCanvas.width = width;
+    procCanvas.height = height;
+
+    const outputImgData = procCtx.createImageData(width, height);
+    const outData = outputImgData.data;
+
+    const targetStep = Math.min(step, swatchesList.length);
+    const stepSwatch = swatchesList.find((s) => s.inkPass === targetStep) || swatchesList[0];
+
+    for (let p = 0, i = 0; p < indices.length; p++, i += 4) {
+      const closestSwatch = swatchesList[indices[p]] || swatchesList[0];
+      const pixelPass = closestSwatch.inkPass;
+
+      if (cumulative) {
         if (pixelPass >= targetStep) {
-          const stepSwatch = swatchesList.find((s) => s.inkPass === targetStep) || closestSwatch;
           outData[i] = stepSwatch.r;
           outData[i + 1] = stepSwatch.g;
           outData[i + 2] = stepSwatch.b;
@@ -741,7 +777,6 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
           outData[i + 3] = 255;
         }
       } else {
-        // Standard Layer Mask View: Show only active passes up to currentStep
         if (pixelPass <= targetStep) {
           outData[i] = closestSwatch.r;
           outData[i + 1] = closestSwatch.g;
@@ -761,12 +796,20 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     setIsProcessing(false);
   };
 
-  // Re-run pipeline when parameters change
+  // Re-run heavy K-Means clustering pipeline only when palette parameters change
   useEffect(() => {
     if (imageLoaded) {
       processImage();
     }
-  }, [paletteSize, blurRadius, motherMix, motherHex, currentStep, pinnedColors, isCumulativeMode, colorSpace, imageLoaded]);
+  }, [paletteSize, blurRadius, motherMix, motherHex, pinnedColors, colorSpace, imageLoaded]);
+
+  // Fast re-render when dragging print pass step or toggling cumulative transfer mode
+  useEffect(() => {
+    if (clusterAssignmentsRef.current) {
+      const { swatches: sList, indices, width, height } = clusterAssignmentsRef.current;
+      renderPassOutput(currentStep, isCumulativeMode, sList, indices, width, height);
+    }
+  }, [currentStep, isCumulativeMode]);
 
   // Handle custom image upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -881,27 +924,47 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
         </div>
       </div>
 
-      {/* Control Sliders Grid (Extended up to 20 Inks) */}
+      {/* Control Sliders Grid (Extended up to 30 Inks) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-paper-border/20 dark:bg-carbon-border/20 p-4 rounded-lg text-xs min-w-0">
         
-        {/* Palette Size K Slider (3 to 20 Inks) */}
+        {/* Palette Size Slider & Number Text Box (3 to 30 Inks) */}
         <div className="min-w-0">
-          <div className="flex justify-between font-medium mb-1">
-            <label htmlFor={kSliderId}>Total Ink Swatches (K):</label>
-            <span className="font-mono font-bold text-blue-600 dark:text-blue-400">{paletteSize} Inks</span>
+          <div className="flex justify-between items-center font-medium mb-1 gap-1.5">
+            <label htmlFor={kSliderId} className="truncate" title="Total Ink Colors (K-Means Clusters)">
+              Total Ink Colors (K-Means):
+            </label>
+            <div className="flex items-center gap-1 shrink-0">
+              <input
+                type="number"
+                min="3"
+                max="30"
+                value={paletteSize}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  if (!isNaN(val)) {
+                    const clamped = Math.min(30, Math.max(3, val));
+                    setPaletteSize(clamped);
+                    setCurrentStep(clamped);
+                  }
+                }}
+                aria-label="Total Ink Colors (K-Means Clusters)"
+                className="w-12 px-1 py-0.5 text-xs text-center font-mono font-bold rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-blue-600 dark:text-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <span className="font-mono font-bold text-blue-600 dark:text-blue-400">Inks</span>
+            </div>
           </div>
           <input
             id={kSliderId}
             type="range"
             min="3"
-            max="20"
+            max="30"
             value={paletteSize}
             onChange={(e) => {
               const val = parseInt(e.target.value);
               setPaletteSize(val);
-              setCurrentStep(val); // Always keep print pass stepper at complete pass count!
+              setCurrentStep(val);
             }}
-            className="w-full accent-blue-600 min-w-0"
+            className="w-full accent-blue-600 min-w-0 cursor-pointer"
           />
         </div>
 
@@ -950,7 +1013,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
           </div>
         </div>
 
-        {/* Ink Pass Stepper Slider */}
+        {/* Ink Pass Stepper Slider (Smooth Draggable) */}
         <div className="min-w-0">
           <div className="flex justify-between font-medium mb-1">
             <label htmlFor={stepSliderId}>Print Pass Stepper:</label>
@@ -965,7 +1028,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
             max={swatches.length || paletteSize}
             value={currentStep}
             onChange={(e) => setCurrentStep(parseInt(e.target.value))}
-            className="w-full accent-green-600 min-w-0"
+            className="w-full accent-green-600 min-w-0 cursor-pointer"
           />
         </div>
 
@@ -989,7 +1052,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
               onChange={(e) => setColorSpace(e.target.value as 'lab' | 'false-lab' | 'rgb')}
               className="text-xs px-2.5 py-1.5 rounded-lg border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text cursor-pointer font-medium max-w-full sm:max-w-xs truncate min-w-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="lab">✨ CIELAB Perceptual (main.py default)</option>
+              <option value="lab">✨ CIELAB Perceptual (GIMP Plugin Standard)</option>
               <option value="false-lab">🔮 Serendipitous False CIELAB ("View From A Distance")</option>
               <option value="rgb">🎨 Standard sRGB</option>
             </select>
@@ -1019,9 +1082,9 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
           </div>
         </div>
 
-        {/* Row 2: Eyedropper & Pinned Custom Ink Swatches */}
+        {/* Row 2: Eyedropper & Staged Custom Ink Picker */}
         <div className="flex flex-wrap items-center gap-3 min-w-0">
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
             <button
               type="button"
               onClick={handleToggleEyedropper}
@@ -1036,19 +1099,28 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
               <span>{isEyedropperActive ? 'Click Image to Pick (Esc to Cancel)' : 'Eyedropper (Pick Color)'}</span>
             </button>
 
-            <label
-              htmlFor={customColorInputId}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg hover:bg-paper-border/20 dark:hover:bg-carbon-border/20 cursor-pointer font-medium text-[11px] shrink-0"
-              title="Add custom hex color to lock in palette"
-            >
+            {/* Staged Custom Color Picker with explicit Add button */}
+            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg shrink-0">
               <input
                 id={customColorInputId}
                 type="color"
-                onChange={(e) => addPinnedColor(e.target.value)}
-                className="w-4 h-4 rounded cursor-pointer border-none bg-transparent p-0"
+                value={pendingCustomColor}
+                onChange={(e) => setPendingCustomColor(e.target.value)}
+                className="w-5 h-5 rounded cursor-pointer border-none bg-transparent p-0 block"
+                title="Select a custom color to lock"
               />
-              <span>+ Custom Color</span>
-            </label>
+              <span className="font-mono text-[11px] uppercase font-semibold text-paper-muted dark:text-carbon-muted">
+                {pendingCustomColor}
+              </span>
+              <button
+                type="button"
+                onClick={() => addPinnedColor(pendingCustomColor)}
+                className="px-2 py-0.5 rounded text-[11px] font-semibold bg-paper-accent dark:bg-carbon-accent text-white hover:opacity-90 active:scale-95 transition-all"
+                title="Lock this color into the palette"
+              >
+                + Lock Color
+              </button>
+            </div>
           </div>
 
           {/* Pinned Swatches Chips */}
@@ -1139,14 +1211,18 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       <div className={activeTab === 'canvas' ? 'grid grid-cols-1 md:grid-cols-2 gap-6 items-start min-w-0' : 'hidden'}>
         {/* Source Image Canvas */}
         <div className="flex flex-col items-center min-w-0 w-full">
-          <div className="flex items-center justify-between w-full mb-2">
+          <div className="flex items-center justify-between w-full min-h-[38px] mb-2">
             <span className="text-xs font-mono uppercase tracking-wider text-paper-muted dark:text-carbon-muted">
               Continuous Tone Input
             </span>
-            {isEyedropperActive && (
+            {isEyedropperActive ? (
               <span className="text-xs text-red-500 font-semibold animate-pulse flex items-center gap-1">
                 <span>🎯</span>
                 <span>Click image to sample</span>
+              </span>
+            ) : (
+              <span className="text-[11px] font-mono text-paper-muted dark:text-carbon-muted">
+                Original Input
               </span>
             )}
           </div>
@@ -1167,7 +1243,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
 
         {/* Quantized & Cumulative Reduction Output Canvas */}
         <div className="flex flex-col items-center min-w-0 w-full">
-          <div className="flex items-center justify-between w-full mb-2 flex-wrap gap-2">
+          <div className="flex items-center justify-between w-full min-h-[38px] mb-2 flex-wrap gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-xs font-mono uppercase tracking-wider text-paper-muted dark:text-carbon-muted truncate">
                 Reduction Layer Output (Pass 1–{currentStep})
