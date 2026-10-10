@@ -38,6 +38,8 @@
     "tailwindcss": "^4.0.0"
   },
   "devDependencies": {
+    "@emnapi/core": "^1.11.3",
+    "@emnapi/runtime": "^1.11.3",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "sharp": "^0.35.3",
