@@ -6,7 +6,7 @@
  * without getting stuck.
  */
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { decode } from 'blurhash';
 
 export interface BlurhashCanvasProps {
@@ -40,14 +40,7 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
 
   const fitClass = objectFit === 'contain' ? 'object-contain' : 'object-cover';
 
-  // Check element completion status synchronously before browser layout paint
-  useLayoutEffect(() => {
-    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
-      setLoaded(true);
-    }
-  }, [src]);
-
-  // Reset loaded state when src changes
+  // Sync loaded state when src changes or if already cached in browser
   useEffect(() => {
     if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
       setLoaded(true);
