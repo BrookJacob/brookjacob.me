@@ -51,7 +51,6 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   const [colorSpace, setColorSpace] = useState<'lab' | 'false-lab' | 'rgb'>('lab');
   const [quantizedImageUrl, setQuantizedImageUrl] = useState<string>('');
   const [saveFeedback, setSaveFeedback] = useState<boolean>(false);
-  const [canShare, setCanShare] = useState<boolean>(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const originalCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -345,12 +344,23 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     }
   }, [initialImageSrc]);
 
-  // Check if Web Share API is available on mount
+  // Synchronize quantized image export when mirror toggle changes
   useEffect(() => {
-    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
-      setCanShare(true);
+    if (canvasRef.current && imageLoaded) {
+      updateQuantizedImageUrl(canvasRef.current, isMirrored);
     }
-  }, []);
+  }, [isMirrored]);
+
+  // Handle Esc key to cancel active eyedropper
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isEyedropperActive) {
+        setIsEyedropperActive(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isEyedropperActive]);
 
   // Update quantized image data URL (baking in press-mirror flip if active)
   const updateQuantizedImageUrl = (sourceCanvas: HTMLCanvasElement, mirrored: boolean) => {
@@ -374,14 +384,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     }
   };
 
-  // Synchronize quantized image export when mirror toggle changes
-  useEffect(() => {
-    if (canvasRef.current && imageLoaded) {
-      updateQuantizedImageUrl(canvasRef.current, isMirrored);
-    }
-  }, [isMirrored]);
-
-  // Handle Save Image download process
+  // Handle Save Image download process (Single primary save action)
   const handleSaveImage = async () => {
     if (!quantizedImageUrl) return;
 
@@ -418,57 +421,73 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     }
   };
 
-  // Handle mobile native share sheet if supported
-  const handleShareImage = async () => {
-    if (!quantizedImageUrl) return;
-    try {
-      const res = await fetch(quantizedImageUrl);
-      const blob = await res.blob();
-      const passSuffix = `pass-${currentStep}-of-${swatches.length || paletteSize}`;
-      const mirrorSuffix = isMirrored ? '-mirrored' : '';
-      const fileName = `linocut-${selectedPreset}-${passSuffix}${mirrorSuffix}.png`;
-      const file = new File([blob], fileName, { type: 'image/png' });
-
-      if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: `Linocut Reduction Pass ${currentStep}`,
-          text: `Linocut reduction layer pass ${currentStep} of ${swatches.length || paletteSize}${isMirrored ? ' (Mirrored)' : ''}`,
-        });
-      } else {
-        handleSaveImage();
-      }
-    } catch (err) {
-      if ((err as Error)?.name !== 'AbortError') {
-        handleSaveImage();
-      }
-    }
-  };
-
-  // Handle Eyedropper click on canvas to pick exact custom color
-  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isEyedropperActive) return;
-    const canvas = originalCanvasRef.current;
-    if (!canvas) return;
+  // Helper: Sample pixel color from either canvas with support for mirror transformation
+  const sampleColorAtPoint = (
+    canvas: HTMLCanvasElement | null,
+    clientX: number,
+    clientY: number
+  ): string | null => {
+    if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
-    let x = Math.floor(((e.clientX - rect.left) / rect.width) * canvas.width);
-    const y = Math.floor(((e.clientY - rect.top) / rect.height) * canvas.height);
+    if (rect.width <= 0 || rect.height <= 0) return null;
+
+    let x = Math.floor(((clientX - rect.left) / rect.width) * canvas.width);
+    const y = Math.floor(((clientY - rect.top) / rect.height) * canvas.height);
     if (isMirrored) {
       x = canvas.width - 1 - x;
     }
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const pixel = ctx.getImageData(
-      Math.max(0, Math.min(canvas.width - 1, x)),
-      Math.max(0, Math.min(canvas.height - 1, y)),
-      1,
-      1
-    ).data;
-    const pickedHex = rgbToHex(pixel[0], pixel[1], pixel[2]);
+    const clampedX = Math.max(0, Math.min(canvas.width - 1, x));
+    const clampedY = Math.max(0, Math.min(canvas.height - 1, y));
 
-    addPinnedColor(pickedHex);
-    setIsEyedropperActive(false);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    const pixel = ctx.getImageData(clampedX, clampedY, 1, 1).data;
+    return rgbToHex(pixel[0], pixel[1], pixel[2]);
+  };
+
+  // Eyedropper activation: tries native EyeDropper API first, falls back to in-canvas picker
+  const handleToggleEyedropper = async () => {
+    if (isEyedropperActive) {
+      setIsEyedropperActive(false);
+      return;
+    }
+
+    if (typeof window !== 'undefined' && 'EyeDropper' in window) {
+      try {
+        const eyeDropper = new (window as any).EyeDropper();
+        const result = await eyeDropper.open();
+        if (result?.sRGBHex) {
+          addPinnedColor(result.sRGBHex);
+          return;
+        }
+      } catch {
+        // User cancelled native prompt or pressed Esc
+        return;
+      }
+    }
+
+    setIsEyedropperActive(true);
+  };
+
+  // Sample click/tap from Source continuous tone canvas
+  const handleSourceClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (!isEyedropperActive) return;
+    const hex = sampleColorAtPoint(originalCanvasRef.current, e.clientX, e.clientY);
+    if (hex) {
+      addPinnedColor(hex);
+      setIsEyedropperActive(false);
+    }
+  };
+
+  // Sample click/tap from Output quantized image
+  const handleOutputClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (!isEyedropperActive) return;
+    const hex = sampleColorAtPoint(canvasRef.current, e.clientX, e.clientY);
+    if (hex) {
+      addPinnedColor(hex);
+      setIsEyedropperActive(false);
+    }
   };
 
   // Add custom pinned locked color
@@ -602,18 +621,22 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     const mixRatio = motherMix / 100;
 
     const harmonizedCentroids = centroids.map(([r, g, b], idx) => {
-      // Keep pinned colors un-mixed if user wants exact color match, or harmonized
+      // Pinned colors (indices 0 to numPinned - 1) MUST stay locked to user's exact chosen swatch!
+      if (idx < numPinned) {
+        return [r, g, b];
+      }
+
+      // Unpinned centroids receive mother color harmony undertone
       let cr = r;
       let cg = g;
       let cb = b;
-      if (idx >= numPinned || motherMix > 0) {
+      if (motherMix > 0) {
         cr = Math.round(r * (1 - mixRatio) + motherRgb.r * mixRatio);
         cg = Math.round(g * (1 - mixRatio) + motherRgb.g * mixRatio);
         cb = Math.round(b * (1 - mixRatio) + motherRgb.b * mixRatio);
       }
 
-      // If False CIELAB mode is active (the serendipitous mistake behind "View From A Distance"),
-      // falsely interpret sRGB bytes as [L*, a*, b*] and convert back via labToRgb!
+      // If False CIELAB mode is active, falsely interpret unpinned sRGB bytes as [L*, a*, b*]
       if (colorSpace === 'false-lab') {
         const [fl, fa, fb] = rgbToFalseLab(cr, cg, cb);
         return labToRgb(fl, fa, fb);
@@ -948,65 +971,23 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
 
       </div>
 
-      {/* Toolbar: Pinned Colors & Transfer Modes */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-3 bg-paper-border/10 dark:bg-carbon-border/10 rounded-lg mb-6 text-xs min-w-0">
+      {/* Settings & Inks Controls Toolbar (Spaced into distinct rows to prevent overlap) */}
+      <div className="bg-paper-border/15 dark:bg-carbon-border/15 border border-paper-border/30 dark:border-carbon-border/30 rounded-xl p-4 mb-6 space-y-4 text-xs min-w-0">
         
-        {/* Eyedropper & Pinned Color Controls */}
-        <div className="flex items-center gap-2 flex-wrap min-w-0">
-          <button
-            onClick={() => setIsEyedropperActive(!isEyedropperActive)}
-            className={`px-3 py-1.5 rounded font-semibold transition-colors flex items-center gap-1.5 shrink-0 ${
-              isEyedropperActive
-                ? 'bg-red-600 text-white animate-pulse'
-                : 'bg-paper-text text-paper-bg dark:bg-carbon-text dark:text-carbon-bg hover:opacity-90'
-            }`}
-          >
-            📌 {isEyedropperActive ? 'Click Image to Pick Color...' : 'Eyedropper (Pick Image Color)'}
-          </button>
-
-          <input
-            id={customColorInputId}
-            type="color"
-            onChange={(e) => addPinnedColor(e.target.value)}
-            className="w-7 h-7 rounded cursor-pointer border-none bg-transparent shrink-0"
-            title="Add Custom Locked Ink Color"
-          />
-
-          {/* Pinned Swatches List */}
-          {pinnedColors.length > 0 && (
-            <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-              <span className="text-[11px] font-semibold text-paper-muted dark:text-carbon-muted shrink-0">Pinned ({pinnedColors.length}):</span>
-              {pinnedColors.map((hex) => (
-                <span
-                  key={hex}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono border bg-paper-bg dark:bg-carbon-bg shrink-0"
-                >
-                  <span className="w-2.5 h-2.5 rounded-full border inline-block" style={{ backgroundColor: hex }} />
-                  {hex.toUpperCase()}
-                  <button
-                    onClick={() => removePinnedColor(hex)}
-                    className="text-red-500 hover:text-red-700 font-bold ml-1"
-                    title="Remove pinned color"
-                  >
-                    &times;
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Transfer, Mirror & Color Space Controls */}
-        <div className="flex flex-wrap items-center gap-3 font-medium max-w-full min-w-0">
-          {/* CIELAB Color Space Selector (main.py) */}
-          <div className="flex items-center gap-1.5 max-w-full min-w-0">
-            <label htmlFor={colorSpaceSelectId} className="text-paper-muted dark:text-carbon-muted shrink-0">Color Space:</label>
+        {/* Row 1: Engine Color Science & Press Transfer Settings */}
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-paper-border/20 dark:border-carbon-border/20 min-w-0">
+          
+          {/* Color Space Selector */}
+          <div className="flex items-center gap-2 min-w-0 flex-wrap sm:flex-nowrap">
+            <label htmlFor={colorSpaceSelectId} className="font-semibold text-paper-muted dark:text-carbon-muted shrink-0">
+              Color Space:
+            </label>
             <select
               id={colorSpaceSelectId}
               aria-label="Color Space"
               value={colorSpace}
               onChange={(e) => setColorSpace(e.target.value as 'lab' | 'false-lab' | 'rgb')}
-              className="text-xs px-2 py-1 rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text cursor-pointer font-medium max-w-full truncate min-w-0"
+              className="text-xs px-2.5 py-1.5 rounded-lg border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text cursor-pointer font-medium max-w-full sm:max-w-xs truncate min-w-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="lab">✨ CIELAB Perceptual (main.py default)</option>
               <option value="false-lab">🔮 Serendipitous False CIELAB ("View From A Distance")</option>
@@ -1014,49 +995,109 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
             </select>
           </div>
 
-          {/* Cumulative Transfer Mode Toggle */}
-          <label className="inline-flex items-center gap-1.5 cursor-pointer shrink-0">
-            <input
-              type="checkbox"
-              checked={isCumulativeMode}
-              onChange={(e) => setIsCumulativeMode(e.target.checked)}
-              className="accent-blue-600 rounded"
-            />
-            <span>Cumulative Transfer Mode</span>
-          </label>
+          {/* Toggle Switches: Cumulative Mode & Press Mirror */}
+          <div className="flex items-center gap-4 font-medium flex-wrap shrink-0">
+            <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={isCumulativeMode}
+                onChange={(e) => setIsCumulativeMode(e.target.checked)}
+                className="w-4 h-4 accent-blue-600 rounded cursor-pointer"
+              />
+              <span className="text-paper-text dark:text-carbon-text">Cumulative Transfer Mode</span>
+            </label>
 
-          {/* Press Mirror View Toggle */}
-          <label className="inline-flex items-center gap-1.5 cursor-pointer shrink-0">
-            <input
-              type="checkbox"
-              checked={isMirrored}
-              onChange={(e) => setIsMirrored(e.target.checked)}
-              className="accent-blue-600 rounded"
-            />
-            <span>🪞 Press Mirror</span>
-          </label>
-
-          {/* Quick Save Button in Toolbar */}
-          <button
-            type="button"
-            onClick={handleSaveImage}
-            disabled={!quantizedImageUrl || isProcessing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded bg-green-600 hover:bg-green-700 active:scale-95 text-white shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-            title="Save current quantized reduction layer"
-          >
-            {saveFeedback ? (
-              <>
-                <span className="font-bold">✓</span>
-                <span>Saved!</span>
-              </>
-            ) : (
-              <>
-                <span>💾</span>
-                <span>Save Image</span>
-              </>
-            )}
-          </button>
+            <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={isMirrored}
+                onChange={(e) => setIsMirrored(e.target.checked)}
+                className="w-4 h-4 accent-blue-600 rounded cursor-pointer"
+              />
+              <span className="text-paper-text dark:text-carbon-text">🪞 Press Mirror</span>
+            </label>
+          </div>
         </div>
+
+        {/* Row 2: Eyedropper & Pinned Custom Ink Swatches */}
+        <div className="flex flex-wrap items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleToggleEyedropper}
+              className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 shadow-xs active:scale-95 ${
+                isEyedropperActive
+                  ? 'bg-red-600 text-white ring-2 ring-red-400 animate-pulse'
+                  : 'bg-paper-text text-paper-bg dark:bg-carbon-text dark:text-carbon-bg hover:opacity-90'
+              }`}
+              title="Pick a color from either image to lock it into your ink palette"
+            >
+              <span>🎯</span>
+              <span>{isEyedropperActive ? 'Click Image to Pick (Esc to Cancel)' : 'Eyedropper (Pick Color)'}</span>
+            </button>
+
+            <label
+              htmlFor={customColorInputId}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg hover:bg-paper-border/20 dark:hover:bg-carbon-border/20 cursor-pointer font-medium text-[11px] shrink-0"
+              title="Add custom hex color to lock in palette"
+            >
+              <input
+                id={customColorInputId}
+                type="color"
+                onChange={(e) => addPinnedColor(e.target.value)}
+                className="w-4 h-4 rounded cursor-pointer border-none bg-transparent p-0"
+              />
+              <span>+ Custom Color</span>
+            </label>
+          </div>
+
+          {/* Pinned Swatches Chips */}
+          {pinnedColors.length > 0 ? (
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0 pl-1 border-l border-paper-border/30 dark:border-carbon-border/30">
+              <span className="text-[11px] font-semibold text-paper-muted dark:text-carbon-muted shrink-0">
+                Locked Inks ({pinnedColors.length}):
+              </span>
+              {pinnedColors.map((hex) => (
+                <span
+                  key={hex}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg shadow-2xs shrink-0"
+                >
+                  <span className="w-2.5 h-2.5 rounded-full border border-black/20 inline-block" style={{ backgroundColor: hex }} />
+                  <span>{hex.toUpperCase()}</span>
+                  <button
+                    type="button"
+                    onClick={() => removePinnedColor(hex)}
+                    className="text-paper-muted hover:text-red-600 font-bold ml-1 transition-colors leading-none"
+                    title="Remove locked color"
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+            </div>
+          ) : (
+            <span className="text-[11px] text-paper-muted dark:text-carbon-muted italic shrink-0">
+              No locked colors. Click Eyedropper or + Custom Color to lock specific inks.
+            </span>
+          )}
+        </div>
+
+        {/* Eyedropper Active Banner */}
+        {isEyedropperActive && (
+          <div className="p-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-700 dark:text-red-300 font-medium text-xs flex items-center justify-between gap-2">
+            <span className="flex items-center gap-2">
+              <span className="animate-bounce">🎯</span>
+              <span>Click or tap anywhere on either image below to lock that exact color into your ink palette.</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsEyedropperActive(false)}
+              className="px-2 py-0.5 rounded border border-red-500/40 hover:bg-red-500/20 text-[11px] font-semibold shrink-0"
+            >
+              Cancel (Esc)
+            </button>
+          </div>
+        )}
 
       </div>
 
@@ -1095,19 +1136,31 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       </div>
 
       {/* Tab Content: Canvas View (Kept mounted to preserve canvas pixel buffer) */}
-      <div className={activeTab === 'canvas' ? 'grid grid-cols-1 md:grid-cols-2 gap-4 items-start min-w-0' : 'hidden'}>
+      <div className={activeTab === 'canvas' ? 'grid grid-cols-1 md:grid-cols-2 gap-6 items-start min-w-0' : 'hidden'}>
         {/* Source Image Canvas */}
         <div className="flex flex-col items-center min-w-0 w-full">
-          <span className="text-xs font-mono uppercase tracking-wider text-paper-muted dark:text-carbon-muted mb-2 text-center">
-            Continuous Tone Input {isEyedropperActive && '(Click Image to Pick Color)'}
-          </span>
-          <div className="w-full max-w-full overflow-hidden rounded-lg border border-paper-border dark:border-carbon-border bg-black/5 flex items-center justify-center p-2 min-w-0">
+          <div className="flex items-center justify-between w-full mb-2">
+            <span className="text-xs font-mono uppercase tracking-wider text-paper-muted dark:text-carbon-muted">
+              Continuous Tone Input
+            </span>
+            {isEyedropperActive && (
+              <span className="text-xs text-red-500 font-semibold animate-pulse flex items-center gap-1">
+                <span>🎯</span>
+                <span>Click image to sample</span>
+              </span>
+            )}
+          </div>
+          <div
+            onClick={handleSourceClick}
+            className={`w-full max-w-full overflow-hidden rounded-xl border border-paper-border dark:border-carbon-border bg-black/5 flex items-center justify-center p-2 min-w-0 transition-all ${
+              isEyedropperActive ? 'cursor-crosshair ring-2 ring-red-500 shadow-md' : ''
+            }`}
+          >
             <canvas
               ref={originalCanvasRef}
-              onClick={handleCanvasClick}
-              className={`max-w-full w-full h-auto rounded shadow-sm transition-transform duration-300 block ${
-                isEyedropperActive ? 'cursor-crosshair ring-2 ring-red-500' : ''
-              } ${isMirrored ? '-scale-x-100' : ''}`}
+              className={`max-w-full w-full h-auto rounded-lg shadow-sm transition-transform duration-300 block ${
+                isMirrored ? '-scale-x-100' : ''
+              }`}
             />
           </div>
         </div>
@@ -1124,43 +1177,34 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
               )}
             </div>
 
-            {/* Save & Share Action Buttons */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              {canShare && (
-                <button
-                  type="button"
-                  onClick={handleShareImage}
-                  disabled={!quantizedImageUrl || isProcessing}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text hover:bg-paper-border/20 dark:hover:bg-carbon-border/20 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Share or Save to Photos"
-                >
-                  <span>📤</span>
-                  <span className="hidden sm:inline">Share</span>
-                </button>
+            {/* The Singular Save Image Button */}
+            <button
+              type="button"
+              onClick={handleSaveImage}
+              disabled={!quantizedImageUrl || isProcessing}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg shadow-sm transition-all bg-blue-600 hover:bg-blue-700 active:scale-95 text-white disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              title="Save quantized reduction image to your device"
+            >
+              {saveFeedback ? (
+                <>
+                  <span className="font-bold">✓</span>
+                  <span>Saved!</span>
+                </>
+              ) : (
+                <>
+                  <span>💾</span>
+                  <span>Save Image</span>
+                </>
               )}
-              <button
-                type="button"
-                onClick={handleSaveImage}
-                disabled={!quantizedImageUrl || isProcessing}
-                className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded shadow-sm transition-all bg-blue-600 hover:bg-blue-700 active:scale-95 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Save high-resolution PNG image"
-              >
-                {saveFeedback ? (
-                  <>
-                    <span className="font-bold">✓</span>
-                    <span>Saved!</span>
-                  </>
-                ) : (
-                  <>
-                    <span>💾</span>
-                    <span>Save Image</span>
-                  </>
-                )}
-              </button>
-            </div>
+            </button>
           </div>
 
-          <div className="w-full max-w-full overflow-hidden rounded-lg border border-paper-border dark:border-carbon-border bg-black/5 flex flex-col items-center justify-center p-2 min-w-0 relative group">
+          <div
+            onClick={handleOutputClick}
+            className={`w-full max-w-full overflow-hidden rounded-xl border border-paper-border dark:border-carbon-border bg-black/5 flex flex-col items-center justify-center p-2 min-w-0 relative group transition-all ${
+              isEyedropperActive ? 'cursor-crosshair ring-2 ring-red-500 shadow-md' : ''
+            }`}
+          >
             {/* Calculation canvas kept mounted for pixel operations */}
             <canvas ref={canvasRef} className="hidden" />
 
@@ -1171,7 +1215,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
                 alt={`Quantized Reduction Layer Output - Pass ${currentStep} of ${swatches.length || paletteSize}${
                   isMirrored ? ' (Mirrored for Block Transfer)' : ''
                 }`}
-                className="max-w-full w-full h-auto rounded shadow-sm block transition-transform duration-300 pointer-events-auto"
+                className="max-w-full w-full h-auto rounded-lg shadow-sm block transition-transform duration-300 pointer-events-auto"
                 style={{
                   WebkitTouchCallout: 'default',
                 }}
@@ -1184,21 +1228,11 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
             )}
           </div>
 
-          {/* Helper caption & download link */}
-          <div className="flex flex-col sm:flex-row items-center justify-between w-full mt-2.5 gap-2 text-xs">
-            <span className="text-[11px] text-paper-muted dark:text-carbon-muted text-center sm:text-left">
-              💡 Long-press on mobile or right-click on desktop to save/copy image
-            </span>
-
-            <button
-              type="button"
-              onClick={handleSaveImage}
-              disabled={!quantizedImageUrl || isProcessing}
-              className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-50"
-            >
-              <span>⬇️</span>
-              <span>Download Pass {currentStep} PNG {isMirrored ? '(Mirrored)' : ''}</span>
-            </button>
+          {/* Clean helper caption without duplicate buttons */}
+          <div className="w-full mt-2 text-xs">
+            <p className="text-[11px] text-paper-muted dark:text-carbon-muted text-center sm:text-left">
+              💡 Long-press on mobile or right-click on desktop to save/copy image, or click Save Image.
+            </p>
           </div>
         </div>
       </div>
