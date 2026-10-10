@@ -49,6 +49,9 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   const [isCumulativeMode, setIsCumulativeMode] = useState<boolean>(true);
   const [isMirrored, setIsMirrored] = useState<boolean>(false);
   const [colorSpace, setColorSpace] = useState<'lab' | 'false-lab' | 'rgb'>('lab');
+  const [quantizedImageUrl, setQuantizedImageUrl] = useState<string>('');
+  const [saveFeedback, setSaveFeedback] = useState<boolean>(false);
+  const [canShare, setCanShare] = useState<boolean>(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const originalCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -342,18 +345,126 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     }
   }, [initialImageSrc]);
 
+  // Check if Web Share API is available on mount
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      setCanShare(true);
+    }
+  }, []);
+
+  // Update quantized image data URL (baking in press-mirror flip if active)
+  const updateQuantizedImageUrl = (sourceCanvas: HTMLCanvasElement, mirrored: boolean) => {
+    if (!mirrored) {
+      setQuantizedImageUrl(sourceCanvas.toDataURL('image/png'));
+      return;
+    }
+    const mirrorCanvas = document.createElement('canvas');
+    mirrorCanvas.width = sourceCanvas.width;
+    mirrorCanvas.height = sourceCanvas.height;
+    const mCtx = mirrorCanvas.getContext('2d');
+    if (mCtx) {
+      mCtx.save();
+      mCtx.translate(sourceCanvas.width, 0);
+      mCtx.scale(-1, 1);
+      mCtx.drawImage(sourceCanvas, 0, 0);
+      mCtx.restore();
+      setQuantizedImageUrl(mirrorCanvas.toDataURL('image/png'));
+    } else {
+      setQuantizedImageUrl(sourceCanvas.toDataURL('image/png'));
+    }
+  };
+
+  // Synchronize quantized image export when mirror toggle changes
+  useEffect(() => {
+    if (canvasRef.current && imageLoaded) {
+      updateQuantizedImageUrl(canvasRef.current, isMirrored);
+    }
+  }, [isMirrored]);
+
+  // Handle Save Image download process
+  const handleSaveImage = async () => {
+    if (!quantizedImageUrl) return;
+
+    const passSuffix = `pass-${currentStep}-of-${swatches.length || paletteSize}`;
+    const mirrorSuffix = isMirrored ? '-mirrored' : '';
+    const fileName = `linocut-${selectedPreset}-${passSuffix}${mirrorSuffix}.png`;
+
+    try {
+      const res = await fetch(quantizedImageUrl);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
+
+      setSaveFeedback(true);
+      setTimeout(() => setSaveFeedback(false), 2200);
+    } catch {
+      const link = document.createElement('a');
+      link.href = quantizedImageUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setSaveFeedback(true);
+      setTimeout(() => setSaveFeedback(false), 2200);
+    }
+  };
+
+  // Handle mobile native share sheet if supported
+  const handleShareImage = async () => {
+    if (!quantizedImageUrl) return;
+    try {
+      const res = await fetch(quantizedImageUrl);
+      const blob = await res.blob();
+      const passSuffix = `pass-${currentStep}-of-${swatches.length || paletteSize}`;
+      const mirrorSuffix = isMirrored ? '-mirrored' : '';
+      const fileName = `linocut-${selectedPreset}-${passSuffix}${mirrorSuffix}.png`;
+      const file = new File([blob], fileName, { type: 'image/png' });
+
+      if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `Linocut Reduction Pass ${currentStep}`,
+          text: `Linocut reduction layer pass ${currentStep} of ${swatches.length || paletteSize}${isMirrored ? ' (Mirrored)' : ''}`,
+        });
+      } else {
+        handleSaveImage();
+      }
+    } catch (err) {
+      if ((err as Error)?.name !== 'AbortError') {
+        handleSaveImage();
+      }
+    }
+  };
+
   // Handle Eyedropper click on canvas to pick exact custom color
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isEyedropperActive) return;
     const canvas = originalCanvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
-    const x = Math.floor(((e.clientX - rect.left) / rect.width) * canvas.width);
+    let x = Math.floor(((e.clientX - rect.left) / rect.width) * canvas.width);
     const y = Math.floor(((e.clientY - rect.top) / rect.height) * canvas.height);
+    if (isMirrored) {
+      x = canvas.width - 1 - x;
+    }
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const pixel = ctx.getImageData(x, y, 1, 1).data;
+    const pixel = ctx.getImageData(
+      Math.max(0, Math.min(canvas.width - 1, x)),
+      Math.max(0, Math.min(canvas.height - 1, y)),
+      1,
+      1
+    ).data;
     const pickedHex = rgbToHex(pixel[0], pixel[1], pixel[2]);
 
     addPinnedColor(pickedHex);
@@ -623,6 +734,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
     }
 
     procCtx.putImageData(outputImgData, 0, 0);
+    updateQuantizedImageUrl(procCanvas, isMirrored);
     setIsProcessing(false);
   };
 
@@ -923,6 +1035,27 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
             />
             <span>🪞 Press Mirror</span>
           </label>
+
+          {/* Quick Save Button in Toolbar */}
+          <button
+            type="button"
+            onClick={handleSaveImage}
+            disabled={!quantizedImageUrl || isProcessing}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded bg-green-600 hover:bg-green-700 active:scale-95 text-white shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            title="Save current quantized reduction layer"
+          >
+            {saveFeedback ? (
+              <>
+                <span className="font-bold">✓</span>
+                <span>Saved!</span>
+              </>
+            ) : (
+              <>
+                <span>💾</span>
+                <span>Save Image</span>
+              </>
+            )}
+          </button>
         </div>
 
       </div>
@@ -981,19 +1114,91 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
 
         {/* Quantized & Cumulative Reduction Output Canvas */}
         <div className="flex flex-col items-center min-w-0 w-full">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-mono uppercase tracking-wider text-paper-muted dark:text-carbon-muted text-center">
-              Reduction Layer Output (Pass 1–{currentStep})
-            </span>
-            {isProcessing && <span className="text-xs text-blue-500 animate-pulse">Calculating...</span>}
+          <div className="flex items-center justify-between w-full mb-2 flex-wrap gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-xs font-mono uppercase tracking-wider text-paper-muted dark:text-carbon-muted truncate">
+                Reduction Layer Output (Pass 1–{currentStep})
+              </span>
+              {isProcessing && (
+                <span className="text-xs text-blue-500 animate-pulse font-medium shrink-0">Calculating...</span>
+              )}
+            </div>
+
+            {/* Save & Share Action Buttons */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {canShare && (
+                <button
+                  type="button"
+                  onClick={handleShareImage}
+                  disabled={!quantizedImageUrl || isProcessing}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text hover:bg-paper-border/20 dark:hover:bg-carbon-border/20 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Share or Save to Photos"
+                >
+                  <span>📤</span>
+                  <span className="hidden sm:inline">Share</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleSaveImage}
+                disabled={!quantizedImageUrl || isProcessing}
+                className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded shadow-sm transition-all bg-blue-600 hover:bg-blue-700 active:scale-95 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Save high-resolution PNG image"
+              >
+                {saveFeedback ? (
+                  <>
+                    <span className="font-bold">✓</span>
+                    <span>Saved!</span>
+                  </>
+                ) : (
+                  <>
+                    <span>💾</span>
+                    <span>Save Image</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
-          <div className="w-full max-w-full overflow-hidden rounded-lg border border-paper-border dark:border-carbon-border bg-black/5 flex items-center justify-center p-2 min-w-0">
-            <canvas
-              ref={canvasRef}
-              className={`max-w-full w-full h-auto rounded shadow-sm transition-transform duration-300 block ${
-                isMirrored ? '-scale-x-100' : ''
-              }`}
-            />
+
+          <div className="w-full max-w-full overflow-hidden rounded-lg border border-paper-border dark:border-carbon-border bg-black/5 flex flex-col items-center justify-center p-2 min-w-0 relative group">
+            {/* Calculation canvas kept mounted for pixel operations */}
+            <canvas ref={canvasRef} className="hidden" />
+
+            {/* Displayed Image Element: Enables native mobile long-press (Save to Photos) & desktop right-click */}
+            {quantizedImageUrl ? (
+              <img
+                src={quantizedImageUrl}
+                alt={`Quantized Reduction Layer Output - Pass ${currentStep} of ${swatches.length || paletteSize}${
+                  isMirrored ? ' (Mirrored for Block Transfer)' : ''
+                }`}
+                className="max-w-full w-full h-auto rounded shadow-sm block transition-transform duration-300 pointer-events-auto"
+                style={{
+                  WebkitTouchCallout: 'default',
+                }}
+              />
+            ) : (
+              <div className="py-20 text-xs text-paper-muted dark:text-carbon-muted flex flex-col items-center gap-2">
+                <span className="animate-spin text-lg">⏳</span>
+                <span>Rendering preview...</span>
+              </div>
+            )}
+          </div>
+
+          {/* Helper caption & download link */}
+          <div className="flex flex-col sm:flex-row items-center justify-between w-full mt-2.5 gap-2 text-xs">
+            <span className="text-[11px] text-paper-muted dark:text-carbon-muted text-center sm:text-left">
+              💡 Long-press on mobile or right-click on desktop to save/copy image
+            </span>
+
+            <button
+              type="button"
+              onClick={handleSaveImage}
+              disabled={!quantizedImageUrl || isProcessing}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-50"
+            >
+              <span>⬇️</span>
+              <span>Download Pass {currentStep} PNG {isMirrored ? '(Mirrored)' : ''}</span>
+            </button>
           </div>
         </div>
       </div>
