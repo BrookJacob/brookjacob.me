@@ -36,6 +36,7 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
   const [blurRadius, setBlurRadius] = useState<number>(0);
   const [motherMix, setMotherMix] = useState<number>(10);
   const [motherHex, setMotherHex] = useState<string>('#80828C');
+  const [pendingMotherHex, setPendingMotherHex] = useState<string>('#80828C');
   const [currentStep, setCurrentStep] = useState<number>(6);
   const [activeTab, setActiveTab] = useState<'canvas' | 'script' | 'swatches'>('canvas');
   const [swatches, setSwatches] = useState<ColorSwatch[]>([]);
@@ -356,6 +357,11 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       updateQuantizedImageUrl(canvasRef.current, isMirrored);
     }
   }, [isMirrored]);
+
+  // Synchronize pending mother color when active motherHex changes
+  useEffect(() => {
+    setPendingMotherHex(motherHex);
+  }, [motherHex]);
 
   // Handle Esc key to cancel active eyedropper
   useEffect(() => {
@@ -928,70 +934,80 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-paper-border/20 dark:bg-carbon-border/20 p-4 rounded-lg text-xs min-w-0">
         
         {/* Palette Size Slider & Number Text Box (3 to 30 Inks) */}
-        <div className="min-w-0">
-          <div className="flex justify-between items-center font-medium mb-1 gap-1.5">
-            <label htmlFor={kSliderId} className="truncate" title="Total Ink Colors (K-Means Clusters)">
-              Total Ink Colors (K-Means):
-            </label>
-            <div className="flex items-center gap-1 shrink-0">
-              <input
-                type="number"
-                min="3"
-                max="30"
-                value={paletteSize}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value);
-                  if (!isNaN(val)) {
-                    const clamped = Math.min(30, Math.max(3, val));
-                    setPaletteSize(clamped);
-                    setCurrentStep(clamped);
-                  }
-                }}
-                aria-label="Total Ink Colors (K-Means Clusters)"
-                className="w-12 px-1 py-0.5 text-xs text-center font-mono font-bold rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-blue-600 dark:text-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-              <span className="font-mono font-bold text-blue-600 dark:text-blue-400">Inks</span>
+        <div className="min-w-0 flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-center font-medium mb-1 gap-1.5">
+              <label htmlFor={kSliderId} className="truncate" title="Total Ink Colors (K-Means Clusters)">
+                Total Ink Colors (K-Means):
+              </label>
+              <div className="flex items-center gap-1 shrink-0">
+                <input
+                  type="number"
+                  min="3"
+                  max="30"
+                  value={paletteSize}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    if (!isNaN(val)) {
+                      const clamped = Math.min(30, Math.max(3, val));
+                      setPaletteSize(clamped);
+                      setCurrentStep(clamped);
+                    }
+                  }}
+                  aria-label="Total Ink Colors (K-Means Clusters)"
+                  className="w-12 px-1 py-0.5 text-xs text-center font-mono font-bold rounded border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-blue-600 dark:text-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+                <span className="font-mono font-bold text-blue-600 dark:text-blue-400">Inks</span>
+              </div>
             </div>
+            <input
+              id={kSliderId}
+              type="range"
+              min="3"
+              max="30"
+              value={paletteSize}
+              onChange={(e) => {
+                const val = parseInt(e.target.value);
+                setPaletteSize(val);
+                setCurrentStep(val);
+              }}
+              className="w-full accent-blue-600 min-w-0 cursor-pointer"
+            />
           </div>
-          <input
-            id={kSliderId}
-            type="range"
-            min="3"
-            max="30"
-            value={paletteSize}
-            onChange={(e) => {
-              const val = parseInt(e.target.value);
-              setPaletteSize(val);
-              setCurrentStep(val);
-            }}
-            className="w-full accent-blue-600 min-w-0 cursor-pointer"
-          />
+          <div className="text-[10px] text-paper-muted dark:text-carbon-muted mt-2 pt-1 border-t border-paper-border/30 dark:border-carbon-border/30 truncate">
+            Up to 30 reduction layers
+          </div>
         </div>
 
         {/* Spatial Blur Slider */}
-        <div className="min-w-0">
-          <div className="flex justify-between font-medium mb-1">
-            <label htmlFor={blurSliderId}>Carving Blur Radius:</label>
-            <span className="font-mono font-bold">{blurRadius}px</span>
+        <div className="min-w-0 flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-center font-medium mb-1">
+              <label htmlFor={blurSliderId}>Carving Blur Radius:</label>
+              <span className="font-mono font-bold">{blurRadius}px</span>
+            </div>
+            <input
+              id={blurSliderId}
+              type="range"
+              min="0"
+              max="25"
+              value={blurRadius}
+              onChange={(e) => setBlurRadius(parseInt(e.target.value))}
+              className="w-full accent-blue-600 min-w-0 cursor-pointer"
+            />
           </div>
-          <input
-            id={blurSliderId}
-            type="range"
-            min="0"
-            max="25"
-            value={blurRadius}
-            onChange={(e) => setBlurRadius(parseInt(e.target.value))}
-            className="w-full accent-blue-600 min-w-0"
-          />
+          <div className="text-[10px] text-paper-muted dark:text-carbon-muted mt-2 pt-1 border-t border-paper-border/30 dark:border-carbon-border/30 truncate">
+            Simulates gouge stroke smoothing
+          </div>
         </div>
 
-        {/* Mother Color Mix Slider & Picker */}
-        <div className="min-w-0">
-          <div className="flex justify-between font-medium mb-1">
-            <label htmlFor={motherMixSliderId}>Mother Color Undertone:</label>
-            <span className="font-mono font-bold">{motherMix}%</span>
-          </div>
-          <div className="flex items-center gap-2 min-w-0">
+        {/* Mother Color Mix Slider & Staged Picker */}
+        <div className="min-w-0 flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-center font-medium mb-1">
+              <label htmlFor={motherMixSliderId}>Mother Color Undertone:</label>
+              <span className="font-mono font-bold">{motherMix}%</span>
+            </div>
             <input
               id={motherMixSliderId}
               type="range"
@@ -999,37 +1015,73 @@ export const QuantizationStudio: React.FC<QuantizationStudioProps> = ({ initialI
               max="30"
               value={motherMix}
               onChange={(e) => setMotherMix(parseInt(e.target.value))}
-              className="w-full accent-blue-600 min-w-0"
+              className="w-full accent-blue-600 min-w-0 cursor-pointer"
             />
-            <input
-              id={motherColorPickerId}
-              type="color"
-              aria-label="Mother Color Undertone Picker"
-              value={motherHex}
-              onChange={(e) => setMotherHex(e.target.value)}
-              className="w-6 h-6 rounded cursor-pointer border-none bg-transparent shrink-0"
-              title="Change Mother Color undertone"
-            />
+          </div>
+
+          {/* Staged Mother Color Selector with explicit Set Color button */}
+          <div className="flex items-center justify-between gap-1.5 mt-2 pt-1 border-t border-paper-border/30 dark:border-carbon-border/30">
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg shrink-0">
+              <input
+                id={motherColorPickerId}
+                type="color"
+                aria-label="Mother Color Undertone Picker"
+                value={pendingMotherHex}
+                onChange={(e) => setPendingMotherHex(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setMotherHex(pendingMotherHex);
+                  }
+                }}
+                className="w-4 h-4 rounded cursor-pointer border-none bg-transparent p-0 block"
+                title="Select Mother Color undertone tint"
+              />
+              <span className="font-mono text-[11px] uppercase font-semibold text-paper-muted dark:text-carbon-muted">
+                {pendingMotherHex}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setMotherHex(pendingMotherHex)}
+              disabled={pendingMotherHex.toLowerCase() === motherHex.toLowerCase()}
+              className={`px-2 py-0.5 rounded text-[11px] font-semibold transition-all shrink-0 ${
+                pendingMotherHex.toLowerCase() !== motherHex.toLowerCase()
+                  ? 'bg-paper-accent dark:bg-carbon-accent text-white hover:opacity-90 active:scale-95 shadow-xs cursor-pointer'
+                  : 'bg-paper-border/30 dark:bg-carbon-border/30 text-paper-muted dark:text-carbon-muted opacity-50 cursor-not-allowed'
+              }`}
+              title={
+                pendingMotherHex.toLowerCase() !== motherHex.toLowerCase()
+                  ? 'Apply this undertone to palette'
+                  : 'Undertone is already active'
+              }
+            >
+              {pendingMotherHex.toLowerCase() !== motherHex.toLowerCase() ? '+ Set Color' : 'Active'}
+            </button>
           </div>
         </div>
 
         {/* Ink Pass Stepper Slider (Smooth Draggable) */}
-        <div className="min-w-0">
-          <div className="flex justify-between font-medium mb-1">
-            <label htmlFor={stepSliderId}>Print Pass Stepper:</label>
-            <span className="font-mono font-bold text-green-600 dark:text-green-400">
-              Pass {currentStep} of {swatches.length || paletteSize}
-            </span>
+        <div className="min-w-0 flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-center font-medium mb-1">
+              <label htmlFor={stepSliderId}>Print Pass Stepper:</label>
+              <span className="font-mono font-bold text-green-600 dark:text-green-400">
+                Pass {currentStep} of {swatches.length || paletteSize}
+              </span>
+            </div>
+            <input
+              id={stepSliderId}
+              type="range"
+              min="1"
+              max={swatches.length || paletteSize}
+              value={currentStep}
+              onChange={(e) => setCurrentStep(parseInt(e.target.value))}
+              className="w-full accent-green-600 min-w-0 cursor-pointer"
+            />
           </div>
-          <input
-            id={stepSliderId}
-            type="range"
-            min="1"
-            max={swatches.length || paletteSize}
-            value={currentStep}
-            onChange={(e) => setCurrentStep(parseInt(e.target.value))}
-            className="w-full accent-green-600 min-w-0 cursor-pointer"
-          />
+          <div className="text-[10px] text-paper-muted dark:text-carbon-muted mt-2 pt-1 border-t border-paper-border/30 dark:border-carbon-border/30 truncate">
+            Drag to step through reduction cuts
+          </div>
         </div>
 
       </div>
