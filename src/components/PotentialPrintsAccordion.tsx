@@ -1,8 +1,8 @@
 /**
  * @file src/components/PotentialPrintsAccordion.tsx
- * @description Radix UI Accordion Primitive Wrapper for the Demand-Gauge Voting Gallery.
+ * @description Radix UI Accordion Primitive Wrapper for the Upcoming Editions Voting Gallery.
  * 
- * Positions the Demand-Gauge Voting panel right near the page header in an expandable,
+ * Positions the Upcoming Editions Voting panel right near the page header in an expandable,
  * accessible Radix UI Accordion primitive. Keeps the main archive grid clean while providing
  * an interactive callout for visitors to expand and vote on upcoming print concepts.
  */
@@ -20,11 +20,11 @@ export const PotentialPrintsAccordion: React.FC<PotentialPrintsAccordionProps> =
     <Accordion.Root
       type="single"
       collapsible
-      defaultValue={defaultOpen ? 'demand-gauge' : undefined}
+      defaultValue={defaultOpen ? 'upcoming-prints' : undefined}
       className="w-full mb-10"
     >
       <Accordion.Item
-        value="demand-gauge"
+        value="upcoming-prints"
         className="bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl overflow-hidden shadow-sm transition-all duration-300"
       >
         <Accordion.Header className="flex">
@@ -34,10 +34,10 @@ export const PotentialPrintsAccordion: React.FC<PotentialPrintsAccordionProps> =
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs uppercase tracking-widest font-mono font-semibold text-paper-accent dark:text-carbon-accent">
-                    Demand-Gauge System
+                    Upcoming Editions
                   </span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-paper-accent/10 dark:bg-carbon-accent/10 text-paper-accent dark:text-carbon-accent border border-paper-accent/20">
-                    Vote on Next Edition
+                    Community Voting
                   </span>
                 </div>
                 <h3 className="font-serif text-lg font-bold text-paper-text dark:text-carbon-text mt-0.5">

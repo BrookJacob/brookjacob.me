@@ -1,6 +1,6 @@
 /**
  * @file src/lib/voting.ts
- * @description Action handler and real-time listeners for Anonymous Print Voting & Demand-Gauge System.
+ * @description Action handler and real-time listeners for Anonymous Print Community Voting System.
  */
 
 import { httpsCallable } from 'firebase/functions';

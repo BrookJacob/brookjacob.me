@@ -1,6 +1,6 @@
 /**
  * @file src/lib/potentialPrints.ts
- * @description Hygraph CMS Query Handler & Grouping Logic for Potential Prints (Demand-Gauge System).
+ * @description Hygraph CMS Query Handler & Grouping Logic for Potential Prints (Community Voting System).
  * 
  * Supports multi-image concepts (unquantized photo + quantized reduction linocut preview + gallery assets),
  * variant grouping helpers, and Firestore real-time vote count merging.
@@ -27,7 +27,7 @@ export interface HygraphImageAsset {
 }
 
 /**
- * PotentialPrint entity representing an upcoming artwork design under demand-gauge voting.
+ * PotentialPrint entity representing an upcoming artwork design under community voting.
  * Supports both quantized and unquantized image assets for side-by-side or tabbed comparison.
  */
 export interface PotentialPrint {

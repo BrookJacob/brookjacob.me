@@ -1,6 +1,6 @@
 /**
  * @file src/components/PotentialPrintsGallery.tsx
- * @description Interactive Demand-Gauge Voting Gallery Component for Potential Prints.
+ * @description Interactive Voting Gallery Component for Upcoming Potential Prints.
  * 
  * Features:
  * - Multi-image preview toggle (Original Photo vs. Quantized Linocut Reduction Preview).
@@ -28,7 +28,7 @@ interface PotentialPrintCardProps {
 }
 
 /**
- * Individual Artwork Card for Potential Print Demand-Gauge Voting.
+ * Individual Artwork Card for Potential Print Voting.
  */
 export const PotentialPrintCard: React.FC<PotentialPrintCardProps> = ({ print, onVoteComplete }) => {
   const [activeImageTab, setActiveImageTab] = useState<'original' | 'quantized'>('original');
@@ -130,24 +130,17 @@ export const PotentialPrintCard: React.FC<PotentialPrintCardProps> = ({ print, o
       {/* Content & Interactive Voting Section */}
       <div className="p-5 flex flex-col justify-between flex-grow">
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-paper-accent dark:text-carbon-accent font-semibold">
-              Demand Gauge Concept
-            </span>
-            {print.votingGroup && (
+          {print.votingGroup && (
+            <div className="mb-2">
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-paper-border/50 dark:bg-carbon-border/50 text-paper-muted dark:text-carbon-muted">
                 Group: {print.votingGroup}
               </span>
-            )}
-          </div>
+            </div>
+          )}
 
-          <h3 className="font-serif text-xl font-bold text-paper-text dark:text-carbon-text mb-2">
+          <h3 className="font-serif text-xl font-bold text-paper-text dark:text-carbon-text">
             {print.title}
           </h3>
-
-          <p className="text-xs text-paper-muted dark:text-carbon-muted font-sans mb-4 leading-relaxed">
-            Vote to express interest in bringing this original design into physical reduction linocut print production.
-          </p>
         </div>
 
         {/* Action Buttons & Status Messages */}
@@ -224,7 +217,7 @@ export const PotentialPrintsGallery: React.FC = () => {
     return (
       <div className="py-12 text-center font-mono text-sm text-paper-muted dark:text-carbon-muted flex items-center justify-center gap-2">
         <span className="w-4 h-4 border-2 border-paper-accent dark:border-carbon-accent border-t-transparent rounded-full animate-spin"></span>
-        Loading Demand Gauge Concepts...
+        Loading print concepts...
       </div>
     );
   }
@@ -233,37 +226,25 @@ export const PotentialPrintsGallery: React.FC = () => {
     return (
       <div className="py-12 px-6 rounded-xl border border-dashed border-paper-border dark:border-carbon-border text-center">
         <p className="font-serif text-lg text-paper-muted dark:text-carbon-muted">
-          No active print demand gauge concepts right now. Check back soon!
+          No upcoming print concepts right now. Check back soon!
         </p>
       </div>
     );
   }
 
   return (
-    <section className="my-12">
-      {/* Header section */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="w-2 h-2 rounded-full bg-paper-accent dark:bg-carbon-accent animate-pulse"></span>
-          <span className="text-xs uppercase tracking-widest font-mono font-semibold text-paper-accent dark:text-carbon-accent">
-            Demand-Gauge System
-          </span>
-        </div>
-        <h2 className="font-serif text-3xl sm:text-4xl font-bold text-paper-text dark:text-carbon-text">
-          Vote for the Next Physical Edition
-        </h2>
-        <p className="text-sm sm:text-base text-paper-muted dark:text-carbon-muted mt-2 max-w-2xl font-serif">
-          Help determine which artwork concepts move into physical reduction linocut block carving. Vote on artwork concepts below.
-        </p>
-      </div>
+    <div className="pt-2 pb-2">
+      <p className="text-xs sm:text-sm text-paper-muted dark:text-carbon-muted font-serif mb-6 max-w-2xl">
+        Help determine which artwork concepts move into physical reduction linocut block carving. Vote on your favorites below.
+      </p>
 
       {/* Prints Gallery Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {prints.map((print) => (
           <PotentialPrintCard key={print.id} print={print} />
         ))}
       </div>
-    </section>
+    </div>
   );
 };
 
