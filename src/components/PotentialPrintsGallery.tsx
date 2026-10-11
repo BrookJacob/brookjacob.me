@@ -255,24 +255,24 @@ export const PotentialPrintsGallery: React.FC<PotentialPrintsGalleryProps> = ({ 
 
   return (
     <div className="pt-2 pb-2">
-      {/* Context banner if previous winner is in production */}
-      {inProductionPrint && (
-        <div className="mb-6 p-3.5 rounded-xl bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/20 dark:border-amber-400/20 text-xs font-mono text-paper-muted dark:text-carbon-muted flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
-            <span>
-              Previous Winner <strong className="text-paper-text dark:text-carbon-text font-semibold">{inProductionPrint.title}</strong> is currently on the carving block (featured as the first card in the gallery below).
-            </span>
-          </div>
-          <span className="text-[11px] text-amber-700 dark:text-amber-300 font-medium shrink-0">
-            Vote on what we should carve next &darr;
-          </span>
-        </div>
-      )}
-
       {/* Active Community Voting Candidates */}
       {activeVotingPrints.length > 0 ? (
         <section aria-label="Active Community Voting Candidates">
+          {/* Context banner if previous winner is in production AND there are items to vote on */}
+          {inProductionPrint && (
+            <div className="mb-6 p-3.5 rounded-xl bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/20 dark:border-amber-400/20 text-xs font-mono text-paper-muted dark:text-carbon-muted flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                <span>
+                  Previous Winner <strong className="text-paper-text dark:text-carbon-text font-semibold">{inProductionPrint.title}</strong> is currently on the carving block (featured as the first card in the gallery below).
+                </span>
+              </div>
+              <span className="text-[11px] text-amber-700 dark:text-amber-300 font-medium shrink-0">
+                Vote on what I should carve next &darr;
+              </span>
+            </div>
+          )}
+
           <div className="mb-6">
             <span className="text-xs uppercase tracking-widest font-mono font-semibold text-paper-accent dark:text-carbon-accent">
               Community Vote
