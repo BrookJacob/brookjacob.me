@@ -11,11 +11,14 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Artwork } from '../lib/types';
+import type { PotentialPrint } from '../lib/potentialPrints';
 import { BlurhashCanvas } from './BlurhashCanvas';
+import { InProductionPrintCard } from './InProductionPrintCard';
 import { getPrintUrl } from '../lib/urls';
 
 export interface ArtworkGalleryFeedProps {
   artworks: Artwork[];
+  inProductionPrint?: PotentialPrint | null;
   batchSize?: number;
 }
 
@@ -25,27 +28,30 @@ const DEFAULT_BATCH_SIZE = 10;
 
 export const ArtworkGalleryFeed: React.FC<ArtworkGalleryFeedProps> = ({
   artworks,
+  inProductionPrint,
   batchSize = DEFAULT_BATCH_SIZE,
 }) => {
-  // Restore previous visible count from session if navigating back from a detail page
-  const [visibleCount, setVisibleCount] = useState<number>(() => {
+  // Always initialize with batchSize to guarantee 100% hydration match with server HTML
+  const [visibleCount, setVisibleCount] = useState<number>(() => Math.min(batchSize, artworks.length));
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // After hydration completes, restore saved count from sessionStorage if user previously scrolled further
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
         const saved = sessionStorage.getItem(STORAGE_KEY_COUNT);
         if (saved) {
           const count = parseInt(saved, 10);
-          if (!isNaN(count) && count >= batchSize) {
-            return Math.min(count, artworks.length);
+          if (!isNaN(count) && count > batchSize) {
+            setVisibleCount(Math.min(count, artworks.length));
           }
         }
       } catch {
         // Fallback gracefully if sessionStorage is disabled
       }
     }
-    return Math.min(batchSize, artworks.length);
-  });
-
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  }, [artworks.length, batchSize]);
 
   // Sync visible count to sessionStorage so back-navigation retains rendered cards
   useEffect(() => {
@@ -125,6 +131,11 @@ export const ArtworkGalleryFeed: React.FC<ArtworkGalleryFeedProps> = ({
   return (
     <div>
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
+        {/* Featured First Card: Print Currently Moving Through Production */}
+        {inProductionPrint && (
+          <InProductionPrintCard print={inProductionPrint} />
+        )}
+
         {visibleArtworks.map((artwork, index) => {
           const hasGallery = Boolean(artwork.galleryImages && artwork.galleryImages.length > 0);
           const secondaryImage = hasGallery ? artwork.galleryImages![0] : null;
