@@ -13,11 +13,12 @@ import React, { useState, useEffect } from 'react';
 import { BlurhashCanvas } from './BlurhashCanvas';
 import {
   fetchPotentialPrints,
-  groupPotentialPrintsByVotingGroup,
+  partitionPotentialPrints,
   type PotentialPrint,
   type VotingGroup,
 } from '../lib/potentialPrints';
 import { voteOnPrint, subscribeToPrintVoteCount } from '../lib/voting';
+import { InProductionPrintCard } from './InProductionPrintCard';
 
 /**
  * Props for individual PotentialPrintCard subcomponent.
@@ -194,24 +195,39 @@ export const PotentialPrintCard: React.FC<PotentialPrintCardProps> = ({ print, o
   );
 };
 
+export interface PotentialPrintsGalleryProps {
+  /**
+   * Pre-fetched potential prints data supplied statically from Astro build-time SSG.
+   * Eliminates client-side Hygraph API requests.
+   */
+  initialPrints?: PotentialPrint[];
+}
+
 /**
  * Main PotentialPrintsGallery Container Component.
+ * Supports static SSG pre-rendered prints, in-production spotlight showcase,
+ * and automated retirement of concluded voting groups.
  */
-export const PotentialPrintsGallery: React.FC = () => {
-  const [prints, setPrints] = useState<PotentialPrint[]>([]);
-  const [grouped, setGrouped] = useState<VotingGroup[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+export const PotentialPrintsGallery: React.FC<PotentialPrintsGalleryProps> = ({ initialPrints }) => {
+  const [prints, setPrints] = useState<PotentialPrint[]>(initialPrints || []);
+  const [isLoading, setIsLoading] = useState<boolean>(!initialPrints || initialPrints.length === 0);
 
+  // Client-side fallback if not supplied at build time
   useEffect(() => {
+    if (initialPrints && initialPrints.length > 0) {
+      setPrints(initialPrints);
+      setIsLoading(false);
+      return;
+    }
+
     async function loadPrints() {
       setIsLoading(true);
       const items = await fetchPotentialPrints();
       setPrints(items);
-      setGrouped(groupPotentialPrintsByVotingGroup(items));
       setIsLoading(false);
     }
     loadPrints();
-  }, []);
+  }, [initialPrints]);
 
   if (isLoading) {
     return (
@@ -222,7 +238,12 @@ export const PotentialPrintsGallery: React.FC = () => {
     );
   }
 
-  if (prints.length === 0) {
+  // Partition into In-Production spotlight item and Active Voting items
+  const { inProductionPrint, activeVotingPrints } = partitionPotentialPrints(prints);
+
+  const hasAnyContent = inProductionPrint !== null || activeVotingPrints.length > 0;
+
+  if (!hasAnyContent) {
     return (
       <div className="py-12 px-6 rounded-xl border border-dashed border-paper-border dark:border-carbon-border text-center">
         <p className="font-serif text-lg text-paper-muted dark:text-carbon-muted">
@@ -234,16 +255,49 @@ export const PotentialPrintsGallery: React.FC = () => {
 
   return (
     <div className="pt-2 pb-2">
-      <p className="text-xs sm:text-sm text-paper-muted dark:text-carbon-muted font-serif mb-6 max-w-2xl">
-        Help determine which artwork concepts move into physical reduction linocut block carving. Vote on your favorites below.
-      </p>
+      {/* Context banner if previous winner is in production */}
+      {inProductionPrint && (
+        <div className="mb-6 p-3.5 rounded-xl bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/20 dark:border-amber-400/20 text-xs font-mono text-paper-muted dark:text-carbon-muted flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+            <span>
+              Previous Winner <strong className="text-paper-text dark:text-carbon-text font-semibold">{inProductionPrint.title}</strong> is currently on the carving block (featured as the first card in the gallery below).
+            </span>
+          </div>
+          <span className="text-[11px] text-amber-700 dark:text-amber-300 font-medium shrink-0">
+            Vote on what we should carve next &darr;
+          </span>
+        </div>
+      )}
 
-      {/* Prints Gallery Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {prints.map((print) => (
-          <PotentialPrintCard key={print.id} print={print} />
-        ))}
-      </div>
+      {/* Active Community Voting Candidates */}
+      {activeVotingPrints.length > 0 ? (
+        <section aria-label="Active Community Voting Candidates">
+          <div className="mb-6">
+            <span className="text-xs uppercase tracking-widest font-mono font-semibold text-paper-accent dark:text-carbon-accent">
+              Community Vote
+            </span>
+            <h4 className="font-serif text-xl font-bold text-paper-text dark:text-carbon-text mt-1">
+              Choose the Next Print Edition
+            </h4>
+            <p className="text-xs text-paper-muted dark:text-carbon-muted font-serif mt-1 max-w-xl">
+              Help determine which artwork moves to the carving block next. Vote on your favorites below.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {activeVotingPrints.map((print) => (
+              <PotentialPrintCard key={print.id} print={print} />
+            ))}
+          </div>
+        </section>
+      ) : inProductionPrint ? (
+        <div className="py-8 px-6 rounded-xl border border-dashed border-paper-border dark:border-carbon-border text-center">
+          <p className="font-serif text-base text-paper-muted dark:text-carbon-muted">
+            The previous winner <strong className="text-paper-text dark:text-carbon-text font-semibold">{inProductionPrint.title}</strong> is currently on the carving block in the studio (featured as the first card in the gallery below). The next batch of candidate concepts will be posted here for voting soon!
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 };

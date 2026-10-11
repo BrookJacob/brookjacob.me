@@ -14,11 +14,17 @@ import PotentialPrintsAccordion from '../../components/PotentialPrintsAccordion'
 import ContactFormModal from '../../components/ContactFormModal';
 import { ArtworkGalleryFeed } from '../../components/ArtworkGalleryFeed';
 import { getAllArtworks } from '../../lib/hygraph';
+import { fetchPotentialPrints, partitionPotentialPrints } from '../../lib/potentialPrints';
 import { ClientRouter } from 'astro:transitions';
 import '../../styles/global.css';
 
-// Fetch artwork list statically at build time
-const artworks = await getAllArtworks();
+// Fetch artwork list and potential prints statically at build time (Astro SSG)
+const [artworks, potentialPrints] = await Promise.all([
+  getAllArtworks(),
+  fetchPotentialPrints(),
+]);
+
+const { inProductionPrint } = partitionPotentialPrints(potentialPrints);
 ---
 
 <html lang="en">
@@ -63,10 +69,10 @@ const artworks = await getAllArtworks();
       </section>
 
       <!-- Expandable Radix UI Accordion: Upcoming Editions Voting Panel at Top -->
-      <PotentialPrintsAccordion client:load />
+      <PotentialPrintsAccordion client:load initialPrints={potentialPrints} />
 
       <!-- Published Artwork Progressive Feed (10 initially, dynamically batches on scroll) -->
-      <ArtworkGalleryFeed client:load artworks={artworks} />
+      <ArtworkGalleryFeed client:load artworks={artworks} inProductionPrint={inProductionPrint} />
     </main>
 
     <Footer />
