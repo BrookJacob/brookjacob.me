@@ -39,6 +39,8 @@ export interface PotentialPrint {
   isActive: boolean;
   votingGroup?: string | null;
   voteCount?: number;
+  inProduction?: boolean;
+  productionNote?: string | null;
 }
 
 /**
@@ -51,11 +53,56 @@ export interface VotingGroup {
 }
 
 /**
- * GraphQL Query to fetch active PotentialPrint entries from Hygraph, including quantized assets.
+ * Result of partitioning prints into active voting vs in-production items.
  */
-const GET_POTENTIAL_PRINTS = gql`
-  query GetPotentialPrints {
-    potentialPrints(first: 100, where: { isActive: true }) {
+export interface PartitionedPrints {
+  inProductionPrint: PotentialPrint | null;
+  activeVotingPrints: PotentialPrint[];
+  concludedGroup: string | null;
+}
+
+/**
+ * Primary GraphQL Query to fetch active PotentialPrint entries including inProduction status.
+ * Fetches items that are either actively open for votes or currently in production.
+ */
+const GET_POTENTIAL_PRINTS_WITH_PRODUCTION = gql`
+  query GetPotentialPrintsWithProduction {
+    potentialPrints(first: 100, where: { OR: [{ isActive: true }, { inProduction: true }] }) {
+      id
+      title
+      isActive
+      inProduction
+      productionNote
+      votingGroup
+      image {
+        url
+        width
+        height
+        blurhash
+      }
+      quantizedImage {
+        url
+        width
+        height
+        blurhash
+      }
+      galleryImages {
+        url
+        width
+        height
+        blurhash
+      }
+    }
+  }
+`;
+
+/**
+ * Fallback GraphQL Query to fetch PotentialPrint entries without `inProduction` fields
+ * (used if `inProduction` has not yet been added to the Hygraph schema).
+ */
+const GET_POTENTIAL_PRINTS_BASIC = gql`
+  query GetPotentialPrintsBasic {
+    potentialPrints(first: 100) {
       id
       title
       isActive
@@ -108,66 +155,84 @@ const GET_FALLBACK_PRINTS = gql`
 `;
 
 /**
- * Fetches all active `PotentialPrint` entries from Hygraph CMS.
+ * Formats and applies CDN optimization to image assets on potential prints.
+ */
+function formatPotentialPrintEntries(prints: PotentialPrint[]): PotentialPrint[] {
+  return prints.map((p) => ({
+    ...p,
+    image: p.image ? {
+      ...p.image,
+      url: getOptimizedCdnUrl(p.image.url, 800, 80),
+    } : p.image,
+    quantizedImage: p.quantizedImage ? {
+      ...p.quantizedImage,
+      url: getOptimizedCdnUrl(p.quantizedImage.url, 800, 80),
+    } : p.quantizedImage,
+    galleryImages: (p.galleryImages || []).map((img) => ({
+      ...img,
+      url: getOptimizedCdnUrl(img.url, 800, 80),
+    })),
+  }));
+}
+
+/**
+ * Fetches `PotentialPrint` entries from Hygraph CMS.
+ * Resiliently handles schemas with or without `inProduction` fields.
  * 
  * @async
- * @returns {Promise<PotentialPrint[]>} Array of active potential prints.
+ * @returns {Promise<PotentialPrint[]>} Array of potential prints.
  */
 export async function fetchPotentialPrints(): Promise<PotentialPrint[]> {
+  // 1. Attempt query with `inProduction` fields
   try {
-    const data = await client.request<{ potentialPrints: PotentialPrint[] }>(GET_POTENTIAL_PRINTS);
+    const data = await client.request<{ potentialPrints: PotentialPrint[] }>(GET_POTENTIAL_PRINTS_WITH_PRODUCTION);
     if (data && Array.isArray(data.potentialPrints)) {
-      return data.potentialPrints
-        .filter((print) => print.isActive !== false)
-        .map((p) => ({
-          ...p,
-          image: p.image ? {
-            ...p.image,
-            url: getOptimizedCdnUrl(p.image.url, 800, 80),
-          } : p.image,
-          quantizedImage: p.quantizedImage ? {
-            ...p.quantizedImage,
-            url: getOptimizedCdnUrl(p.quantizedImage.url, 800, 80),
-          } : p.quantizedImage,
-          galleryImages: (p.galleryImages || []).map((img) => ({
-            ...img,
-            url: getOptimizedCdnUrl(img.url, 800, 80),
-          })),
-        }));
+      return formatPotentialPrintEntries(data.potentialPrints);
     }
-  } catch (error) {
-    console.warn('[potentialPrints] Primary query for `potentialPrints` encountered error, using fallback:', error);
+  } catch (prodError) {
+    // If inProduction field is not yet in Hygraph schema, fall back to basic query
     try {
-      const fallbackData = await client.request<{ prints: any[] }>(GET_FALLBACK_PRINTS);
-      if (fallbackData && Array.isArray(fallbackData.prints)) {
-        return fallbackData.prints.map((p) => ({
-          id: p.id,
-          title: p.title,
-          image: {
-            url: getOptimizedCdnUrl(p.mainImage?.url || '', 800, 80),
-            width: p.mainImage?.width || 800,
-            height: p.mainImage?.height || 1000,
-            blurhash: p.mainImage?.blurhash,
-          },
-          quantizedImage: p.galleryImages?.[0] ? {
-            url: getOptimizedCdnUrl(p.galleryImages[0].url, 800, 80),
-            width: p.galleryImages[0].width || 800,
-            height: p.galleryImages[0].height || 1000,
-            blurhash: p.galleryImages[0].blurhash,
-          } : null,
-          galleryImages: (p.galleryImages || []).map((img: any) => ({
-            ...img,
-            url: getOptimizedCdnUrl(img.url, 800, 80),
-          })),
-          isActive: p.display !== false,
-          votingGroup: null,
-          voteCount: 0,
-        }));
+      const basicData = await client.request<{ potentialPrints: PotentialPrint[] }>(GET_POTENTIAL_PRINTS_BASIC);
+      if (basicData && Array.isArray(basicData.potentialPrints)) {
+        return formatPotentialPrintEntries(basicData.potentialPrints);
       }
-    } catch (fallbackError) {
-      console.warn('[potentialPrints] Fallback query for `prints` also encountered error:', fallbackError);
+    } catch (basicError) {
+      console.warn('[potentialPrints] Primary and basic potentialPrints queries encountered errors, falling back to prints:', basicError);
     }
   }
+
+  // 2. Fallback to regular Print model if PotentialPrint model doesn't exist
+  try {
+    const fallbackData = await client.request<{ prints: any[] }>(GET_FALLBACK_PRINTS);
+    if (fallbackData && Array.isArray(fallbackData.prints)) {
+      return fallbackData.prints.map((p) => ({
+        id: p.id,
+        title: p.title,
+        image: {
+          url: getOptimizedCdnUrl(p.mainImage?.url || '', 800, 80),
+          width: p.mainImage?.width || 800,
+          height: p.mainImage?.height || 1000,
+          blurhash: p.mainImage?.blurhash,
+        },
+        quantizedImage: p.galleryImages?.[0] ? {
+          url: getOptimizedCdnUrl(p.galleryImages[0].url, 800, 80),
+          width: p.galleryImages[0].width || 800,
+          height: p.galleryImages[0].height || 1000,
+          blurhash: p.galleryImages[0].blurhash,
+        } : null,
+        galleryImages: (p.galleryImages || []).map((img: any) => ({
+          ...img,
+          url: getOptimizedCdnUrl(img.url, 800, 80),
+        })),
+        isActive: p.display !== false,
+        votingGroup: null,
+        voteCount: 0,
+      }));
+    }
+  } catch (fallbackError) {
+    console.warn('[potentialPrints] Fallback query for `prints` also encountered error:', fallbackError);
+  }
+
   return [];
 }
 
@@ -200,6 +265,45 @@ export function groupPotentialPrintsByVotingGroup(prints: PotentialPrint[]): Vot
   }
 
   return result;
+}
+
+/**
+ * Partitions potential prints into the active "In Production" spotlight print
+ * and the active candidate prints currently open for community voting.
+ * 
+ * AUTOMATED LIFECYCLE RULE:
+ * If an in-production print belongs to a `votingGroup`, that entire group
+ * is treated as concluded. All other prints in that group are automatically
+ * excluded from the active voting list, removing the need to manually set
+ * `isActive: false` on losing candidates.
+ * 
+ * @param {PotentialPrint[]} prints - Array of all potential prints.
+ * @returns {PartitionedPrints} Partitioned result containing inProductionPrint, activeVotingPrints, and concludedGroup.
+ */
+export function partitionPotentialPrints(prints: PotentialPrint[]): PartitionedPrints {
+  const inProductionPrint = prints.find((p) => p.inProduction === true) || null;
+  const concludedGroup = inProductionPrint?.votingGroup ? inProductionPrint.votingGroup.trim() : null;
+
+  const activeVotingPrints = prints.filter((p) => {
+    // 1. Exclude the in-production print (it gets rendered in the spotlight card)
+    if (p.inProduction === true) return false;
+
+    // 2. Exclude manually deactivated prints
+    if (p.isActive === false) return false;
+
+    // 3. Auto-retire any other candidate from the same voting group as the winner
+    if (concludedGroup && p.votingGroup && p.votingGroup.trim() === concludedGroup) {
+      return false;
+    }
+
+    return true;
+  });
+
+  return {
+    inProductionPrint,
+    activeVotingPrints,
+    concludedGroup,
+  };
 }
 
 /**

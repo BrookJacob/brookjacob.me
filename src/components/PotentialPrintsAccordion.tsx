@@ -10,12 +10,19 @@
 import React from 'react';
 import * as Accordion from '@radix-ui/react-accordion';
 import PotentialPrintsGallery from './PotentialPrintsGallery';
+import type { PotentialPrint } from '../lib/potentialPrints';
 
 export interface PotentialPrintsAccordionProps {
   defaultOpen?: boolean;
+  initialPrints?: PotentialPrint[];
 }
 
-export const PotentialPrintsAccordion: React.FC<PotentialPrintsAccordionProps> = ({ defaultOpen = false }) => {
+export const PotentialPrintsAccordion: React.FC<PotentialPrintsAccordionProps> = ({
+  defaultOpen = false,
+  initialPrints,
+}) => {
+  const inProductionItem = initialPrints?.find((p) => p.inProduction === true);
+
   return (
     <Accordion.Root
       type="single"
@@ -32,13 +39,18 @@ export const PotentialPrintsAccordion: React.FC<PotentialPrintsAccordionProps> =
             <div className="flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-paper-accent dark:bg-carbon-accent animate-pulse"></span>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs uppercase tracking-widest font-mono font-semibold text-paper-accent dark:text-carbon-accent">
                     Upcoming Editions
                   </span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-paper-accent/10 dark:bg-carbon-accent/10 text-paper-accent dark:text-carbon-accent border border-paper-accent/20">
                     Community Voting
                   </span>
+                  {inProductionItem && (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                      In Studio: {inProductionItem.title}
+                    </span>
+                  )}
                 </div>
                 <h3 className="font-serif text-lg font-bold text-paper-text dark:text-carbon-text mt-0.5">
                   Vote for Upcoming Print Concepts & Colorways
@@ -66,7 +78,7 @@ export const PotentialPrintsAccordion: React.FC<PotentialPrintsAccordionProps> =
         </Accordion.Header>
 
         <Accordion.Content className="px-6 pb-6 pt-2 border-t border-paper-border/60 dark:border-carbon-border/60 transition-all data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-          <PotentialPrintsGallery />
+          <PotentialPrintsGallery initialPrints={initialPrints} />
         </Accordion.Content>
       </Accordion.Item>
     </Accordion.Root>

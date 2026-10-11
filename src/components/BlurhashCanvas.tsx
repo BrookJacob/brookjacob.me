@@ -44,32 +44,32 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // If this image already loaded earlier in this session, initialize loaded directly as true
-  const [loaded, setLoaded] = useState<boolean>(() => isImageCached(src));
+  // Initialize loaded as false to guarantee 100% hydration match with server HTML
+  const [loaded, setLoaded] = useState<boolean>(false);
+  // Track if image was already cached so we can transition with zero duration/delay
+  const [isInstant, setIsInstant] = useState<boolean>(false);
 
   const fitClass = objectFit === 'contain' ? 'object-contain' : 'object-cover';
 
-  const markLoaded = () => {
+  const markLoaded = (instant = false) => {
     if (src) LOADED_IMAGE_CACHE.add(src);
+    if (instant) setIsInstant(true);
     setLoaded(true);
   };
 
-  // Sync loaded state when src changes or if already cached in browser image memory
+  // Check if image is already cached in memory or browser cache after hydration
   useEffect(() => {
-    if (isImageCached(src)) {
-      setLoaded(true);
-      return;
-    }
-    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
-      markLoaded();
+    if (!src) return;
+    if (isImageCached(src) || (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0)) {
+      markLoaded(true);
     }
   }, [src]);
 
-  // Decode Blurhash string onto 32x32 canvas ONLY if image isn't already loaded
+  // Decode Blurhash string onto 32x32 canvas ONLY if not already loaded or cached
   useEffect(() => {
-    if (loaded || isImageCached(src) || !blurhash || !canvasRef.current || blurhash.length < 5) return;
-    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
-      markLoaded();
+    if (loaded || !blurhash || !canvasRef.current || blurhash.length < 5) return;
+    if (isImageCached(src) || (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0)) {
+      markLoaded(true);
       return;
     }
     try {
@@ -82,11 +82,9 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
       }
     } catch (error) {
       console.warn('Could not decode Blurhash string:', blurhash, error);
-      markLoaded();
+      markLoaded(true);
     }
   }, [blurhash, src, loaded]);
-
-  const alreadyCached = isImageCached(src);
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
@@ -97,20 +95,20 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
         alt={alt}
         loading={loading}
         decoding="async"
-        onLoad={markLoaded}
-        onError={markLoaded}
+        onLoad={() => markLoaded(false)}
+        onError={() => markLoaded(false)}
         className={`w-full h-full ${fitClass} block`}
       />
 
-      {/* BlurHash Canvas Overlay: Omitted entirely if image is already cached to prevent reload flashing */}
-      {blurhash && blurhash.length >= 5 && !alreadyCached && (
+      {/* BlurHash Canvas Overlay: always in DOM initially to match SSR */}
+      {blurhash && blurhash.length >= 5 && (
         <canvas
           ref={canvasRef}
           width={32}
           height={32}
-          className={`absolute inset-0 w-full h-full ${fitClass} transition-opacity duration-300 ease-out pointer-events-none z-10 ${
-            loaded ? 'opacity-0' : 'opacity-100'
-          }`}
+          className={`absolute inset-0 w-full h-full ${fitClass} pointer-events-none z-10 ${
+            isInstant ? 'opacity-0 duration-0' : 'transition-opacity duration-300 ease-out'
+          } ${loaded ? 'opacity-0' : 'opacity-100'}`}
           aria-hidden="true"
         />
       )}

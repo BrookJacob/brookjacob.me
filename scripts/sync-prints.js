@@ -48,11 +48,26 @@ function initFirebaseAdmin() {
 }
 
 /**
- * GraphQL Query fetching active PotentialPrint entries from Hygraph.
+ * GraphQL Query fetching active PotentialPrint entries from Hygraph, including inProduction status.
  */
-const GET_POTENTIAL_PRINTS = gql`
-  query GetPotentialPrints {
-    potentialPrints(first: 100, where: { isActive: true }) {
+const GET_POTENTIAL_PRINTS_WITH_PROD = gql`
+  query GetPotentialPrintsWithProd {
+    potentialPrints(first: 100, where: { OR: [{ isActive: true }, { inProduction: true }] }) {
+      id
+      title
+      isActive
+      inProduction
+      votingGroup
+    }
+  }
+`;
+
+/**
+ * Basic query without inProduction field if not yet defined in Hygraph schema.
+ */
+const GET_POTENTIAL_PRINTS_BASIC = gql`
+  query GetPotentialPrintsBasic {
+    potentialPrints(first: 100) {
       id
       title
       isActive
@@ -89,28 +104,42 @@ async function syncPrintsToFirestore() {
   try {
     let potentialPrints = [];
 
-    // 1. Query active PotentialPrint entries from Hygraph, with fallback to Print model
+    // 1. Query PotentialPrint entries from Hygraph (trying with inProduction first)
     try {
-      const data = await hygraphClient.request(GET_POTENTIAL_PRINTS);
+      const data = await hygraphClient.request(GET_POTENTIAL_PRINTS_WITH_PROD);
       potentialPrints = (data?.potentialPrints || []).map(p => ({
         id: p.id,
         title: p.title,
         isActive: p.isActive,
+        inProduction: p.inProduction || false,
         votingGroup: p.votingGroup || null,
       }));
-    } catch (primaryErr) {
-      console.warn('⚠️ [sync-prints] Query for `potentialPrints` failed (model may not exist in Hygraph schema yet). Attempting fallback to `prints` query...');
+    } catch (prodErr) {
+      // Fallback to basic query without inProduction
       try {
-        const fallbackData = await hygraphClient.request(GET_FALLBACK_PRINTS);
-        potentialPrints = (fallbackData?.prints || []).map(p => ({
+        const basicData = await hygraphClient.request(GET_POTENTIAL_PRINTS_BASIC);
+        potentialPrints = (basicData?.potentialPrints || []).map(p => ({
           id: p.id,
           title: p.title,
-          isActive: p.display !== false,
-          votingGroup: null,
+          isActive: p.isActive,
+          inProduction: false,
+          votingGroup: p.votingGroup || null,
         }));
-      } catch (fallbackErr) {
-        console.error('❌ [sync-prints] Fallback query for `prints` also failed:', fallbackErr);
-        throw primaryErr;
+      } catch (primaryErr) {
+        console.warn('⚠️ [sync-prints] Query for `potentialPrints` failed. Attempting fallback to `prints` query...');
+        try {
+          const fallbackData = await hygraphClient.request(GET_FALLBACK_PRINTS);
+          potentialPrints = (fallbackData?.prints || []).map(p => ({
+            id: p.id,
+            title: p.title,
+            isActive: p.display !== false,
+            inProduction: false,
+            votingGroup: null,
+          }));
+        } catch (fallbackErr) {
+          console.error('❌ [sync-prints] Fallback query for `prints` also failed:', fallbackErr);
+          throw primaryErr;
+        }
       }
     }
 
