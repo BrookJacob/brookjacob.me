@@ -11,7 +11,7 @@
  * @param {string} [activeDomain='root'] - Current active site target ('root' | 'prints' | 'code' | 'blog' | 'bio').
  */
 
-import MobileNavMenu from './MobileNavMenu';
+import { MobileNavMenu } from './MobileNavMenu';
 import { DOMAINS } from '../lib/urls';
 
 interface Props {
@@ -44,7 +44,7 @@ const isDevSubdomain = activeDomain === 'code';
         class="group flex items-center gap-2 text-paper-text dark:text-carbon-text no-underline"
         aria-label="Jacob Brook Studio & Lab — Return to Home"
       >
-        <span class="font-serif text-lg sm:text-xl font-bold tracking-tight group-hover:text-paper-accent dark:group-hover:text-carbon-accent transition-colors">
+        <span class="brand-smallcaps text-base sm:text-lg text-paper-text dark:text-carbon-text group-hover:text-paper-accent dark:group-hover:text-carbon-accent transition-colors">
           Jacob Brook
         </span>
         <span class="text-xs uppercase tracking-widest text-paper-muted dark:text-carbon-muted px-2 py-0.5 border border-paper-border dark:border-carbon-border rounded">
