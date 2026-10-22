@@ -44,9 +44,10 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // If already in session cache, initialize as loaded immediately to avoid 1-frame placeholder flash
-  const [loaded, setLoaded] = useState<boolean>(() => isImageCached(src));
-  const [isInstant, setIsInstant] = useState<boolean>(() => isImageCached(src));
+  // Initialize as false to guarantee 100% hydration match with server HTML.
+  // Cache status is checked synchronously before paint in useIsomorphicLayoutEffect.
+  const [loaded, setLoaded] = useState<boolean>(false);
+  const [isInstant, setIsInstant] = useState<boolean>(false);
 
   const fitClass = objectFit === 'contain' ? 'object-contain' : 'object-cover';
 
@@ -56,7 +57,8 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
     setLoaded(true);
   };
 
-  // Synchronous check before paint: if the browser already has this image complete in HTTP cache, mark loaded instantly
+  // Synchronous check before paint: if the browser already has this image complete in HTTP cache
+  // or session cache, mark loaded instantly before the browser paints.
   const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
   useIsomorphicLayoutEffect(() => {
@@ -87,6 +89,12 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
     }
   }, [blurhash, src, loaded]);
 
+  const transitionClass = loaded
+    ? isInstant
+      ? 'opacity-0 duration-0 hidden'
+      : 'transition-opacity duration-300 ease-out opacity-0 pointer-events-none'
+    : 'transition-opacity duration-300 ease-out opacity-100';
+
   return (
     <div className={`relative overflow-hidden ${className}`}>
       {/* Main High-Resolution Image */}
@@ -107,10 +115,9 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
           ref={canvasRef}
           width={32}
           height={32}
-          className={`absolute inset-0 w-full h-full ${fitClass} pointer-events-none z-10 ${
-            isInstant ? 'opacity-0 duration-0 hidden' : 'transition-opacity duration-300 ease-out'
-          } ${loaded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+          className={`absolute inset-0 w-full h-full ${fitClass} pointer-events-none z-10 ${transitionClass}`}
           aria-hidden="true"
+          suppressHydrationWarning
         />
       )}
     </div>
