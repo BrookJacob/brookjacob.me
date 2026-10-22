@@ -1,0 +1,207 @@
+---
+/**
+ * Artist Bio & Studio Practice Page (/bio)
+ * 
+ * Editorial artist profile for Jacob Brook detailing his relief printmaking practice,
+ * the reduction linocut method, physical materials, and studio philosophy.
+ * 
+ * @page
+ */
+
+import Navigation from '../components/Navigation.astro';
+import Footer from '../components/Footer.astro';
+import ContactFormModal from '../components/ContactFormModal';
+import { DOMAINS } from '../lib/urls';
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <title>Bio & Studio Practice — Jacob Brook</title>
+    <meta 
+      name="description" 
+      content="Artist biography and studio practice of Jacob Brook — multi-layer reduction linocut printmaker and software craftsman." 
+    />
+    <ClientRouter />
+  </head>
+  <body class="min-h-screen flex flex-col justify-between">
+    <Navigation activeDomain="bio" />
+
+    <main class="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      
+      <!-- Top Header & Breadcrumb -->
+      <div class="mb-12 border-b border-paper-border dark:border-carbon-border pb-8">
+        <span class="text-xs uppercase tracking-widest font-semibold text-paper-accent dark:text-carbon-accent font-mono">
+          About the Artist
+        </span>
+        <h1 class="font-serif text-4xl sm:text-5xl font-extrabold text-paper-text dark:text-carbon-text mt-2">
+          Jacob Brook
+        </h1>
+        <p class="text-lg text-paper-muted dark:text-carbon-muted mt-2 font-serif">
+          Printmaker & Software Craftsman
+        </p>
+      </div>
+
+      <!-- Main Layout: Sidebar with Portrait & Specifications + Main Narrative Body -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        
+        <!-- Left Column: Portrait & Studio Spec Placard -->
+        <aside class="lg:col-span-4 flex flex-col gap-6">
+          <!-- Portrait Frame -->
+          <div class="relative bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-2xl p-3 shadow-sm overflow-hidden">
+            <div class="aspect-[4/5] rounded-xl overflow-hidden bg-paper-border/20 dark:bg-carbon-border/20">
+              <img 
+                src="/avatar.jpg" 
+                alt="Jacob Brook in the studio" 
+                class="w-full h-full object-cover"
+                loading="eager"
+              />
+            </div>
+            <div class="p-3 text-center">
+              <p class="font-serif font-bold text-paper-text dark:text-carbon-text text-base">
+                Jacob Brook
+              </p>
+              <p class="text-xs text-paper-muted dark:text-carbon-muted mt-0.5 font-mono">
+                Studio & Press
+              </p>
+            </div>
+          </div>
+
+          <!-- Studio Specifications Card -->
+          <div class="p-6 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl space-y-4">
+            <h2 class="text-xs font-mono uppercase tracking-widest font-semibold text-paper-accent dark:text-carbon-accent">
+              Studio Specifications
+            </h2>
+
+            <div class="space-y-3 text-xs">
+              <div>
+                <span class="font-semibold text-paper-text dark:text-carbon-text block">Primary Medium</span>
+                <span class="text-paper-muted dark:text-carbon-muted">Multi-layer reduction linocut</span>
+              </div>
+              <div>
+                <span class="font-semibold text-paper-text dark:text-carbon-text block">Paper Stock</span>
+                <span class="text-paper-muted dark:text-carbon-muted">Legion Stonehenge & Rives BFK (100% cotton rag)</span>
+              </div>
+              <div>
+                <span class="font-semibold text-paper-text dark:text-carbon-text block">Inks</span>
+                <span class="text-paper-muted dark:text-carbon-muted">Lightfast oil-based relief inks</span>
+              </div>
+              <div>
+                <span class="font-semibold text-paper-text dark:text-carbon-text block">Press Method</span>
+                <span class="text-paper-muted dark:text-carbon-muted">Hand-carved linoleum, pin registration, hand-pulled</span>
+              </div>
+              <div>
+                <span class="font-semibold text-paper-text dark:text-carbon-text block">Edition Policy</span>
+                <span class="text-paper-muted dark:text-carbon-muted">Strictly limited; block destroyed in the reduction process</span>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-paper-border dark:border-carbon-border flex flex-col gap-2">
+              <a 
+                href={DOMAINS.prints}
+                class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg bg-paper-accent dark:bg-carbon-accent text-white font-mono text-xs font-semibold tracking-wide hover:opacity-90 active:scale-95 transition-all text-center"
+              >
+                Browse Original Prints &rarr;
+              </a>
+
+              <ContactFormModal
+                client:load
+                sourceSubdomain="bio"
+                triggerButtonText="Inquire / Contact Studio"
+                triggerButtonClassName="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg border border-paper-border dark:border-carbon-border text-paper-text dark:text-carbon-text font-mono text-xs font-semibold tracking-wide hover:border-paper-accent dark:hover:border-carbon-accent hover:text-paper-accent dark:hover:text-carbon-accent transition-all cursor-pointer text-center"
+              />
+            </div>
+          </div>
+        </aside>
+
+        <!-- Right Column: Narrative Biography & Artist Statement -->
+        <article class="lg:col-span-8 flex flex-col gap-10 font-serif text-paper-text dark:text-carbon-text leading-relaxed">
+          
+          <!-- Section 1: The Studio & Reduction Method -->
+          <section class="space-y-4">
+            <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
+              The Discipline of the Reduction Print
+            </h2>
+            <p class="text-base sm:text-lg text-paper-muted dark:text-carbon-muted leading-relaxed">
+              Jacob Brook is a printmaker and software craftsman based in his studio. His physical practice is centered on the reduction linocut method—a demanding and irreversible form of relief printmaking where a multi-colored image is pressed entirely from a single block of linoleum.
+            </p>
+            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
+              In traditional multi-block relief printing, each color requires its own dedicated block. In a reduction print—often termed the “suicide method”—the artist carves away the areas intended to remain the color of the paper, inking and pressing the entire edition with the first tone. The block is then cleaned, and the areas intended to preserve that first color are carved away. The remaining surface is inked with the second tone and printed directly over the first pass.
+            </p>
+            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
+              This sequence of carving, inking, registration, and pressing repeats six, eight, or more than a dozen times. With every successive pass, more of the linoleum is permanently removed. By the final layer, only tiny slivers of the original surface survive to hold the darkest pigment.
+            </p>
+          </section>
+
+          <!-- Section 2: Why Irreversibility Matters -->
+          <section class="space-y-4 pt-8 border-t border-paper-border dark:border-carbon-border">
+            <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
+              A Counterbalance to the Reversible
+            </h2>
+            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
+              By profession, Jacob designs and engineers software systems, web platforms, and computational tools. In modern software engineering, changes are free, errors can be undone with a keystroke, and code exists in a fluid, indefinitely malleable state.
+            </p>
+            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
+              Printmaking is the physical counterweight. A gouge pushed through battleship linoleum cannot be undone. Once ink meets cotton rag under pressure, the impression is permanent. If a single pass is misaligned, an entire run can be lost. This unforgiving tension demands a state of presence, intentionality, and patience that digital media rarely affords.
+            </p>
+          </section>
+
+          <!-- Section 3: The Lab — Code in Service of Craft -->
+          <section class="space-y-4 pt-8 border-t border-paper-border dark:border-carbon-border">
+            <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
+              The Studio & Lab: Tools in Service of the Hand
+            </h2>
+            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
+              Rather than keeping software and printmaking separate, Jacob’s studio practice unites the two. He develops custom computational scripts—including Python GIMP plugins, K-Means palette reduction algorithms, and directional luminance estimators—to model complex color transitions before carving.
+            </p>
+            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
+              Crucially, technology is never used as a replacement for human touch. The computation serves only to inform the eye; the physical act of drawing, transfer, gouging, ink-mixing with palette knives, and hand-pulling impressions onto archival paper remains entirely tactile and personal.
+            </p>
+          </section>
+
+          <!-- Section 4: Archival Philosophy & Editions -->
+          <section class="space-y-4 pt-8 border-t border-paper-border dark:border-carbon-border">
+            <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
+              Editions & Archival Standards
+            </h2>
+            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
+              Because the reduction block is systematically carved away until it is physically exhausted, a reduction edition can never be reprinted or reissued. When an edition is complete, the block is gone forever.
+            </p>
+            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
+              Every print is pressed on acid-free, 100% cotton printmaking paper (such as Legion Stonehenge or Arches BFK Rives) using lightfast, professional-grade relief printing inks. Each print is individually inspected, titled, numbered, and signed in pencil.
+            </p>
+          </section>
+
+          <!-- Studio Inquiries Callout -->
+          <section class="mt-4 p-8 rounded-2xl bg-paper-accent/5 dark:bg-carbon-accent/5 border border-paper-accent/20 dark:border-carbon-accent/20 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div>
+              <h3 class="text-xl font-bold text-paper-text dark:text-carbon-text">
+                Studio Inquiries & Commissions
+              </h3>
+              <p class="text-sm text-paper-muted dark:text-carbon-muted mt-1 max-w-md">
+                For inquiries regarding original prints, custom relief editions, or studio collaborations, feel free to reach out.
+              </p>
+            </div>
+
+            <ContactFormModal
+              client:load
+              sourceSubdomain="bio"
+              triggerButtonText="Get in Touch"
+              triggerButtonClassName="px-6 py-3 rounded-xl bg-paper-accent dark:bg-carbon-accent text-white font-mono text-xs font-semibold tracking-wide hover:opacity-90 active:scale-95 transition-all shadow-sm whitespace-nowrap cursor-pointer shrink-0"
+            />
+          </section>
+
+        </article>
+
+      </div>
+
+    </main>
+
+    <Footer />
+  </body>
+</html>

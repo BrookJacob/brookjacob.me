@@ -2,29 +2,22 @@
 /**
  * Printmaking Gallery Feed Page (printmaker.brookjacob.studio)
  * 
- * Displays medium-bleed visual feed of relief printmaking artwork items,
- * Radix UI Accordion voting gallery for upcoming potential prints, and studio contact integration.
+ * Displays visual gallery of relief printmaking editions and studio works,
+ * alongside studio contact integration.
  * 
  * @page
  */
 
 import Navigation from '../../components/Navigation.astro';
 import Footer from '../../components/Footer.astro';
-import PotentialPrintsAccordion from '../../components/PotentialPrintsAccordion';
 import ContactFormModal from '../../components/ContactFormModal';
 import { ArtworkGalleryFeed } from '../../components/ArtworkGalleryFeed';
 import { getAllArtworks } from '../../lib/hygraph';
-import { fetchPotentialPrints, partitionPotentialPrints } from '../../lib/potentialPrints';
 import { ClientRouter } from 'astro:transitions';
 import '../../styles/global.css';
 
-// Fetch artwork list and potential prints statically at build time (Astro SSG)
-const [artworks, potentialPrints] = await Promise.all([
-  getAllArtworks(),
-  fetchPotentialPrints(),
-]);
-
-const { inProductionPrint } = partitionPotentialPrints(potentialPrints);
+// Fetch artwork list statically at build time (Astro SSG)
+const artworks = await getAllArtworks();
 ---
 
 <html lang="en">
@@ -33,10 +26,10 @@ const { inProductionPrint } = partitionPotentialPrints(potentialPrints);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
-    <title>Printmaking Portfolio — Jacob Brook Studio</title>
+    <title>Printmaking Studio — Jacob Brook</title>
     <meta 
       name="description" 
-      content="Medium-bleed visual gallery feed of original multi-layer reduction linocuts" 
+      content="Original multi-layer reduction linocuts hand-carved and hand-pressed on archival paper by Jacob Brook." 
     />
     <ClientRouter />
   </head>
@@ -45,16 +38,16 @@ const { inProductionPrint } = partitionPotentialPrints(potentialPrints);
 
     <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 py-12">
       <!-- Gallery Feed Header & Contact Action -->
-      <section class="mb-8 border-b border-paper-border dark:border-carbon-border pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <section class="mb-10 border-b border-paper-border dark:border-carbon-border pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <span class="text-xs uppercase tracking-widest font-semibold text-paper-accent dark:text-carbon-accent font-mono">
-            Studio Archive
+            Original Editions
           </span>
           <h1 class="font-serif text-4xl sm:text-5xl font-extrabold text-paper-text dark:text-carbon-text mt-2">
-            Printmaking Portfolio
+            Printmaking Studio
           </h1>
           <p class="text-base sm:text-lg text-paper-muted dark:text-carbon-muted mt-3 max-w-3xl font-serif">
-            A visual collection of multi-layered reduction linocuts pressed on fine cotton paper.
+            Original multi-layer reduction linocuts pressed by hand on archival paper.
           </p>
         </div>
 
@@ -62,17 +55,14 @@ const { inProductionPrint } = partitionPotentialPrints(potentialPrints);
           <ContactFormModal
             client:load
             sourceSubdomain="print"
-            triggerButtonText="Inquire / Custom Print"
-            triggerButtonClassName="px-5 py-3 rounded-lg bg-paper-accent dark:bg-carbon-accent text-white font-mono text-xs font-semibold tracking-wide hover:opacity-90 active:scale-95 transition-all shadow-sm flex items-center gap-2 whitespace-nowrap"
+            triggerButtonText="Inquire / Studio Contact"
+            triggerButtonClassName="px-5 py-3 rounded-lg bg-paper-accent dark:bg-carbon-accent text-white font-mono text-xs font-semibold tracking-wide hover:opacity-90 active:scale-95 transition-all shadow-sm flex items-center gap-2 whitespace-nowrap cursor-pointer"
           />
         </div>
       </section>
 
-      <!-- Expandable Radix UI Accordion: Upcoming Editions Voting Panel at Top -->
-      <PotentialPrintsAccordion client:load initialPrints={potentialPrints} />
-
-      <!-- Published Artwork Progressive Feed (10 initially, dynamically batches on scroll) -->
-      <ArtworkGalleryFeed client:load artworks={artworks} inProductionPrint={inProductionPrint} />
+      <!-- Published Artwork Progressive Feed -->
+      <ArtworkGalleryFeed client:load artworks={artworks} />
     </main>
 
     <Footer />

@@ -89,14 +89,11 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
           </div>
         )}
 
-        {/* Status Badge & Community Vote Count Overlays */}
-        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between z-20">
+        {/* Status Badge */}
+        <div className="absolute bottom-3 left-3 z-20">
           <span className="bg-amber-500/90 dark:bg-amber-600/90 backdrop-blur text-white text-[10px] font-mono font-semibold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            <span>In Production</span>
-          </span>
-          <span className="bg-black/75 backdrop-blur text-white text-[10px] font-mono font-medium px-2 py-1 rounded-full shadow-sm">
-            {voteCount} Votes
+            <span>In Studio Production</span>
           </span>
         </div>
       </div>
@@ -107,13 +104,8 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
           {/* Technique / Status Tag */}
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 font-mono">
-              Currently Being Carved
+              On the Carving Bench
             </span>
-            {print.votingGroup && (
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-300 border border-amber-500/20">
-                Round: {print.votingGroup}
-              </span>
-            )}
           </div>
 
           {/* Print Title */}
@@ -125,14 +117,14 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
           <p className="mt-2 text-xs sm:text-sm text-paper-muted dark:text-carbon-muted font-serif leading-relaxed">
             {print.productionNote
               ? print.productionNote
-              : 'Selected by community vote to move into physical reduction linocut block carving.'}
+              : 'Currently moving through block carving and test proofs in the studio.'}
           </p>
         </div>
 
         {/* Edition metadata snippet */}
         <div className="mt-4 pt-3 border-t border-paper-border/60 dark:border-carbon-border/60 flex items-center justify-between text-xs text-paper-muted dark:text-carbon-muted font-mono">
-          <span className="text-amber-700 dark:text-amber-300 font-medium">Physical Edition Soon</span>
-          <span className="text-[11px] text-paper-muted dark:text-carbon-muted">Voting Concluded</span>
+          <span className="text-amber-700 dark:text-amber-300 font-medium">Physical Edition Forthcoming</span>
+          <span className="text-[11px] text-paper-muted dark:text-carbon-muted">Work in Progress</span>
         </div>
       </div>
     </article>

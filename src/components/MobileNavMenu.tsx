@@ -9,9 +9,10 @@
 
 import React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { DOMAINS } from '../lib/urls';
 
 interface MobileNavMenuProps {
-  activeDomain?: 'root' | 'prints' | 'code' | 'blog';
+  activeDomain?: 'root' | 'prints' | 'code' | 'blog' | 'bio';
 }
 
 export const MobileNavMenu: React.FC<MobileNavMenuProps> = ({ activeDomain = 'root' }) => {
@@ -43,7 +44,7 @@ export const MobileNavMenu: React.FC<MobileNavMenuProps> = ({ activeDomain = 'ro
                   Jacob Brook
                 </Dialog.Title>
                 <Dialog.Description className="text-xs text-paper-muted dark:text-carbon-muted">
-                  Studio & Web Portfolio
+                  Studio & Lab
                 </Dialog.Description>
               </div>
 
@@ -63,50 +64,41 @@ export const MobileNavMenu: React.FC<MobileNavMenuProps> = ({ activeDomain = 'ro
             {/* Navigation Links Feed */}
             <nav className="flex flex-col gap-2 py-6">
               <a
-                href="https://brookjacob.studio"
-                className={`px-4 py-3 rounded-xl font-serif text-base font-semibold transition-colors ${
+                href={DOMAINS.portal}
+                className={`px-4 py-3 rounded-xl font-serif text-base font-semibold transition-colors flex items-center justify-between ${
                   activeDomain === 'root'
                     ? 'bg-paper-border/40 dark:bg-carbon-border/40 text-paper-accent dark:text-carbon-accent'
                     : 'text-paper-text dark:text-carbon-text hover:bg-paper-border/20 dark:hover:bg-carbon-border/20'
                 }`}
               >
-                Portal
+                <span>Jacob Brook Studio & Lab</span>
+                <span className="text-xs font-mono opacity-60">Home</span>
               </a>
 
               <a
-                href="https://printmaker.brookjacob.studio"
-                className={`px-4 py-3 rounded-xl font-serif text-base font-semibold transition-colors ${
+                href={DOMAINS.prints}
+                className={`px-4 py-3 rounded-xl font-serif text-base font-semibold transition-colors flex items-center justify-between ${
                   activeDomain === 'prints'
                     ? 'bg-paper-border/40 dark:bg-carbon-border/40 text-paper-accent dark:text-carbon-accent'
                     : 'text-paper-text dark:text-carbon-text hover:bg-paper-border/20 dark:hover:bg-carbon-border/20'
                 }`}
               >
-                Printmaking Studio
+                <span>Prints</span>
+                <span className="text-xs font-mono opacity-60">Gallery</span>
               </a>
 
               <a
-                href="https://developer.brookjacob.studio"
-                className={`px-4 py-3 rounded-xl font-serif text-base font-semibold transition-colors ${
-                  activeDomain === 'code'
-                    ? 'bg-paper-border/40 dark:bg-carbon-border/40 text-blue-600 dark:text-blue-400'
+                href={DOMAINS.bio}
+                className={`px-4 py-3 rounded-xl font-serif text-base font-semibold transition-colors flex items-center justify-between border border-paper-border dark:border-carbon-border ${
+                  activeDomain === 'bio'
+                    ? 'bg-paper-accent/15 dark:bg-carbon-accent/15 text-paper-accent dark:text-carbon-accent border-paper-accent/40 dark:border-carbon-accent/40 font-semibold'
                     : 'text-paper-text dark:text-carbon-text hover:bg-paper-border/20 dark:hover:bg-carbon-border/20'
                 }`}
               >
-                Developer Showcase
-              </a>
-
-              <a
-                href="https://brookjacob.studio/blog"
-                className={`px-4 py-3 rounded-xl font-serif text-base font-semibold transition-colors ${
-                  activeDomain === 'blog'
-                    ? 'bg-paper-border/40 dark:bg-carbon-border/40 text-paper-accent dark:text-carbon-accent'
-                    : 'text-paper-text dark:text-carbon-text hover:bg-paper-border/20 dark:hover:bg-carbon-border/20'
-                }`}
-              >
-                Essays & Notes
+                <span>Bio</span>
+                <span className="text-xs font-mono opacity-60">About</span>
               </a>
             </nav>
-
           </div>
 
           {/* Drawer Footer */}

@@ -21,6 +21,7 @@ export const DOMAINS = {
   prints: IS_DEV ? 'http://localhost:4321/prints' : 'https://printmaker.brookjacob.studio',
   code: IS_DEV ? 'http://localhost:4321/code' : 'https://developer.brookjacob.studio',
   blog: IS_DEV ? 'http://localhost:4321/blog' : 'https://brookjacob.studio/blog',
+  bio: IS_DEV ? 'http://localhost:4321/bio' : 'https://brookjacob.studio/bio',
 };
 
 /**

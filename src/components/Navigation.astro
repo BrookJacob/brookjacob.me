@@ -3,68 +3,47 @@
  * Navigation Bar Component
  * 
  * Renders the top editorial navigation header across monorepo domains.
- * Includes domain indicator links for Root Portal, Printmaking, Code, and Blog,
- * integrated with Radix UI QuickNavMenu and MobileNavMenu primitives.
+ * Includes brand link to Root Portal, link to Prints gallery, and Bio button,
+ * integrated with Radix UI MobileNavMenu for mobile viewports.
  * 
  * @component
- * @param {string} [activeDomain='root'] - Current active site target ('root' | 'prints' | 'code' | 'blog').
+ * @param {string} [activeDomain='root'] - Current active site target ('root' | 'prints' | 'code' | 'blog' | 'bio').
  */
 
-import QuickNavMenu from './QuickNavMenu';
 import MobileNavMenu from './MobileNavMenu';
-import { getAllArtworks, getAllProjects } from '../lib/hygraph';
 import { DOMAINS } from '../lib/urls';
 
 interface Props {
-  activeDomain?: 'root' | 'prints' | 'code' | 'blog';
+  activeDomain?: 'root' | 'prints' | 'code' | 'blog' | 'bio';
 }
 
 const { activeDomain = 'root' } = Astro.props;
-
-// Fetch latest artwork items and projects for Quick Jump dropdown menu
-const artworks = await getAllArtworks();
-const projects = await getAllProjects();
-
-const latestPrints = artworks.slice(0, 2).map((a) => ({
-  title: a.title,
-  slug: a.slug,
-  yearOrTag: `${a.year}`,
-  url: `${DOMAINS.prints}/${a.slug}`,
-}));
-
-const latestProjects = projects.slice(0, 2).map((p) => ({
-  title: p.title,
-  slug: p.slug,
-  yearOrTag: p.techStack[0] || 'Software',
-  url: `${DOMAINS.code}/${p.slug}`,
-}));
 ---
 
 <header class="w-full border-b border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg sticky top-0 z-40 transition-colors">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-    <!-- Brand / Home Link -->
-    <a href={DOMAINS.portal} class="group flex items-center gap-2 text-paper-text dark:text-carbon-text no-underline">
-      <span class="font-serif text-xl font-bold tracking-tight group-hover:text-paper-accent dark:group-hover:text-carbon-accent transition-colors">
+    <!-- Brand / Home Link: Jacob Brook Studio & Lab -->
+    <a 
+      href={DOMAINS.portal} 
+      class="group flex items-center gap-2 text-paper-text dark:text-carbon-text no-underline"
+      aria-label="Jacob Brook Studio & Lab — Return to Home"
+    >
+      <span class="font-serif text-lg sm:text-xl font-bold tracking-tight group-hover:text-paper-accent dark:group-hover:text-carbon-accent transition-colors">
         Jacob Brook
       </span>
-      <span class="text-xs uppercase tracking-widest text-paper-muted dark:text-carbon-muted px-2 py-0.5 border border-paper-border dark:border-carbon-border rounded hidden sm:inline-block">
+      <span class="text-xs uppercase tracking-widest text-paper-muted dark:text-carbon-muted px-2 py-0.5 border border-paper-border dark:border-carbon-border rounded">
         Studio & Lab
       </span>
     </a>
 
-    <!-- Right Controls: Quick Jump Menu + Navigation Links + Mobile Drawer -->
+    <!-- Right Controls: Navigation Links + Mobile Drawer -->
     <div class="flex items-center gap-3">
-      <!-- Radix UI Quick Jump Dropdown Menu Primitive (Hydrated during browser idle time) -->
-      <QuickNavMenu client:idle latestPrints={latestPrints} latestProjects={latestProjects} />
-
-      <!-- Desktop Navigation Links (Hidden on small screens to prevent crowding) -->
-      <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
-        
-
+      <!-- Desktop Navigation Links -->
+      <nav class="hidden md:flex items-center gap-3 text-sm font-medium">
         <!-- Printmaking Portfolio Link -->
         <a 
           href={DOMAINS.prints} 
-          class={`px-3 py-1.5 rounded-md transition-colors focus-tactile ${
+          class={`px-3.5 py-1.5 rounded-lg transition-colors focus-tactile ${
             activeDomain === 'prints' 
               ? 'text-paper-accent dark:text-carbon-accent bg-paper-border/30 dark:bg-carbon-border/30 font-semibold' 
               : 'text-paper-muted dark:text-carbon-muted hover:text-paper-text dark:hover:text-carbon-text'
@@ -73,28 +52,16 @@ const latestProjects = projects.slice(0, 2).map((p) => ({
           Prints
         </a>
 
-        <!-- Developer Portfolio Link -->
+        <!-- Bio Button -->
         <a 
-          href={DOMAINS.code} 
-          class={`px-3 py-1.5 rounded-md transition-colors focus-tech ${
-            activeDomain === 'code' 
-              ? 'text-blue-600 dark:text-blue-400 bg-paper-border/30 dark:bg-carbon-border/30 font-semibold' 
-              : 'text-paper-muted dark:text-carbon-muted hover:text-paper-text dark:hover:text-carbon-text'
+          href={DOMAINS.bio} 
+          class={`px-4 py-1.5 rounded-lg border text-sm font-medium transition-all focus-tactile ${
+            activeDomain === 'bio'
+              ? 'bg-paper-accent/15 dark:bg-carbon-accent/15 text-paper-accent dark:text-carbon-accent border-paper-accent/40 dark:border-carbon-accent/40 font-semibold shadow-xs'
+              : 'border-paper-border dark:border-carbon-border text-paper-text dark:text-carbon-text hover:border-paper-accent dark:hover:border-carbon-accent hover:text-paper-accent dark:hover:text-carbon-accent bg-paper-border/10 dark:bg-carbon-border/10'
           }`}
         >
-          Code
-        </a>
-
-        <!-- Blog Link -->
-        <a 
-          href={DOMAINS.blog} 
-          class={`px-3 py-1.5 rounded-md transition-colors ${
-            activeDomain === 'blog' 
-              ? 'text-paper-accent dark:text-carbon-accent bg-paper-border/30 dark:bg-carbon-border/30 font-semibold' 
-              : 'text-paper-muted dark:text-carbon-muted hover:text-paper-text dark:hover:text-carbon-text'
-          }`}
-        >
-          Essays
+          Bio
         </a>
       </nav>
 
