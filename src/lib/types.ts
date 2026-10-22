@@ -127,3 +127,24 @@ export interface MuseumPlacardData {
   processImages?: CMSImage[] | null;
   codeCaseStudySlug?: string;
 }
+
+/**
+ * Exhibition Show Category status.
+ */
+export type ShowCategory = 'current' | 'upcoming' | 'past';
+
+/**
+ * Gallery and Exhibition Show record for the artist's bio and CV.
+ */
+export interface ExhibitionShow {
+  id: string;
+  title: string;
+  venue: string;
+  location: string;
+  startDate: string; // ISO format: YYYY-MM-DD
+  endDate: string;   // ISO format: YYYY-MM-DD
+  reception?: string; // Optional opening reception note or date
+  url?: string;      // Gallery or exhibition website
+  note?: string;     // e.g. "Juried Group Exhibition", "Solo Show", "Print Invitational"
+}
+
