@@ -31,17 +31,39 @@ const HYGRAPH_ENDPOINT = process.env.HYGRAPH_ENDPOINT || 'https://us-west-2.cdn.
  */
 function initFirebaseAdmin() {
   if (getApps().length === 0) {
-    const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-    if (credPath && fs.existsSync(path.resolve(credPath))) {
-      const serviceAccount = JSON.parse(fs.readFileSync(path.resolve(credPath), 'utf8'));
+    let serviceAccount = null;
+
+    // 1. Check direct JSON secret from env (e.g. GitHub Actions FIREBASE_SERVICE_ACCOUNT)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+      try {
+        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      } catch (e) {
+        console.warn('⚠️ [sync-prints] Failed parsing FIREBASE_SERVICE_ACCOUNT JSON:', e.message);
+      }
+    }
+
+    // 2. Check file path credential (e.g. GOOGLE_APPLICATION_CREDENTIALS)
+    if (!serviceAccount && process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+      const credPath = path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+      if (fs.existsSync(credPath)) {
+        try {
+          serviceAccount = JSON.parse(fs.readFileSync(credPath, 'utf8'));
+        } catch (e) {
+          console.warn('⚠️ [sync-prints] Failed reading credentials file:', e.message);
+        }
+      }
+    }
+
+    const projectId = process.env.PUBLIC_FIREBASE_PROJECT_ID || serviceAccount?.project_id || 'brookjacob-6aa1b';
+
+    if (serviceAccount) {
       initializeApp({
         credential: cert(serviceAccount),
-        projectId: process.env.PUBLIC_FIREBASE_PROJECT_ID || serviceAccount.project_id || 'brookjacob-me',
+        projectId,
       });
     } else {
-      initializeApp({
-        projectId: process.env.PUBLIC_FIREBASE_PROJECT_ID || 'brookjacob-me',
-      });
+      console.warn('⚠️ [sync-prints] No service account credentials detected (FIREBASE_SERVICE_ACCOUNT or GOOGLE_APPLICATION_CREDENTIALS).');
+      return null;
     }
   }
   return getFirestore();
@@ -144,6 +166,11 @@ async function syncPrintsToFirestore() {
     }
 
     console.log(`📊 [sync-prints] Found ${potentialPrints.length} active print entries in Hygraph.`);
+
+    if (!db) {
+      console.log('⏩ [sync-prints] Skipping Firestore sync because no Firebase service account credentials were provided.');
+      return;
+    }
 
     let createdCount = 0;
     let skippedCount = 0;
