@@ -91,9 +91,7 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <h3 className="font-serif text-lg sm:text-xl font-bold text-paper-text dark:text-carbon-text tracking-tight">
             {print.title}
-            <span className="font-normal font-sans text-xs text-paper-muted dark:text-carbon-muted ml-2">
-              In Production
-            </span>
+
           </h3>
 
           <span
@@ -105,7 +103,7 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
         </div>
 
         <p className="mt-1 text-[11px] text-paper-accent dark:text-carbon-accent font-mono uppercase tracking-wider font-semibold">
-          On the Carving Bench {voteCount > 0 ? `· ${voteCount} community votes` : ''}
+          {voteCount > 0 ? `${voteCount} community votes` : ''}
         </p>
 
         {print.productionNote && print.productionNote.trim().length > 0 && (
@@ -113,12 +111,6 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
             "{print.productionNote.trim()}"
           </p>
         )}
-
-        <div className="mt-3">
-          <span className="font-mono text-[11px] text-paper-muted dark:text-carbon-muted">
-            Reduction block in progress &rarr;
-          </span>
-        </div>
       </div>
     </article>
   );
