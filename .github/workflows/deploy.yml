@@ -33,6 +33,8 @@ jobs:
       - name: Build Static Site Assets (Astro SSG)
         env:
           HYGRAPH_ENDPOINT: ${{ secrets.HYGRAPH_ENDPOINT }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          PUBLIC_FIREBASE_PROJECT_ID: 'brookjacob-6aa1b'
         run: npm run build
 
       - name: Deploy to Firebase Hosting (Root Portal)
