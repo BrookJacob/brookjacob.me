@@ -158,7 +158,7 @@ export const ArtworkGalleryFeed: React.FC<ArtworkGalleryFeedProps> = ({
                   alt={artwork.coverImage.altText || artwork.title}
                   blurhash={artwork.coverImage.blurhash}
                   className="w-full h-full object-cover absolute inset-0 z-10"
-                  loading={index < 4 ? 'eager' : 'lazy'}
+                  loading={index < 12 ? 'eager' : 'lazy'}
                 />
 
                 {/* Secondary Gallery Detail Image (Overlay Layer: z-20, lazy-loaded on hover) */}

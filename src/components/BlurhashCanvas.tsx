@@ -6,7 +6,7 @@
  * without getting stuck.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { decode } from 'blurhash';
 
 export interface BlurhashCanvasProps {
@@ -44,10 +44,9 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // Initialize loaded as false to guarantee 100% hydration match with server HTML
-  const [loaded, setLoaded] = useState<boolean>(false);
-  // Track if image was already cached so we can transition with zero duration/delay
-  const [isInstant, setIsInstant] = useState<boolean>(false);
+  // If already in session cache, initialize as loaded immediately to avoid 1-frame placeholder flash
+  const [loaded, setLoaded] = useState<boolean>(() => isImageCached(src));
+  const [isInstant, setIsInstant] = useState<boolean>(() => isImageCached(src));
 
   const fitClass = objectFit === 'contain' ? 'object-contain' : 'object-cover';
 
@@ -57,8 +56,10 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
     setLoaded(true);
   };
 
-  // Check if image is already cached in memory or browser cache after hydration
-  useEffect(() => {
+  // Synchronous check before paint: if the browser already has this image complete in HTTP cache, mark loaded instantly
+  const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
+  useIsomorphicLayoutEffect(() => {
     if (!src) return;
     if (isImageCached(src) || (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0)) {
       markLoaded(true);
@@ -100,15 +101,15 @@ export const BlurhashCanvas: React.FC<BlurhashCanvasProps> = ({
         className={`w-full h-full ${fitClass} block`}
       />
 
-      {/* BlurHash Canvas Overlay: always in DOM initially to match SSR */}
+      {/* BlurHash Canvas Overlay: hidden instantly if already loaded/cached */}
       {blurhash && blurhash.length >= 5 && (
         <canvas
           ref={canvasRef}
           width={32}
           height={32}
           className={`absolute inset-0 w-full h-full ${fitClass} pointer-events-none z-10 ${
-            isInstant ? 'opacity-0 duration-0' : 'transition-opacity duration-300 ease-out'
-          } ${loaded ? 'opacity-0' : 'opacity-100'}`}
+            isInstant ? 'opacity-0 duration-0 hidden' : 'transition-opacity duration-300 ease-out'
+          } ${loaded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
           aria-hidden="true"
         />
       )}
