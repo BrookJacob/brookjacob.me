@@ -1,33 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <defs>
-    <!-- Warm Terracotta Reduction Ink Pass Gradient -->
-    <linearGradient id="ink-terracotta" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FF5436"/>
-      <stop offset="100%" stop-color="#D97706"/>
-    </linearGradient>
-    
-    <!-- Tech Cyan/Indigo Reduction Ink Pass Gradient -->
-    <linearGradient id="ink-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38BDF8"/>
-      <stop offset="100%" stop-color="#6366F1"/>
-    </linearGradient>
-    
-    <!-- Obsidian Dark Linocut Block Background -->
-    <linearGradient id="bg-slate" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0B0F19"/>
-      <stop offset="100%" stop-color="#1E293B"/>
-    </linearGradient>
-  </defs>
-
-  <!-- Base Linocut Printing Block Surface -->
-  <rect width="512" height="512" rx="108" fill="url(#bg-slate)"/>
+  <!-- Archival Cotton Paper Background -->
+  <rect width="512" height="512" fill="#FBF9F5"/>
   
-  <!-- Subtle Relief Block Outer Bevel -->
-  <rect x="32" y="32" width="448" height="448" rx="84" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="12"/>
-
-  <!-- Layer 1: 'J' Stem & Hook in Terracotta Reduction Ink -->
-  <path d="M 160 120 H 244 V 308 C 244 352 216 376 172 376 C 138 376 114 356 104 324 L 148 306 C 153 322 161 330 172 330 C 188 330 198 318 198 296 V 120 Z" fill="url(#ink-terracotta)"/>
-
-  <!-- Layer 2: Overlapping 'B' Monogram in Cyan/Indigo Ink (Screen Blend Translucency) -->
-  <path d="M 224 120 H 336 C 378 120 408 142 408 182 C 408 210 390 230 360 240 C 396 250 416 274 416 312 C 416 358 380 376 328 376 H 224 V 120 Z M 272 164 V 226 H 328 C 348 226 360 214 360 195 C 360 176 348 164 328 164 H 272 Z M 272 270 V 332 H 332 C 354 332 368 319 368 299 C 368 279 354 270 332 270 H 272 Z" fill="url(#ink-cyan)" opacity="0.9" style="mix-blend-mode: screen;"/>
+  <!-- Linocut Block Chattered Outer Edge & Relief Margin -->
+  <path d="M 40 40 L 472 38 L 474 472 L 38 474 Z" fill="#1C1B1A"/>
+  
+  <!-- Carved Linoleum Gouge Marks (Revealing Paper Beneath) -->
+  <!-- Chiseled Letter J -->
+  <path d="M 148 128 L 228 124 L 226 292 C 226 332 204 358 162 358 C 132 358 112 342 102 316 L 142 298 C 146 310 152 318 162 318 C 176 318 184 308 184 288 L 186 168 L 148 168 Z" fill="#FBF9F5"/>
+  
+  <!-- Chiseled Letter B with Relief Carving Chatter -->
+  <path d="M 238 124 L 344 126 C 384 126 412 146 412 186 C 412 214 394 234 364 242 C 400 252 420 278 420 318 C 420 366 382 386 334 386 L 236 384 Z M 280 166 L 280 224 L 332 224 C 352 224 366 212 366 195 C 366 178 352 166 332 166 Z M 280 266 L 280 344 L 338 344 C 360 344 374 330 374 306 C 374 282 360 266 338 266 Z" fill="#FBF9F5"/>
+  
+  <!-- Hand-Carved Linocut Chatter Slivers (Authentic Relief Gouges) -->
+  <path d="M 96 92 L 118 84 L 112 98 Z" fill="#FBF9F5" opacity="0.85"/>
+  <path d="M 426 84 L 444 98 L 418 102 Z" fill="#FBF9F5" opacity="0.85"/>
+  <path d="M 88 412 L 114 426 L 102 436 Z" fill="#FBF9F5" opacity="0.85"/>
+  <path d="M 416 422 L 438 410 L 432 434 Z" fill="#FBF9F5" opacity="0.85"/>
+  <path d="M 264 68 L 286 64 L 280 74 Z" fill="#FBF9F5" opacity="0.7"/>
+  <path d="M 252 444 L 276 448 L 268 454 Z" fill="#FBF9F5" opacity="0.7"/>
 </svg>
