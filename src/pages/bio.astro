@@ -26,7 +26,7 @@ import '../styles/global.css';
     <title>Bio & Studio Practice — Jacob Brook</title>
     <meta 
       name="description" 
-      content="Artist biography and studio practice of Jacob Brook — multi-layer reduction linocut printmaker and software craftsman." 
+      content="Artist biography and studio practice of Jacob Brook — multi-layer reduction linocut printmaker and web developer." 
     />
     <ClientRouter />
   </head>
@@ -43,9 +43,6 @@ import '../styles/global.css';
         <h1 class="font-serif text-4xl sm:text-5xl font-extrabold text-paper-text dark:text-carbon-text mt-2">
           Jacob Brook
         </h1>
-        <p class="text-lg text-paper-muted dark:text-carbon-muted mt-2 font-serif">
-          Printmaker & Software Craftsman
-        </p>
       </div>
 
       <!-- Main Layout: Sidebar with Portrait & Specifications + Main Narrative Body -->
@@ -54,29 +51,29 @@ import '../styles/global.css';
         <!-- Left Column: Portrait & Studio Spec Placard -->
         <aside class="lg:col-span-4 flex flex-col gap-6">
           <!-- Portrait Frame -->
-          <div class="relative bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-2xl p-3 shadow-sm overflow-hidden">
-            <div class="aspect-[4/5] rounded-xl overflow-hidden bg-paper-border/20 dark:bg-carbon-border/20">
+          <div class="relative bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border p-3">
+            <div class="aspect-[4/5] overflow-hidden bg-paper-border/20 dark:bg-carbon-border/20">
               <img 
                 src="/avatar.jpg" 
-                alt="Jacob Brook in the studio" 
+                alt="Jacob Brook" 
                 class="w-full h-full object-cover"
                 loading="eager"
               />
             </div>
             <div class="p-3 text-center">
-              <p class="font-serif font-bold text-paper-text dark:text-carbon-text text-base">
+              <p class="brand-smallcaps text-paper-text dark:text-carbon-text text-base">
                 Jacob Brook
               </p>
               <p class="text-xs text-paper-muted dark:text-carbon-muted mt-0.5 font-mono">
-                Studio & Press
+                Studio & Press · Brooklyn, NY
               </p>
             </div>
           </div>
 
           <!-- Studio Specifications Card -->
-          <div class="p-6 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl space-y-4">
+          <div class="p-6 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border space-y-4">
             <h2 class="text-xs font-mono uppercase tracking-widest font-semibold text-paper-accent dark:text-carbon-accent">
-              Home Studio Details
+              Studio Specifications
             </h2>
 
             <div class="space-y-3 text-xs">
@@ -105,16 +102,16 @@ import '../styles/global.css';
             <div class="pt-4 border-t border-paper-border dark:border-carbon-border flex flex-col gap-2">
               <a 
                 href={DOMAINS.prints}
-                class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg bg-paper-accent dark:bg-carbon-accent text-white font-mono text-xs font-semibold tracking-wide hover:opacity-90 active:scale-95 transition-all text-center"
+                class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 border border-paper-text dark:border-carbon-text text-paper-text dark:text-carbon-text hover:bg-paper-text hover:text-paper-bg dark:hover:bg-carbon-text dark:hover:text-carbon-bg font-mono text-xs tracking-wider uppercase transition-colors text-center"
               >
-                Browse Original Prints &rarr;
+                browse original prints &rarr;
               </a>
 
               <ContactFormModal
                 client:load
                 sourceSubdomain="bio"
-                triggerButtonText="Inquire / Contact Studio"
-                triggerButtonClassName="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg border border-paper-border dark:border-carbon-border text-paper-text dark:text-carbon-text font-mono text-xs font-semibold tracking-wide hover:border-paper-accent dark:hover:border-carbon-accent hover:text-paper-accent dark:hover:text-carbon-accent transition-all cursor-pointer text-center"
+                triggerButtonText="Contact Studio"
+                triggerButtonClassName="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 border border-paper-border dark:border-carbon-border text-paper-muted dark:text-carbon-muted font-mono text-xs tracking-wider uppercase hover:border-paper-text dark:hover:border-carbon-text hover:text-paper-text dark:hover:text-carbon-text transition-colors cursor-pointer text-center"
               />
             </div>
           </div>
@@ -129,26 +126,13 @@ import '../styles/global.css';
               The Discipline of the Reduction Print
             </h2>
             <p class="text-base sm:text-lg text-paper-muted dark:text-carbon-muted leading-relaxed">
-              Jacob Brook is a printmaker and software craftsman based in his studio. His physical practice is centered on the reduction linocut method—a demanding and irreversible form of relief printmaking where a multi-colored image is pressed entirely from a single block of linoleum.
+              Jacob Brook is a printmaker and web developer based in Brooklyn, NY. His physical practice is centered on the demanding and irreversible reduction linocut method.
             </p>
             <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
               In traditional multi-block relief printing, each color requires its own dedicated block. In a reduction print—often termed the “suicide method”—the artist carves away the areas intended to remain the color of the paper, inking and pressing the entire edition with the first tone. The block is then cleaned, and the areas intended to preserve that first color are carved away. The remaining surface is inked with the second tone and printed directly over the first pass.
             </p>
             <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
               This sequence of carving, inking, registration, and pressing repeats six, eight, or more than a dozen times. With every successive pass, more of the linoleum is permanently removed. By the final layer, only tiny slivers of the original surface survive to hold the darkest pigment.
-            </p>
-          </section>
-
-          <!-- Section 2: Why Irreversibility Matters -->
-          <section class="space-y-4 pt-8 border-t border-paper-border dark:border-carbon-border">
-            <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
-              A Counterbalance to the Reversible
-            </h2>
-            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
-              By profession, Jacob designs and engineers software systems, web platforms, and computational tools. In modern software engineering, changes are free, errors can be undone with a keystroke, and code exists in a fluid, indefinitely malleable state.
-            </p>
-            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
-              Printmaking is the physical counterweight. A gouge pushed through battleship linoleum cannot be undone. Once ink meets cotton rag under pressure, the impression is permanent. If a single pass is misaligned, an entire run can be lost. This unforgiving tension demands a state of presence, intentionality, and patience that digital media rarely affords.
             </p>
           </section>
 
@@ -176,18 +160,36 @@ import '../styles/global.css';
             <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
               Every print is hand-burnished on archival paper (my current paper stock is mostly BFK Rives Lightweight printmaking paper) using lightfast, professional-grade Cranfield Caligo Safe Wash Relief printing inks. Each print is individually inspected, titled, numbered, and signed in pencil.
             </p>
+
+            <!-- Artist Studio Colophon & Hand-Drawn Signature Block -->
+            <div class="mt-8 pt-6 border-t border-paper-border dark:border-carbon-border flex flex-col gap-2">
+              <div class="h-12 flex items-center">
+                <img 
+                  src="/images/signature.png" 
+                  alt="Jacob Brook signature" 
+                  class="h-10 w-auto opacity-85 dark:invert hidden"
+                  onload="this.classList.remove('hidden'); const sib = this.nextElementSibling; if (sib) sib.classList.add('hidden');"
+                />
+                <span class="font-handwriting text-2xl text-[#52504b] dark:text-[#a8a59f] select-none tracking-wide">
+                  Jacob Brook
+                </span>
+              </div>
+              <p class="text-xs font-mono text-paper-muted dark:text-carbon-muted">
+                Relief Printmaker & Web Developer, Brooklyn NY
+              </p>
+            </div>
           </section>
 
           <!-- Dynamic Shows & Exhibitions List -->
           <ExhibitionsList client:load />
 
           <!-- Studio Inquiries Callout -->
-          <section class="mt-4 p-8 rounded-2xl bg-paper-accent/5 dark:bg-carbon-accent/5 border border-paper-accent/20 dark:border-carbon-accent/20 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <section class="mt-4 p-8 bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
-              <h3 class="text-xl font-bold text-paper-text dark:text-carbon-text">
+              <h3 class="text-xl font-bold font-serif text-paper-text dark:text-carbon-text">
                 Studio Inquiries & Commissions
               </h3>
-              <p class="text-sm text-paper-muted dark:text-carbon-muted mt-1 max-w-md">
+              <p class="text-sm text-paper-muted dark:text-carbon-muted mt-1 max-w-md font-serif">
                 For inquiries regarding original prints, custom relief editions, or studio collaborations, feel free to reach out.
               </p>
             </div>
@@ -196,7 +198,7 @@ import '../styles/global.css';
               client:load
               sourceSubdomain="bio"
               triggerButtonText="Get in Touch"
-              triggerButtonClassName="px-6 py-3 rounded-xl bg-paper-accent dark:bg-carbon-accent text-white font-mono text-xs font-semibold tracking-wide hover:opacity-90 active:scale-95 transition-all shadow-sm whitespace-nowrap cursor-pointer shrink-0"
+              triggerButtonClassName="px-5 py-2.5 border border-paper-text/70 dark:border-carbon-text/70 hover:bg-paper-text hover:text-paper-bg dark:hover:bg-carbon-text dark:hover:text-carbon-bg text-paper-text dark:text-carbon-text font-mono text-xs tracking-wider uppercase transition-colors whitespace-nowrap cursor-pointer shrink-0"
             />
           </section>
 
