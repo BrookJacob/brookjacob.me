@@ -86,14 +86,6 @@ export const MobileNavMenu: React.FC<MobileNavMenuProps> = ({ activeDomain = 'ro
                   </a>
 
                   <a
-                    href={DOMAINS.prints}
-                    className="px-4 py-3 rounded-xl font-serif text-base font-semibold transition-colors flex items-center justify-between text-paper-text dark:text-carbon-text hover:bg-paper-border/20 dark:hover:bg-carbon-border/20"
-                  >
-                    <span>Printmaking Studio</span>
-                    <span className="text-xs font-mono opacity-60">Prints</span>
-                  </a>
-
-                  <a
                     href="https://github.com/brookjacob"
                     target="_blank"
                     rel="noopener noreferrer"
