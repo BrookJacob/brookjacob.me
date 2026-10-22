@@ -42,15 +42,16 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
 
   return (
     <article className="group relative flex flex-col w-full text-left">
-      {/* Artwork Image Container */}
-      <div className="block overflow-hidden relative aspect-[4/5] bg-paper-border/20 dark:bg-carbon-border/20">
+      {/* Artwork Image Container: Displays uncropped image in full */}
+      <div className="block overflow-hidden relative h-[380px] sm:h-[440px] md:h-[480px] w-full flex items-center justify-center bg-transparent">
         {currentImageUrl ? (
           <BlurhashCanvas
             key={`${print.id}-${activeImageTab}`}
             src={currentImageUrl}
             alt={print.title}
             blurhash={currentBlurhash}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
+            objectFit="contain"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-paper-muted dark:text-carbon-muted text-xs font-mono">
@@ -107,11 +108,11 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
           On the Carving Bench {voteCount > 0 ? `· ${voteCount} community votes` : ''}
         </p>
 
-        <p className="mt-2 font-serif italic text-xs sm:text-sm text-paper-text/85 dark:text-carbon-text/85 leading-snug">
-          "{print.productionNote
-            ? print.productionNote
-            : 'Currently moving through block carving, test proofs, and mother-color mixing in the studio.'}"
-        </p>
+        {print.productionNote && print.productionNote.trim().length > 0 && (
+          <p className="mt-2 font-serif italic text-xs sm:text-sm text-paper-text/85 dark:text-carbon-text/85 leading-snug">
+            "{print.productionNote.trim()}"
+          </p>
+        )}
 
         <div className="mt-3">
           <span className="font-mono text-[11px] text-paper-muted dark:text-carbon-muted">

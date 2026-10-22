@@ -18,7 +18,7 @@ import { ArtworkWallLabel } from './ArtworkWallLabel';
 import { getPrintUrl } from '../lib/urls';
 import {
   getPrintOrigin,
-  getPencilEdition,
+  getPrintEdition,
   formatPrintMedium,
   formatPrintPaper,
   formatPrintDimensions,
@@ -33,37 +33,6 @@ export interface ArtworkGalleryFeedProps {
 const STORAGE_KEY_COUNT = 'printmaker_gallery_visible_count';
 const STORAGE_KEY_SCROLL = 'printmaker_gallery_scroll_pos';
 const DEFAULT_BATCH_SIZE = 10;
-
-/**
- * Assigns an asymmetric, curated editorial rhythm across a 12-column grid.
- * Breaks repetitive uniform cards by alternating solitary centerpiece prints,
- * staggered height duos with vertical offsets, and wide-format features.
- */
-function getGridSpanClass(index: number): string {
-  const pattern = index % 6;
-  switch (pattern) {
-    case 0:
-      // Solitary Hero Centerpiece with generous flanking margins
-      return 'col-span-1 md:col-span-12 lg:col-span-8 lg:col-start-3';
-    case 1:
-      // Asymmetric Duo: Left (Wide format)
-      return 'col-span-1 md:col-span-7 lg:col-span-7';
-    case 2:
-      // Asymmetric Duo: Right (Shifted vertically down to break horizontal gridlines)
-      return 'col-span-1 md:col-span-5 lg:col-span-5 md:mt-20 lg:mt-28';
-    case 3:
-      // Solitary Wide Exhibition Print
-      return 'col-span-1 md:col-span-12 lg:col-span-10 lg:col-start-2';
-    case 4:
-      // Reversed Asymmetric Duo: Left (Offset vertically)
-      return 'col-span-1 md:col-span-5 lg:col-span-5 md:mt-16 lg:mt-24';
-    case 5:
-      // Reversed Asymmetric Duo: Right (Wide format)
-      return 'col-span-1 md:col-span-7 lg:col-span-7';
-    default:
-      return 'col-span-1 md:col-span-6';
-  }
-}
 
 export const ArtworkGalleryFeed: React.FC<ArtworkGalleryFeedProps> = ({
   artworks,
@@ -169,23 +138,19 @@ export const ArtworkGalleryFeed: React.FC<ArtworkGalleryFeedProps> = ({
 
   return (
     <div className="w-full">
-      {/* Curated Asymmetric Exhibition Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-12 gap-x-10 gap-y-20 sm:gap-y-32 mt-10 items-start">
+      {/* Cohesive, Balanced 2-Column Exhibition Gallery */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-x-12 lg:gap-x-16 gap-y-16 lg:gap-y-24 items-start mt-10">
         {/* Featured First: Print Currently Moving Through Production */}
         {inProductionPrint && (
-          <div className="col-span-1 md:col-span-12 lg:col-span-8 lg:col-start-3 mb-6">
+          <div className="col-span-1">
             <InProductionPrintCard print={inProductionPrint} />
           </div>
         )}
 
         {visibleArtworks.map((artwork, index) => {
           const printUrl = getPrintUrl(artwork.slug);
-          const gridSpan = getGridSpanClass(index);
-          const originStory = getPrintOrigin(artwork);
-          const pencilEdition = getPencilEdition(
-            index,
-            artwork.editionTotal || parseInt(artwork.editionSize || '10', 10)
-          );
+          const description = getPrintOrigin(artwork);
+          const edition = getPrintEdition(artwork);
           const medium = formatPrintMedium(artwork);
           const paper = formatPrintPaper(artwork);
           const dimensions = formatPrintDimensions(artwork);
@@ -193,13 +158,13 @@ export const ArtworkGalleryFeed: React.FC<ArtworkGalleryFeedProps> = ({
           return (
             <article
               key={artwork.id || artwork.slug}
-              className={`group relative flex flex-col w-full text-left ${gridSpan}`}
+              className="group relative flex flex-col w-full text-left col-span-1"
             >
-              {/* Unboxed Artwork Image Container with subtle matting */}
+              {/* Artwork Image Container: Displays uncropped image in full width/height */}
               <a
                 href={printUrl}
                 onClick={handleLinkClick}
-                className="block overflow-hidden relative bg-paper-border/15 dark:bg-carbon-border/25 aspect-[4/5] sm:aspect-auto sm:h-[480px] md:h-[540px] flex items-center justify-center p-2 sm:p-4"
+                className="block overflow-hidden relative h-[380px] sm:h-[440px] md:h-[480px] w-full flex items-center justify-center bg-transparent"
               >
                 <BlurhashCanvas
                   src={artwork.coverImage.url}
@@ -211,17 +176,15 @@ export const ArtworkGalleryFeed: React.FC<ArtworkGalleryFeedProps> = ({
                 />
               </a>
 
-              {/* Museum Wall Label */}
+              {/* Museum Wall Label (Strictly renders only genuine non-null CMS data) */}
               <ArtworkWallLabel
                 title={artwork.title}
                 year={artwork.year}
-                slug={artwork.slug}
-                editionTotal={artwork.editionTotal || parseInt(artwork.editionSize || '10', 10)}
-                pencilEdition={pencilEdition}
+                edition={edition}
                 medium={medium}
                 paper={paper}
                 dimensions={dimensions}
-                originStory={originStory}
+                description={description}
                 onLinkClick={handleLinkClick}
                 printUrl={printUrl}
               />

@@ -39,27 +39,28 @@ const hasProcessImages = placard.processImages && placard.processImages.length >
   <!-- Print Specifications -->
   <dl class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 text-xs font-mono border-b border-paper-border dark:border-carbon-border pb-6 mb-6">
     <!-- Medium & Technique -->
-    <div>
-      <dt class="uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold text-[10px]">
-        Medium & Technique
-      </dt>
-      <dd class="text-paper-text dark:text-carbon-text font-medium mt-1">
-        {placard.technique}
-      </dd>
-    </div>
+    {placard.technique && (
+      <div>
+        <dt class="uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold text-[10px]">
+          Medium & Technique
+        </dt>
+        <dd class="text-paper-text dark:text-carbon-text font-medium mt-1">
+          {placard.technique}
+        </dd>
+      </div>
+    )}
 
     <!-- Edition Size -->
-    <div>
-      <dt class="uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold text-[10px]">
-        Edition Size
-      </dt>
-      <dd class="text-paper-text dark:text-carbon-text font-medium mt-1 flex items-baseline gap-2">
-        <span>Limited to {placard.editionSize}</span>
-        <span class="font-handwriting text-base text-[#52504b] dark:text-[#a8a59f]">
-          signed in pencil
-        </span>
-      </dd>
-    </div>
+    {placard.editionSize && (
+      <div>
+        <dt class="uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold text-[10px]">
+          Edition Size
+        </dt>
+        <dd class="text-paper-text dark:text-carbon-text font-medium mt-1">
+          Edition of {placard.editionSize}
+        </dd>
+      </div>
+    )}
 
     <!-- Paper Stock -->
     {placard.paperStock && (
