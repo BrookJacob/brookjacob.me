@@ -14,7 +14,7 @@ import { BlurhashCanvas } from './BlurhashCanvas';
 import { getPrintUrl } from '../lib/urls';
 import {
   getPrintOrigin,
-  getPencilEdition,
+  getPrintEdition,
   formatPrintMedium,
   formatPrintPaper,
   formatPrintDimensions,
@@ -22,27 +22,34 @@ import {
 
 interface Props {
   artwork: Artwork;
-  index?: number;
 }
 
-const { artwork, index = 0 } = Astro.props;
+const { artwork } = Astro.props;
 const printUrl = getPrintUrl(artwork.slug);
-const originStory = getPrintOrigin(artwork);
-const pencilEdition = getPencilEdition(index, artwork.editionTotal || parseInt(artwork.editionSize || '10', 10));
+const description = getPrintOrigin(artwork);
+const edition = getPrintEdition(artwork);
 const medium = formatPrintMedium(artwork);
 const paper = formatPrintPaper(artwork);
 const dimensions = formatPrintDimensions(artwork);
+
+const specItems = [medium, paper, dimensions].filter(
+  (item): item is string => typeof item === 'string' && item.trim().length > 0
+);
 ---
 
 <article class="group relative flex flex-col w-full text-left">
-  <!-- Artwork Image Container (Clean and unboxed) -->
-  <a href={printUrl} class="block overflow-hidden relative aspect-[4/5] bg-paper-border/20 dark:bg-carbon-border/20">
+  <!-- Artwork Image Container: shows entire image without cropping -->
+  <a 
+    href={printUrl} 
+    class="block overflow-hidden relative h-[380px] sm:h-[440px] md:h-[480px] w-full flex items-center justify-center bg-transparent"
+  >
     <BlurhashCanvas
       client:load
       src={artwork.coverImage.url}
       alt={artwork.coverImage.altText || artwork.title}
       blurhash={artwork.coverImage.blurhash}
-      className="w-full h-full object-cover"
+      className="w-full h-full object-contain"
+      objectFit="contain"
     />
   </a>
 
@@ -53,30 +60,37 @@ const dimensions = formatPrintDimensions(artwork);
         <a href={printUrl} class="hover:text-paper-accent dark:hover:text-carbon-accent transition-colors">
           {artwork.title}
         </a>
-        <span class="font-normal font-sans text-xs text-paper-muted dark:text-carbon-muted ml-2">
-          {artwork.year}
-        </span>
+        {artwork.year && (
+          <span class="font-normal font-sans text-xs text-paper-muted dark:text-carbon-muted ml-2">
+            {artwork.year}
+          </span>
+        )}
       </h3>
 
-      <span
-        class="font-handwriting text-base sm:text-lg text-[#52504b] dark:text-[#a8a59f] select-none tracking-wide"
-        title="Numbered by hand in 2B pencil"
-      >
-        {pencilEdition}
-      </span>
+      {edition && (
+        <span
+          class="font-handwriting text-base sm:text-lg text-[#52504b] dark:text-[#a8a59f] select-none tracking-wide"
+          title={`Edition: ${edition}`}
+        >
+          {edition}
+        </span>
+      )}
     </div>
 
-    <p class="mt-1 text-[11px] text-paper-muted dark:text-carbon-muted tracking-tight font-mono">
-      <span>{medium}</span>
-      <span class="mx-1.5 opacity-60">·</span>
-      <span>{paper}</span>
-      <span class="mx-1.5 opacity-60">·</span>
-      <span>{dimensions}</span>
-    </p>
+    {specItems.length > 0 && (
+      <p class="mt-1 text-[11px] text-paper-muted dark:text-carbon-muted tracking-tight font-mono">
+        {specItems.map((item, idx) => (
+          <span>
+            {idx > 0 && <span class="mx-1.5 opacity-60">·</span>}
+            {item}
+          </span>
+        ))}
+      </p>
+    )}
 
-    {originStory && (
-      <p class="mt-2 font-serif italic text-xs sm:text-sm text-paper-text/85 dark:text-carbon-text/85 leading-snug">
-        "{originStory}"
+    {description && (
+      <p class="mt-2 font-serif italic text-xs sm:text-sm text-paper-text/85 dark:text-carbon-text/85 leading-snug line-clamp-3">
+        "{description}"
       </p>
     )}
 

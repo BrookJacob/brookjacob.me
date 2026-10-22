@@ -131,11 +131,11 @@ function mapPrintToArtwork(print: Print): Artwork {
     coverImage,
     galleryImages,
     processImages,
-    technique: 'Reduction Linocut Print',
-    paperStock: print.paperDimensions ? `Custom Rag (${print.paperDimensions})` : 'Fine Art Cotton Rag Paper',
-    editionSize: `${print.editionTotal}`,
-    blockDimensions: print.imageDimensions || 'Hand-carved Linoleum Block',
-    processNotes: print.description || '',
+    technique: 'Reduction Linocut',
+    paperStock: print.paperDimensions || undefined,
+    editionSize: print.editionTotal ? `${print.editionTotal}` : undefined,
+    blockDimensions: print.imageDimensions || undefined,
+    processNotes: print.description || undefined,
   };
 }
 
