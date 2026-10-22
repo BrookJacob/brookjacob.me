@@ -28,45 +28,40 @@ export const PotentialPrintsAccordion: React.FC<PotentialPrintsAccordionProps> =
       type="single"
       collapsible
       defaultValue={defaultOpen ? 'upcoming-prints' : undefined}
-      className="w-full mb-10"
+      className="w-full mb-8"
     >
       <Accordion.Item
         value="upcoming-prints"
-        className="bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl overflow-hidden shadow-sm transition-all duration-300"
+        className="bg-paper-bg dark:bg-carbon-bg border border-paper-border/80 dark:border-carbon-border/80 rounded-xl overflow-hidden transition-all duration-300"
       >
         <Accordion.Header className="flex">
-          <Accordion.Trigger className="w-full px-6 py-4 flex items-center justify-between text-left group hover:bg-paper-border/20 dark:hover:bg-carbon-border/20 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-paper-accent dark:focus-visible:ring-carbon-accent">
+          <Accordion.Trigger className="w-full px-4 sm:px-5 py-3 flex items-center justify-between text-left group hover:bg-paper-border/20 dark:hover:bg-carbon-border/20 transition-colors cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-paper-accent dark:focus-visible:ring-carbon-accent">
             <div className="flex items-center gap-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-paper-accent dark:bg-carbon-accent animate-pulse"></span>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs uppercase tracking-widest font-mono font-semibold text-paper-accent dark:text-carbon-accent">
-                    Upcoming Editions
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-paper-accent/10 dark:bg-carbon-accent/10 text-paper-accent dark:text-carbon-accent border border-paper-accent/20">
-                    Community Voting
-                  </span>
-                  {inProductionItem && (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-                      In Studio: {inProductionItem.title}
-                    </span>
-                  )}
-                </div>
-                <h3 className="font-serif text-lg font-bold text-paper-text dark:text-carbon-text mt-0.5">
-                  Vote for Upcoming Print Concepts & Colorways
-                </h3>
-              </div>
+              <span className="text-[11px] uppercase tracking-wider font-mono font-semibold text-paper-accent dark:text-carbon-accent px-2 py-0.5 rounded bg-paper-accent/10 dark:bg-carbon-accent/10 border border-paper-accent/20">
+                Studio Bench
+              </span>
+              <p className="text-xs sm:text-sm font-serif text-paper-text dark:text-carbon-text">
+                {inProductionItem ? (
+                  <>
+                    <span className="hidden sm:inline text-paper-muted dark:text-carbon-muted">In Progress: </span>
+                    <strong className="font-semibold">{inProductionItem.title}</strong>
+                    <span className="text-paper-muted dark:text-carbon-muted hidden md:inline"> &mdash; Help select the next block</span>
+                  </>
+                ) : (
+                  <span>Upcoming Print Concepts & Color Studies</span>
+                )}
+              </p>
             </div>
 
-            <div className="flex items-center gap-3 text-paper-muted dark:text-carbon-muted font-mono text-xs">
+            <div className="flex items-center gap-2 text-paper-muted dark:text-carbon-muted font-mono text-xs">
               <span className="hidden sm:inline-block group-data-[state=open]:hidden">
-                Expand Voting Panel &rarr;
+                View Concepts & Vote &darr;
               </span>
               <span className="hidden sm:inline-block group-data-[state=closed]:hidden">
-                Collapse Panel &uarr;
+                Hide &uarr;
               </span>
               <svg
-                className="w-5 h-5 transition-transform duration-300 group-data-[state=open]:rotate-180 text-paper-accent dark:text-carbon-accent"
+                className="w-4 h-4 transition-transform duration-300 group-data-[state=open]:rotate-180 text-paper-accent dark:text-carbon-accent"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -77,7 +72,7 @@ export const PotentialPrintsAccordion: React.FC<PotentialPrintsAccordionProps> =
           </Accordion.Trigger>
         </Accordion.Header>
 
-        <Accordion.Content className="px-6 pb-6 pt-2 border-t border-paper-border/60 dark:border-carbon-border/60 transition-all data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+        <Accordion.Content className="px-5 pb-5 pt-3 border-t border-paper-border/60 dark:border-carbon-border/60 transition-all data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
           <PotentialPrintsGallery initialPrints={initialPrints} />
         </Accordion.Content>
       </Accordion.Item>

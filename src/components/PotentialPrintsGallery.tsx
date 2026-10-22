@@ -100,21 +100,19 @@ export const PotentialPrintCard: React.FC<PotentialPrintCardProps> = ({ print, o
           <div className="absolute top-3 left-3 right-3 flex justify-center gap-1.5 p-1 bg-black/60 backdrop-blur-md rounded-lg z-10 text-xs font-mono">
             <button
               onClick={() => setActiveImageTab('original')}
-              className={`px-2.5 py-1 rounded-md transition-all ${
-                activeImageTab === 'original'
-                  ? 'bg-white text-neutral-900 font-semibold shadow-sm'
-                  : 'text-neutral-300 hover:text-white'
-              }`}
+              className={`px-2.5 py-1 rounded-md transition-all ${activeImageTab === 'original'
+                ? 'bg-white text-neutral-900 font-semibold shadow-sm'
+                : 'text-neutral-300 hover:text-white'
+                }`}
             >
               Original Photo
             </button>
             <button
               onClick={() => setActiveImageTab('quantized')}
-              className={`px-2.5 py-1 rounded-md transition-all ${
-                activeImageTab === 'quantized'
-                  ? 'bg-paper-accent dark:bg-carbon-accent text-white font-semibold shadow-sm'
-                  : 'text-neutral-300 hover:text-white'
-              }`}
+              className={`px-2.5 py-1 rounded-md transition-all ${activeImageTab === 'quantized'
+                ? 'bg-paper-accent dark:bg-carbon-accent text-white font-semibold shadow-sm'
+                : 'text-neutral-300 hover:text-white'
+                }`}
             >
               Quantized Linocut
             </button>
@@ -122,9 +120,8 @@ export const PotentialPrintCard: React.FC<PotentialPrintCardProps> = ({ print, o
         )}
 
         {/* Live Vote Badge Overlay */}
-        <div className="absolute bottom-3 right-3 px-3 py-1 bg-black/75 backdrop-blur-md text-white rounded-full text-xs font-mono font-semibold flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>{voteCount} Want Print</span>
+        <div className="absolute bottom-3 right-3 px-2.5 py-1 bg-black/75 backdrop-blur-md text-white rounded-md text-xs font-mono font-medium flex items-center gap-1.5">
+          <span>{voteCount} {voteCount === 1 ? 'Vote' : 'Votes'}</span>
         </div>
       </div>
 
@@ -134,7 +131,7 @@ export const PotentialPrintCard: React.FC<PotentialPrintCardProps> = ({ print, o
           {print.votingGroup && (
             <div className="mb-2">
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-paper-border/50 dark:bg-carbon-border/50 text-paper-muted dark:text-carbon-muted">
-                Group: {print.votingGroup}
+                Study: {print.votingGroup}
               </span>
             </div>
           )}
@@ -148,11 +145,10 @@ export const PotentialPrintCard: React.FC<PotentialPrintCardProps> = ({ print, o
         <div className="mt-2 pt-4 border-t border-paper-border/60 dark:border-carbon-border/60">
           {feedbackMessage && (
             <div
-              className={`mb-3 p-2.5 text-xs font-mono rounded-md text-center ${
-                isError
-                  ? 'bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400'
-                  : 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
-              }`}
+              className={`mb-3 p-2.5 text-xs font-mono rounded-md text-center ${isError
+                ? 'bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400'
+                : 'bg-paper-accent/10 border border-paper-accent/30 text-paper-accent dark:text-carbon-accent'
+                }`}
             >
               {feedbackMessage}
             </div>
@@ -162,29 +158,27 @@ export const PotentialPrintCard: React.FC<PotentialPrintCardProps> = ({ print, o
             <button
               onClick={() => handleVote('want_print')}
               disabled={isVoting || !!userVotedType}
-              className={`px-4 py-2.5 rounded-lg font-mono text-xs font-semibold tracking-wide transition-all flex items-center justify-center gap-1.5 ${
-                userVotedType === 'want_print'
-                  ? 'bg-emerald-600 text-white cursor-default'
-                  : 'bg-paper-accent dark:bg-carbon-accent text-white hover:opacity-90 active:scale-95 disabled:opacity-50'
-              }`}
+              className={`px-4 py-2.5 rounded-lg font-mono text-xs font-semibold tracking-wide transition-all flex items-center justify-center gap-1.5 ${userVotedType === 'want_print'
+                ? 'bg-paper-accent/80 dark:bg-carbon-accent/80 text-white cursor-default'
+                : 'bg-paper-accent dark:bg-carbon-accent text-white hover:opacity-90 active:scale-95 disabled:opacity-50'
+                }`}
             >
               {isVoting ? (
                 <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               ) : userVotedType === 'want_print' ? (
-                '✓ Voted (Want)'
+                '✓ Voted'
               ) : (
-                'Want Print'
+                'Vote for Print'
               )}
             </button>
 
             <button
               onClick={() => handleVote('pass')}
               disabled={isVoting || !!userVotedType}
-              className={`px-4 py-2.5 rounded-lg font-mono text-xs font-medium transition-all flex items-center justify-center ${
-                userVotedType === 'pass'
-                  ? 'bg-neutral-300 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 cursor-default'
-                  : 'bg-paper-border/40 dark:bg-carbon-border/40 text-paper-text dark:text-carbon-text hover:bg-paper-border dark:hover:bg-carbon-border active:scale-95 disabled:opacity-50'
-              }`}
+              className={`px-4 py-2.5 rounded-lg font-mono text-xs font-medium transition-all flex items-center justify-center ${userVotedType === 'pass'
+                ? 'bg-neutral-300 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 cursor-default'
+                : 'bg-paper-border/40 dark:bg-carbon-border/40 text-paper-text dark:text-carbon-text hover:bg-paper-border dark:hover:bg-carbon-border active:scale-95 disabled:opacity-50'
+                }`}
             >
               {userVotedType === 'pass' ? 'Passed' : 'Pass'}
             </button>
@@ -258,30 +252,15 @@ export const PotentialPrintsGallery: React.FC<PotentialPrintsGalleryProps> = ({ 
       {/* Active Community Voting Candidates */}
       {activeVotingPrints.length > 0 ? (
         <section aria-label="Active Community Voting Candidates">
-          {/* Context banner if previous winner is in production AND there are items to vote on */}
-          {inProductionPrint && (
-            <div className="mb-6 p-3.5 rounded-xl bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/20 dark:border-amber-400/20 text-xs font-mono text-paper-muted dark:text-carbon-muted flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
-                <span>
-                  Previous Winner <strong className="text-paper-text dark:text-carbon-text font-semibold">{inProductionPrint.title}</strong> is currently on the carving block (featured as the first card in the gallery below).
-                </span>
-              </div>
-              <span className="text-[11px] text-amber-700 dark:text-amber-300 font-medium shrink-0">
-                Vote on what I should carve next &darr;
-              </span>
-            </div>
-          )}
+          {/* Context note if previous winner is in production */}
 
-          <div className="mb-6">
-            <span className="text-xs uppercase tracking-widest font-mono font-semibold text-paper-accent dark:text-carbon-accent">
-              Community Vote
-            </span>
-            <h4 className="font-serif text-xl font-bold text-paper-text dark:text-carbon-text mt-1">
-              Choose the Next Print Edition
+
+          <div className="mb-5">
+            <h4 className="font-serif text-lg font-bold text-paper-text dark:text-carbon-text">
+              Future Edition Concepts
             </h4>
-            <p className="text-xs text-paper-muted dark:text-carbon-muted font-serif mt-1 max-w-xl">
-              Help determine which artwork moves to the carving block next. Vote on your favorites below.
+            <p className="text-xs text-paper-muted dark:text-carbon-muted font-serif mt-0.5 max-w-xl">
+              Vote on the compositions and color studies you would like to see carved next.
             </p>
           </div>
 

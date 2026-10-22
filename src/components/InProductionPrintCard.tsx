@@ -41,10 +41,7 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
   const currentBlurhash = currentAsset?.blurhash;
 
   return (
-    <article className="group relative flex flex-col bg-paper-bg dark:bg-carbon-bg border-2 border-amber-500/70 dark:border-amber-400/60 rounded-xl overflow-hidden focus-tactile transition-all shadow-md shadow-amber-500/5">
-      {/* Top Amber Accent Glow Line */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-paper-accent dark:via-carbon-accent to-amber-500 z-30" />
-
+    <article className="group relative flex flex-col bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border hover:border-paper-accent dark:hover:border-carbon-accent rounded-xl overflow-hidden focus-tactile transition-all shadow-xs">
       {/* Artwork Image Container (matches completed prints aspect-[4/5]) */}
       <div className="block overflow-hidden relative aspect-[4/5] bg-paper-border/20 dark:bg-carbon-border/20">
         {currentImageUrl ? (
@@ -67,35 +64,25 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
             <button
               type="button"
               onClick={() => setActiveImageTab('original')}
-              className={`px-2.5 py-0.5 rounded transition-all ${
-                activeImageTab === 'original'
-                  ? 'bg-white text-neutral-900 font-semibold shadow-sm'
-                  : 'text-neutral-300 hover:text-white'
-              }`}
+              className={`px-2.5 py-0.5 rounded transition-all ${activeImageTab === 'original'
+                ? 'bg-white text-neutral-900 font-semibold shadow-sm'
+                : 'text-neutral-300 hover:text-white'
+                }`}
             >
               Original
             </button>
             <button
               type="button"
               onClick={() => setActiveImageTab('quantized')}
-              className={`px-2.5 py-0.5 rounded transition-all ${
-                activeImageTab === 'quantized'
-                  ? 'bg-amber-600 text-white font-semibold shadow-sm'
-                  : 'text-neutral-300 hover:text-white'
-              }`}
+              className={`px-2.5 py-0.5 rounded transition-all ${activeImageTab === 'quantized'
+                ? 'bg-paper-accent dark:bg-carbon-accent text-white font-semibold shadow-sm'
+                : 'text-neutral-300 hover:text-white'
+                }`}
             >
               Quantized
             </button>
           </div>
         )}
-
-        {/* Status Badge */}
-        <div className="absolute bottom-3 left-3 z-20">
-          <span className="bg-amber-500/90 dark:bg-amber-600/90 backdrop-blur text-white text-[10px] font-mono font-semibold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            <span>In Studio Production</span>
-          </span>
-        </div>
       </div>
 
       {/* Content & Metadata Footer */}
@@ -103,7 +90,7 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
         <div>
           {/* Technique / Status Tag */}
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 font-mono">
+            <span className="text-xs font-semibold uppercase tracking-wider text-paper-accent dark:text-carbon-accent font-mono">
               On the Carving Bench
             </span>
           </div>
@@ -123,7 +110,6 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
 
         {/* Edition metadata snippet */}
         <div className="mt-4 pt-3 border-t border-paper-border/60 dark:border-carbon-border/60 flex items-center justify-between text-xs text-paper-muted dark:text-carbon-muted font-mono">
-          <span className="text-amber-700 dark:text-amber-300 font-medium">Physical Edition Forthcoming</span>
           <span className="text-[11px] text-paper-muted dark:text-carbon-muted">Work in Progress</span>
         </div>
       </div>

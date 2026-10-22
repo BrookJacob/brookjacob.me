@@ -10,14 +10,21 @@
 
 import Navigation from '../../components/Navigation.astro';
 import Footer from '../../components/Footer.astro';
+import PotentialPrintsAccordion from '../../components/PotentialPrintsAccordion';
 import ContactFormModal from '../../components/ContactFormModal';
 import { ArtworkGalleryFeed } from '../../components/ArtworkGalleryFeed';
 import { getAllArtworks } from '../../lib/hygraph';
+import { fetchPotentialPrints, partitionPotentialPrints } from '../../lib/potentialPrints';
 import { ClientRouter } from 'astro:transitions';
 import '../../styles/global.css';
 
-// Fetch artwork list statically at build time (Astro SSG)
-const artworks = await getAllArtworks();
+// Fetch artwork list and potential prints statically at build time (Astro SSG)
+const [artworks, potentialPrints] = await Promise.all([
+  getAllArtworks(),
+  fetchPotentialPrints(),
+]);
+
+const { inProductionPrint } = partitionPotentialPrints(potentialPrints);
 ---
 
 <html lang="en">
@@ -38,7 +45,7 @@ const artworks = await getAllArtworks();
 
     <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 py-12">
       <!-- Gallery Feed Header & Contact Action -->
-      <section class="mb-10 border-b border-paper-border dark:border-carbon-border pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <section class="mb-8 border-b border-paper-border dark:border-carbon-border pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <span class="text-xs uppercase tracking-widest font-semibold text-paper-accent dark:text-carbon-accent font-mono">
             Original Editions
@@ -61,8 +68,11 @@ const artworks = await getAllArtworks();
         </div>
       </section>
 
-      <!-- Published Artwork Progressive Feed -->
-      <ArtworkGalleryFeed client:load artworks={artworks} />
+      <!-- Understated Studio Studies & Voting Accordion -->
+      <PotentialPrintsAccordion client:load initialPrints={potentialPrints} />
+
+      <!-- Published Artwork Progressive Feed (with in-progress print included seamlessly) -->
+      <ArtworkGalleryFeed client:load artworks={artworks} inProductionPrint={inProductionPrint} />
     </main>
 
     <Footer />
