@@ -14,7 +14,15 @@ import type { Artwork } from '../lib/types';
 import type { PotentialPrint } from '../lib/potentialPrints';
 import { BlurhashCanvas } from './BlurhashCanvas';
 import { InProductionPrintCard } from './InProductionPrintCard';
+import { ArtworkWallLabel } from './ArtworkWallLabel';
 import { getPrintUrl } from '../lib/urls';
+import {
+  getPrintOrigin,
+  getPencilEdition,
+  formatPrintMedium,
+  formatPrintPaper,
+  formatPrintDimensions,
+} from '../lib/printStories';
 
 export interface ArtworkGalleryFeedProps {
   artworks: Artwork[];
@@ -25,6 +33,37 @@ export interface ArtworkGalleryFeedProps {
 const STORAGE_KEY_COUNT = 'printmaker_gallery_visible_count';
 const STORAGE_KEY_SCROLL = 'printmaker_gallery_scroll_pos';
 const DEFAULT_BATCH_SIZE = 10;
+
+/**
+ * Assigns an asymmetric, curated editorial rhythm across a 12-column grid.
+ * Breaks repetitive uniform cards by alternating solitary centerpiece prints,
+ * staggered height duos with vertical offsets, and wide-format features.
+ */
+function getGridSpanClass(index: number): string {
+  const pattern = index % 6;
+  switch (pattern) {
+    case 0:
+      // Solitary Hero Centerpiece with generous flanking margins
+      return 'col-span-1 md:col-span-12 lg:col-span-8 lg:col-start-3';
+    case 1:
+      // Asymmetric Duo: Left (Wide format)
+      return 'col-span-1 md:col-span-7 lg:col-span-7';
+    case 2:
+      // Asymmetric Duo: Right (Shifted vertically down to break horizontal gridlines)
+      return 'col-span-1 md:col-span-5 lg:col-span-5 md:mt-20 lg:mt-28';
+    case 3:
+      // Solitary Wide Exhibition Print
+      return 'col-span-1 md:col-span-12 lg:col-span-10 lg:col-start-2';
+    case 4:
+      // Reversed Asymmetric Duo: Left (Offset vertically)
+      return 'col-span-1 md:col-span-5 lg:col-span-5 md:mt-16 lg:mt-24';
+    case 5:
+      // Reversed Asymmetric Duo: Right (Wide format)
+      return 'col-span-1 md:col-span-7 lg:col-span-7';
+    default:
+      return 'col-span-1 md:col-span-6';
+  }
+}
 
 export const ArtworkGalleryFeed: React.FC<ArtworkGalleryFeedProps> = ({
   artworks,
@@ -129,101 +168,80 @@ export const ArtworkGalleryFeed: React.FC<ArtworkGalleryFeedProps> = ({
   const visibleArtworks = artworks.slice(0, visibleCount);
 
   return (
-    <div>
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
-        {/* Featured First Card: Print Currently Moving Through Production */}
+    <div className="w-full">
+      {/* Curated Asymmetric Exhibition Grid */}
+      <section className="grid grid-cols-1 md:grid-cols-12 gap-x-10 gap-y-20 sm:gap-y-32 mt-10 items-start">
+        {/* Featured First: Print Currently Moving Through Production */}
         {inProductionPrint && (
-          <InProductionPrintCard print={inProductionPrint} />
+          <div className="col-span-1 md:col-span-12 lg:col-span-8 lg:col-start-3 mb-6">
+            <InProductionPrintCard print={inProductionPrint} />
+          </div>
         )}
 
         {visibleArtworks.map((artwork, index) => {
-          const hasGallery = Boolean(artwork.galleryImages && artwork.galleryImages.length > 0);
-          const secondaryImage = hasGallery ? artwork.galleryImages![0] : null;
           const printUrl = getPrintUrl(artwork.slug);
+          const gridSpan = getGridSpanClass(index);
+          const originStory = getPrintOrigin(artwork);
+          const pencilEdition = getPencilEdition(
+            index,
+            artwork.editionTotal || parseInt(artwork.editionSize || '10', 10)
+          );
+          const medium = formatPrintMedium(artwork);
+          const paper = formatPrintPaper(artwork);
+          const dimensions = formatPrintDimensions(artwork);
 
           return (
             <article
               key={artwork.id || artwork.slug}
-              className="group relative flex flex-col bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border rounded-xl overflow-hidden focus-tactile transition-all"
+              className={`group relative flex flex-col w-full text-left ${gridSpan}`}
             >
-              {/* Medium Bleed Artwork Image Header with Timed Hover Cross-Fade */}
+              {/* Unboxed Artwork Image Container with subtle matting */}
               <a
                 href={printUrl}
                 onClick={handleLinkClick}
-                className="block overflow-hidden relative aspect-[4/5] bg-paper-border/20 dark:bg-carbon-border/20"
+                className="block overflow-hidden relative bg-paper-border/15 dark:bg-carbon-border/25 aspect-[4/5] sm:aspect-auto sm:h-[480px] md:h-[540px] flex items-center justify-center p-2 sm:p-4"
               >
-                {/* Primary Main Cover Image */}
                 <BlurhashCanvas
                   src={artwork.coverImage.url}
                   alt={artwork.coverImage.altText || artwork.title}
                   blurhash={artwork.coverImage.blurhash}
-                  className="w-full h-full object-cover absolute inset-0 z-10"
-                  loading={index < 12 ? 'eager' : 'lazy'}
+                  className="w-full h-full object-contain"
+                  objectFit="contain"
+                  loading={index < 4 ? 'eager' : 'lazy'}
                 />
-
-                {/* Secondary Gallery Detail Image (Overlay Layer: z-20, lazy-loaded on hover) */}
-                {secondaryImage && (
-                  <img
-                    src={secondaryImage.url}
-                    alt={secondaryImage.altText || `${artwork.title} gallery detail`}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-in-out z-20 pointer-events-none"
-                  />
-                )}
-
-                {/* Subtle Year Tag & Gallery Count overlay */}
-                <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 pointer-events-none">
-                  {hasGallery && (
-                    <span className="bg-paper-bg/90 dark:bg-carbon-bg/90 backdrop-blur text-paper-accent dark:text-carbon-accent text-[10px] font-mono font-semibold px-2 py-0.5 rounded border border-paper-border/60 dark:border-carbon-border/60">
-                      +{artwork.galleryImages!.length} views
-                    </span>
-                  )}
-                  <span className="bg-paper-bg/90 dark:bg-carbon-bg/90 backdrop-blur text-paper-text dark:text-carbon-text text-xs font-semibold px-2.5 py-1 rounded border border-paper-border/60 dark:border-carbon-border/60">
-                    {artwork.year}
-                  </span>
-                </div>
               </a>
 
-              {/* Content & Metadata Footer */}
-              <div className="p-5 flex flex-col flex-grow justify-between">
-                <div>
-                  {/* Title */}
-                  <h3 className="font-serif text-xl font-bold text-paper-text dark:text-carbon-text group-hover:text-paper-accent dark:group-hover:text-carbon-accent transition-colors">
-                    <a href={printUrl} onClick={handleLinkClick}>
-                      {artwork.title}
-                    </a>
-                  </h3>
-                </div>
-
-                {/* Edition metadata snippet */}
-                <div className="mt-4 pt-3 border-t border-paper-border/60 dark:border-carbon-border/60 flex items-center justify-between text-xs text-paper-muted dark:text-carbon-muted">
-                  <span>Edition: {artwork.editionSize || artwork.editionTotal}</span>
-                  <a
-                    href={printUrl}
-                    onClick={handleLinkClick}
-                    className="group-hover:translate-x-1 transition-all inline-flex items-center gap-1 font-semibold text-paper-text dark:text-carbon-text hover:text-paper-accent dark:hover:text-carbon-accent"
-                  >
-                    View Print &rarr;
-                  </a>
-                </div>
-              </div>
+              {/* Museum Wall Label */}
+              <ArtworkWallLabel
+                title={artwork.title}
+                year={artwork.year}
+                slug={artwork.slug}
+                editionTotal={artwork.editionTotal || parseInt(artwork.editionSize || '10', 10)}
+                pencilEdition={pencilEdition}
+                medium={medium}
+                paper={paper}
+                dimensions={dimensions}
+                originStory={originStory}
+                onLinkClick={handleLinkClick}
+                printUrl={printUrl}
+              />
             </article>
           );
         })}
       </section>
 
-      {/* Infinite Scroll Sentinel */}
-      {visibleCount < artworks.length && (
+      {/* Infinite Scroll Sentinel (Quiet & understated, without template pulsing spinners or loud messages) */}
+      {visibleCount < artworks.length ? (
         <div
           ref={sentinelRef}
-          className="w-full py-8 flex items-center justify-center text-xs font-mono text-paper-muted dark:text-carbon-muted"
+          className="w-full py-12 flex items-center justify-center text-xs font-mono text-paper-muted dark:text-carbon-muted"
           aria-hidden="true"
         >
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-paper-accent dark:bg-carbon-accent animate-ping" />
-            <span>Loading additional editions...</span>
-          </div>
+          <span className="opacity-40">···</span>
+        </div>
+      ) : (
+        <div className="w-full py-20 text-center text-xs font-mono text-paper-muted dark:text-carbon-muted opacity-80 border-t border-paper-border/60 dark:border-carbon-border/60 mt-20">
+          <span>All {artworks.length} studio editions shown · hand-carved & pressed on archival paper</span>
         </div>
       )}
     </div>

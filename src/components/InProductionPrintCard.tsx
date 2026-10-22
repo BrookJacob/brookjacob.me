@@ -41,8 +41,8 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
   const currentBlurhash = currentAsset?.blurhash;
 
   return (
-    <article className="group relative flex flex-col bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border hover:border-paper-accent dark:hover:border-carbon-accent rounded-xl overflow-hidden focus-tactile transition-all shadow-xs">
-      {/* Artwork Image Container (matches completed prints aspect-[4/5]) */}
+    <article className="group relative flex flex-col w-full text-left">
+      {/* Artwork Image Container */}
       <div className="block overflow-hidden relative aspect-[4/5] bg-paper-border/20 dark:bg-carbon-border/20">
         {currentImageUrl ? (
           <BlurhashCanvas
@@ -50,7 +50,7 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
             src={currentImageUrl}
             alt={print.title}
             blurhash={currentBlurhash}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
+            className="w-full h-full object-cover"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-paper-muted dark:text-carbon-muted text-xs font-mono">
@@ -60,12 +60,12 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
 
         {/* Quantized / Original Toggle Bar */}
         {hasQuantized && (
-          <div className="absolute top-3 left-3 right-3 flex justify-center gap-1.5 p-1 bg-black/65 backdrop-blur-md rounded-lg z-20 text-[11px] font-mono">
+          <div className="absolute top-3 left-3 right-3 flex justify-center gap-1.5 p-1 bg-black/75 backdrop-blur-md rounded z-20 text-[11px] font-mono">
             <button
               type="button"
               onClick={() => setActiveImageTab('original')}
-              className={`px-2.5 py-0.5 rounded transition-all ${activeImageTab === 'original'
-                ? 'bg-white text-neutral-900 font-semibold shadow-sm'
+              className={`px-2.5 py-0.5 rounded transition-colors cursor-pointer ${activeImageTab === 'original'
+                ? 'bg-white text-neutral-900 font-semibold'
                 : 'text-neutral-300 hover:text-white'
                 }`}
             >
@@ -74,8 +74,8 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
             <button
               type="button"
               onClick={() => setActiveImageTab('quantized')}
-              className={`px-2.5 py-0.5 rounded transition-all ${activeImageTab === 'quantized'
-                ? 'bg-paper-accent dark:bg-carbon-accent text-white font-semibold shadow-sm'
+              className={`px-2.5 py-0.5 rounded transition-colors cursor-pointer ${activeImageTab === 'quantized'
+                ? 'bg-paper-accent dark:bg-carbon-accent text-white font-semibold'
                 : 'text-neutral-300 hover:text-white'
                 }`}
             >
@@ -85,32 +85,38 @@ export const InProductionPrintCard: React.FC<InProductionPrintCardProps> = ({ pr
         )}
       </div>
 
-      {/* Content & Metadata Footer */}
-      <div className="p-5 flex flex-col flex-grow justify-between">
-        <div>
-          {/* Technique / Status Tag */}
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-paper-accent dark:text-carbon-accent font-mono">
-              On the Carving Bench
-            </span>
-          </div>
-
-          {/* Print Title */}
-          <h3 className="font-serif text-xl font-bold text-paper-text dark:text-carbon-text mt-1">
+      {/* Wall Label & Studio Inscription */}
+      <div className="mt-4 pt-1 font-mono text-left leading-relaxed">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <h3 className="font-serif text-lg sm:text-xl font-bold text-paper-text dark:text-carbon-text tracking-tight">
             {print.title}
+            <span className="font-normal font-sans text-xs text-paper-muted dark:text-carbon-muted ml-2">
+              In Production
+            </span>
           </h3>
 
-          {/* Explainer / Studio Note */}
-          <p className="mt-2 text-xs sm:text-sm text-paper-muted dark:text-carbon-muted font-serif leading-relaxed">
-            {print.productionNote
-              ? print.productionNote
-              : 'Currently moving through block carving and test proofs in the studio.'}
-          </p>
+          <span
+            className="font-handwriting text-base sm:text-lg text-paper-accent dark:text-carbon-accent tracking-wide"
+            title="Active on carving bench"
+          >
+            work in progress
+          </span>
         </div>
 
-        {/* Edition metadata snippet */}
-        <div className="mt-4 pt-3 border-t border-paper-border/60 dark:border-carbon-border/60 flex items-center justify-between text-xs text-paper-muted dark:text-carbon-muted font-mono">
-          <span className="text-[11px] text-paper-muted dark:text-carbon-muted">Work in Progress</span>
+        <p className="mt-1 text-[11px] text-paper-accent dark:text-carbon-accent font-mono uppercase tracking-wider font-semibold">
+          On the Carving Bench {voteCount > 0 ? `· ${voteCount} community votes` : ''}
+        </p>
+
+        <p className="mt-2 font-serif italic text-xs sm:text-sm text-paper-text/85 dark:text-carbon-text/85 leading-snug">
+          "{print.productionNote
+            ? print.productionNote
+            : 'Currently moving through block carving, test proofs, and mother-color mixing in the studio.'}"
+        </p>
+
+        <div className="mt-3">
+          <span className="font-mono text-[11px] text-paper-muted dark:text-carbon-muted">
+            Reduction block in progress &rarr;
+          </span>
         </div>
       </div>
     </article>

@@ -20,48 +20,77 @@ const { placard } = Astro.props;
 const hasProcessImages = placard.processImages && placard.processImages.length > 0;
 ---
 
-<aside class="w-full bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border p-6 sm:p-8 rounded-xl shadow-sm transition-colors relative overflow-hidden">
-  <!-- Top subtle decorative indicator stripe -->
-  <div class="absolute top-0 left-0 right-0 h-1 bg-paper-accent dark:bg-carbon-accent"></div>
-
+<aside class="w-full bg-paper-bg dark:bg-carbon-bg border border-paper-border dark:border-carbon-border p-6 sm:p-8 transition-colors">
   <!-- Header section: Title and Year -->
   <div class="border-b border-paper-border dark:border-carbon-border pb-4 mb-6">
-    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-paper-text dark:text-carbon-text mt-1">
-      {placard.title}
-    </h2>
-    <p class="text-sm text-paper-muted dark:text-carbon-muted mt-0.5">
-      Printed {placard.year}
+    <div class="flex items-baseline justify-between gap-4">
+      <h2 class="font-serif text-2xl sm:text-3xl font-bold text-paper-text dark:text-carbon-text tracking-tight">
+        {placard.title}
+      </h2>
+      <span class="font-sans text-xs text-paper-muted dark:text-carbon-muted">
+        {placard.year}
+      </span>
+    </div>
+    <p class="text-xs font-mono text-paper-muted dark:text-carbon-muted mt-1">
+      Relief edition · Brooklyn studio
     </p>
   </div>
 
-  <!-- Key Specification Metadata Grid -->
-  <dl class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 text-sm border-b border-paper-border dark:border-carbon-border pb-6 mb-6">
+  <!-- Print Specifications -->
+  <dl class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 text-xs font-mono border-b border-paper-border dark:border-carbon-border pb-6 mb-6">
     <!-- Medium & Technique -->
     <div>
-      <dt class="text-xs uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold">
+      <dt class="uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold text-[10px]">
         Medium & Technique
       </dt>
-      <dd class="text-paper-text dark:text-carbon-text font-medium mt-0.5">
+      <dd class="text-paper-text dark:text-carbon-text font-medium mt-1">
         {placard.technique}
       </dd>
     </div>
 
     <!-- Edition Size -->
     <div>
-      <dt class="text-xs uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold">
+      <dt class="uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold text-[10px]">
         Edition Size
       </dt>
-      <dd class="text-paper-text dark:text-carbon-text font-medium mt-0.5">
-        {placard.editionSize}
+      <dd class="text-paper-text dark:text-carbon-text font-medium mt-1 flex items-baseline gap-2">
+        <span>Limited to {placard.editionSize}</span>
+        <span class="font-handwriting text-base text-[#52504b] dark:text-[#a8a59f]">
+          signed in pencil
+        </span>
       </dd>
     </div>
+
+    <!-- Paper Stock -->
+    {placard.paperStock && (
+      <div>
+        <dt class="uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold text-[10px]">
+          Paper
+        </dt>
+        <dd class="text-paper-text dark:text-carbon-text font-medium mt-1">
+          {placard.paperStock}
+        </dd>
+      </div>
+    )}
+
+    <!-- Dimensions -->
+    {placard.blockDimensions && (
+      <div>
+        <dt class="uppercase tracking-wider text-paper-muted dark:text-carbon-muted font-semibold text-[10px]">
+          Dimensions
+        </dt>
+        <dd class="text-paper-text dark:text-carbon-text font-medium mt-1">
+          {placard.blockDimensions}
+        </dd>
+      </div>
+    )}
   </dl>
 
-  <!-- Process Notes & Artist Narrative Breakdown -->
+  <!-- Process Notes & Artist Narrative -->
   {placard.processNotes && placard.processNotes.trim().length > 0 && (
-    <div className="mb-6">
-      <h3 class="text-xs uppercase tracking-wider font-semibold text-paper-muted dark:text-carbon-muted mb-2">
-        Artist Process & Studio Notes
+    <div class="mb-6">
+      <h3 class="text-xs uppercase tracking-wider font-semibold font-mono text-paper-muted dark:text-carbon-muted mb-2">
+        Studio Notes
       </h3>
       <p class="text-sm sm:text-base text-paper-text dark:text-carbon-text leading-relaxed font-serif whitespace-pre-line">
         {placard.processNotes}
@@ -71,18 +100,18 @@ const hasProcessImages = placard.processImages && placard.processImages.length >
 
   <!-- Studio Process Note for View from a Distance -->
   {placard.title === 'View from a Distance' && (
-    <div class="my-6 p-4 rounded-lg bg-paper-accent/10 dark:bg-carbon-accent/10 border border-paper-accent/20 dark:border-carbon-accent/20 flex flex-col gap-1.5">
-      <span class="text-xs font-mono uppercase tracking-wider font-semibold text-paper-accent dark:text-carbon-accent">
+    <div class="my-6 p-4 bg-paper-border/20 dark:bg-carbon-border/30 border border-paper-border dark:border-carbon-border flex flex-col gap-1.5 font-mono text-xs">
+      <span class="uppercase tracking-wider font-semibold text-paper-accent dark:text-carbon-accent text-[10px]">
         Studio Process Note
       </span>
-      <p class="text-xs text-paper-muted dark:text-carbon-muted leading-relaxed">
+      <p class="text-paper-muted dark:text-carbon-muted leading-relaxed">
         Color separations developed through custom K-Means image quantization experiments.
       </p>
       <a 
         href="https://developer.brookjacob.studio/code/image-quantization" 
-        class="inline-flex items-center text-xs font-semibold text-paper-accent dark:text-carbon-accent hover:underline mt-1"
+        class="inline-flex items-center text-paper-accent dark:text-carbon-accent hover:underline mt-1"
       >
-        Read Process Study &rarr;
+        see process study &rarr;
       </a>
     </div>
   )}
