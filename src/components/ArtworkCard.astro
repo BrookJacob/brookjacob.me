@@ -66,12 +66,8 @@ const printUrl = getPrintUrl(artwork.slug);
   <!-- Content & Metadata Footer -->
   <div class="p-5 flex flex-col flex-grow justify-between">
     <div>
-      <!-- Technique Badge -->
-      <span class="text-xs font-medium uppercase tracking-wider text-paper-accent dark:text-carbon-accent">
-        {artwork.technique}
-      </span>
       <!-- Title -->
-      <h3 class="font-serif text-xl font-bold text-paper-text dark:text-carbon-text mt-1 group-hover:text-paper-accent dark:group-hover:text-carbon-accent transition-colors">
+      <h3 class="font-serif text-xl font-bold text-paper-text dark:text-carbon-text group-hover:text-paper-accent dark:group-hover:text-carbon-accent transition-colors">
         <a href={printUrl}>
           {artwork.title}
         </a>
@@ -85,7 +81,7 @@ const printUrl = getPrintUrl(artwork.slug);
         href={printUrl} 
         class="group-hover:translate-x-1 transition-all inline-flex items-center gap-1 font-semibold text-paper-text dark:text-carbon-text hover:text-paper-accent dark:hover:text-carbon-accent"
       >
-        Inspect &rarr;
+        View Print &rarr;
       </a>
     </div>
   </div>

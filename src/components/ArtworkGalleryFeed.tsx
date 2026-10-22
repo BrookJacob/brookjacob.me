@@ -188,12 +188,8 @@ export const ArtworkGalleryFeed: React.FC<ArtworkGalleryFeedProps> = ({
               {/* Content & Metadata Footer */}
               <div className="p-5 flex flex-col flex-grow justify-between">
                 <div>
-                  {/* Technique Badge */}
-                  <span className="text-xs font-medium uppercase tracking-wider text-paper-accent dark:text-carbon-accent">
-                    {artwork.technique || 'Reduction Linocut Print'}
-                  </span>
                   {/* Title */}
-                  <h3 className="font-serif text-xl font-bold text-paper-text dark:text-carbon-text mt-1 group-hover:text-paper-accent dark:group-hover:text-carbon-accent transition-colors">
+                  <h3 className="font-serif text-xl font-bold text-paper-text dark:text-carbon-text group-hover:text-paper-accent dark:group-hover:text-carbon-accent transition-colors">
                     <a href={printUrl} onClick={handleLinkClick}>
                       {artwork.title}
                     </a>
@@ -208,7 +204,7 @@ export const ArtworkGalleryFeed: React.FC<ArtworkGalleryFeedProps> = ({
                     onClick={handleLinkClick}
                     className="group-hover:translate-x-1 transition-all inline-flex items-center gap-1 font-semibold text-paper-text dark:text-carbon-text hover:text-paper-accent dark:hover:text-carbon-accent"
                   >
-                    Inspect &rarr;
+                    View Print &rarr;
                   </a>
                 </div>
               </div>
