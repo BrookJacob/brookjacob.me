@@ -65,9 +65,9 @@ export const QuickNavMenu: React.FC<QuickNavMenuProps> = ({
         <button
           type="button"
           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-paper-border dark:border-carbon-border bg-paper-bg dark:bg-carbon-bg text-paper-text dark:text-carbon-text hover:border-paper-accent dark:hover:border-carbon-accent transition-all focus-ring focus:outline-none cursor-pointer group"
-          aria-label="Quick Jump Menu"
+          aria-label="Selected Works Menu"
         >
-          <span>Quick Jump</span>
+          <span>Selected Works</span>
           <svg
             className="w-3.5 h-3.5 opacity-70 transition-transform group-data-[state=open]:rotate-180"
             fill="none"
