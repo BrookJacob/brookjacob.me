@@ -11,6 +11,7 @@
 import Navigation from '../components/Navigation.astro';
 import Footer from '../components/Footer.astro';
 import ContactFormModal from '../components/ContactFormModal';
+import ExhibitionsList from '../components/ExhibitionsList';
 import { DOMAINS } from '../lib/urls';
 import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
@@ -120,62 +121,46 @@ import '../styles/global.css';
         </aside>
 
         <!-- Right Column: Narrative Biography & Artist Statement -->
-        <article class="lg:col-span-8 flex flex-col gap-10 font-serif text-paper-text dark:text-carbon-text leading-relaxed">
+        <article class="lg:col-span-8 flex flex-col gap-8 font-serif text-paper-text dark:text-carbon-text leading-relaxed">
           
-          <!-- Section 1: The Studio & Reduction Method -->
-          <section class="space-y-4">
+          <!-- Section 1: The Practice & Reduction Method -->
+          <section class="space-y-3">
             <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
-              The Discipline of the Reduction Print
+              The Reduction Method
             </h2>
             <p class="text-base sm:text-lg text-paper-muted dark:text-carbon-muted leading-relaxed">
-              Jacob Brook is a printmaker and software craftsman based in his studio. His physical practice is centered on the reduction linocut method—a demanding and irreversible form of relief printmaking where a multi-colored image is pressed entirely from a single block of linoleum.
+              Jacob Brook is a relief printmaker and software craftsman. His studio practice centers on multi-layer reduction linocut—an exacting, irreversible process where an entire edition of colored prints is pulled from a single block of linoleum.
             </p>
             <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
-              In traditional multi-block relief printing, each color requires its own dedicated block. In a reduction print—often termed the “suicide method”—the artist carves away the areas intended to remain the color of the paper, inking and pressing the entire edition with the first tone. The block is then cleaned, and the areas intended to preserve that first color are carved away. The remaining surface is inked with the second tone and printed directly over the first pass.
-            </p>
-            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
-              This sequence of carving, inking, registration, and pressing repeats six, eight, or more than a dozen times. With every successive pass, more of the linoleum is permanently removed. By the final layer, only tiny slivers of the original surface survive to hold the darkest pigment.
+              With each color pass, the surface is carved away to protect the preceding tone before the next ink layer is hand-pulled onto archival paper. By the final impression, the block is physically exhausted. Because the matrix is destroyed in the act of making, an edition can never be reprinted.
             </p>
           </section>
 
-          <!-- Section 2: Why Irreversibility Matters -->
-          <section class="space-y-4 pt-8 border-t border-paper-border dark:border-carbon-border">
+          <!-- Section 2: Craft & Computation -->
+          <section class="space-y-3 pt-6 border-t border-paper-border dark:border-carbon-border">
             <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
-              A Counterbalance to the Reversible
+              Craft & Computation
             </h2>
             <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
-              By profession, Jacob designs and engineers software systems, web platforms, and computational tools. In modern software engineering, changes are free, errors can be undone with a keystroke, and code exists in a fluid, indefinitely malleable state.
+              Printmaking serves as a physical counterweight to the digital realm. In software, mistakes can be undone with a keystroke; in relief carving, a gouge through linoleum is permanent.
             </p>
             <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
-              Printmaking is the physical counterweight. A gouge pushed through battleship linoleum cannot be undone. Once ink meets cotton rag under pressure, the impression is permanent. If a single pass is misaligned, an entire run can be lost. This unforgiving tension demands a state of presence, intentionality, and patience that digital media rarely affords.
+              Jacob designs custom algorithms—from palette reduction scripts to directional luminance models—to test tonal separations before carving. Crucially, computation serves only to inform the eye. The physical cutting, inking, and press work remain entirely by hand.
             </p>
           </section>
 
-          <!-- Section 3: The Lab — Code in Service of Craft -->
-          <section class="space-y-4 pt-8 border-t border-paper-border dark:border-carbon-border">
+          <!-- Section 3: Archival Editions -->
+          <section class="space-y-3 pt-6 border-t border-paper-border dark:border-carbon-border">
             <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
-              The Studio & Lab: Tools in Service of the Hand
+              Archival Standards
             </h2>
             <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
-              Rather than keeping software and printmaking separate, Jacob’s studio practice unites the two. He develops custom computational scripts—including Python GIMP plugins, K-Means palette reduction algorithms, and directional luminance estimators—to model complex color transitions before carving.
-            </p>
-            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
-              Crucially, technology is never used as a replacement for human touch. The computation serves only to inform the eye; the physical act of drawing, transfer, gouging, ink-mixing with palette knives, and hand-pulling impressions onto archival paper remains entirely tactile and personal.
+              All prints are pulled on 100% cotton rag paper (Stonehenge and Rives BFK) using lightfast, oil-based relief inks. Each impression in an edition is individually inspected, titled, numbered, and signed by hand.
             </p>
           </section>
 
-          <!-- Section 4: Archival Philosophy & Editions -->
-          <section class="space-y-4 pt-8 border-t border-paper-border dark:border-carbon-border">
-            <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
-              Editions & Archival Standards
-            </h2>
-            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
-              Because the reduction block is systematically carved away until it is physically exhausted, a reduction edition can never be reprinted or reissued. When an edition is complete, the block is gone forever.
-            </p>
-            <p class="text-base text-paper-muted dark:text-carbon-muted leading-relaxed">
-              Every print is pressed on acid-free, 100% cotton printmaking paper (such as Legion Stonehenge or Arches BFK Rives) using lightfast, professional-grade relief printing inks. Each print is individually inspected, titled, numbered, and signed in pencil.
-            </p>
-          </section>
+          <!-- Section 4: Dynamic Shows & Exhibitions List -->
+          <ExhibitionsList client:load />
 
           <!-- Studio Inquiries Callout -->
           <section class="mt-4 p-8 rounded-2xl bg-paper-accent/5 dark:bg-carbon-accent/5 border border-paper-accent/20 dark:border-carbon-accent/20 flex flex-col sm:flex-row items-center justify-between gap-6">
@@ -184,7 +169,7 @@ import '../styles/global.css';
                 Studio Inquiries & Commissions
               </h3>
               <p class="text-sm text-paper-muted dark:text-carbon-muted mt-1 max-w-md">
-                For inquiries regarding original prints, custom relief editions, or studio collaborations, feel free to reach out.
+                For inquiries regarding original prints, custom relief editions, or exhibition requests, feel free to reach out.
               </p>
             </div>
 
